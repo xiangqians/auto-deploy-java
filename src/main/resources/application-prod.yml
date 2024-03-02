@@ -7,7 +7,7 @@ spring:
   # 数据源配置
   datasource:
     driver-class-name: org.sqlite.JDBC
-    url: jdbc:sqlite:./data/database.db
+    url: jdbc:sqlite:./database.db
     # 指定使用的数据源
     type: com.zaxxer.hikari.HikariDataSource
     hikari:

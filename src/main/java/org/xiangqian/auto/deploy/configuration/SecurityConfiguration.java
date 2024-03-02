@@ -1,5 +1,7 @@
 package org.xiangqian.auto.deploy.configuration;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,9 +14,12 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.xiangqian.auto.deploy.util.AttributeName;
+import org.xiangqian.auto.deploy.util.SecurityUtil;
 
 /**
  * @author xiangqian
@@ -68,6 +73,25 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .csrf(AbstractHttpConfigurer::disable);
         return http.build();
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new HandlerInterceptor() {
+            @Override
+            public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+                if ("/login".equals(request.getServletPath()) && SecurityUtil.isAuthenticated()) {
+                    // 重定向到首页
+                    response.sendRedirect("/");
+
+                    // 不继续执行后续的拦截器
+                    return false;
+                }
+
+                // 继续执行后续的拦截器
+                return true;
+            }
+        });
     }
 
     @Bean

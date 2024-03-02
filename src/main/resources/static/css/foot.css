@@ -1,0 +1,24 @@
+/**
+ * @author xiangqian
+ * @date 20:05 2023/07/10
+ */
+
+.foot {
+    padding-top: 15px;
+    display: block;
+    font-style: italic;
+}
+
+.foot li {
+    padding-bottom: 4px;
+}
+
+.foot a {
+    padding-left: 10px;
+}
+
+.foot a.disabled {
+    pointer-events: none;
+    cursor: default;
+    color: gray;
+}

@@ -3,16 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/x-icon" th:href="@{/static/favicon.ico}">
-    <title>Login</title>
+    <link rel="stylesheet" th:href="@{/static/css/body.css}" type="text/css" />
+    <link rel="stylesheet" th:href="@{/static/css/form.css}" type="text/css" />
+    <link rel="stylesheet" th:href="@{/static/css/foot.css}" type="text/css" />
+    <title>登录</title>
 </head>
 <body>
+<div th:if="${param.error}">
+    <error th:text="${loginError}"></error>
+</div>
 <form method="post" th:action="@{/login}">
-    <div th:if="${param.error}">
-        <span th:text="${loginError}"></span>
-    </div>
-    Username <input type="text" id="username" name="username" th:value="${session.userName}" required autofocus>
-    Password <input type="password" id="password" name="password" required>
-    <button type="submit">Sign in</button>
+    <table>
+        <tbody>
+        <tr>
+            <td><span style="font-weight: bold;">*</span><label>用户名</label></td>
+            <td><input id="username" name="username" type="text" th:value="${session.userName}" required autofocus></td>
+        </tr>
+        <tr>
+            <td><span style="font-weight: bold;">*</span><label>密码</label></td>
+            <td><input id="password" name="password" type="password" required></td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <input type="submit" value='登录'>
+            </td>
+        </tr>
+        </tbody>
+    </table>
 </form>
 </body>
+<div th:replace="foot"></div>
 </html>
