@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" th:href="@{/static/favicon.ico}">
+    <title>Login</title>
+</head>
+<body>
+<form method="post" th:action="@{/login}">
+    <div th:if="${param.error}">
+        <span th:text="${loginError}"></span>
+    </div>
+    Username <input type="text" id="username" name="username" th:value="${session.userName}" required autofocus>
+    Password <input type="password" id="password" name="password" required>
+    <button type="submit">Sign in</button>
+</form>
+</body>
+</html>

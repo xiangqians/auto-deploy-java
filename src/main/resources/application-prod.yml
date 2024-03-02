@@ -1,0 +1,22 @@
+server:
+  port: 9151
+  servlet:
+    context-path: /
+
+spring:
+  # 数据源配置
+  datasource:
+    driver-class-name: org.sqlite.JDBC
+    url: jdbc:sqlite:./data/database.db
+    # 指定使用的数据源
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      # 池中最大连接数（包括空闲和正在使用的连接）
+      maximum-pool-size: 5
+      # 池中最小空闲连接数量
+      minimum-idle: 1
+
+  # 模板配置
+  thymeleaf:
+    # 是否使用页面缓存
+    cache: true

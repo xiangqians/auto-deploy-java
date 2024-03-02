@@ -1,237 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>org.auto.deploy</groupId>
+    <groupId>org.xiangqian</groupId>
     <artifactId>auto-deploy</artifactId>
-    <version>2022.7</version>
-
-    <name>${project.artifactId}</name>
-    <description>Automatic Deployment</description>
-    <url>https://github.com/xiangqians/auto-deploy</url>
+    <version>2024.02</version>
+    <name>${artifactId}</name>
+    <description>自动部署</description>
+    <url>https://github.com/xiangqians/auto-deploy-java</url>
 
     <properties>
-        <maven.compiler.source>12</maven.compiler.source>
-        <maven.compiler.target>12</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
 
-        <!-- skipTests -->
+        <!-- 跳过单元测试 -->
         <skipTests>true</skipTests>
 
-        <!-- lombok -->
-        <lombok.version>1.18.18</lombok.version>
+        <!-- spring-boot-dependencies -->
+        <!-- https://spring.io/projects/spring-boot#learn -->
+        <!-- 3.1.1 GA -->
+        <spring-boot-dependencies.version>3.1.1</spring-boot-dependencies.version>
 
-        <!-- junit -->
-        <junit.version>4.11</junit.version>
-
-        <!-- commons -->
-        <commons-lang3.version>3.12.0</commons-lang3.version>
-        <commons-collections4.version>4.4</commons-collections4.version>
-        <commons-io.version>2.11.0</commons-io.version>
-        <commons-text.version>1.9</commons-text.version>
-        <commons-compress.version>1.21</commons-compress.version>
-
-        <!-- jsch -->
-        <jsch.version>0.1.55</jsch.version>
-        <!-- 使用Mina替代JSch? -->
+        <!-- mybatis-plus -->
+        <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
 
         <!-- jgit -->
-        <jgit.version>6.2.0.202206071550-r</jgit.version>
-
-        <!-- nashorn-core -->
-        <nashorn-core.version>15.4</nashorn-core.version>
-
-        <!-- jackson -->
-        <jackson.version>2.13.3</jackson.version>
-
-        <!-- snakeyaml -->
-        <snakeyaml.version>1.31</snakeyaml.version>
-
-        <!-- spring-boot-dependencies -->
-        <spring-boot-dependencies.version>2.5.14</spring-boot-dependencies.version>
-
-        <!-- maven-resources-plugin -->
-        <maven-resources-plugin.version>3.2.0</maven-resources-plugin.version>
-
-        <!-- maven-compiler-plugin -->
-        <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
-
-        <!-- maven-assembly-plugin -->
-        <maven-assembly-plugin.version>3.4.2</maven-assembly-plugin.version>
-
+        <jgit.version>6.8.0.202311291450-r</jgit.version>
     </properties>
 
     <dependencies>
-
-        <!-- spring-boot-starter-websocket -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-websocket</artifactId>
-        </dependency>
-
-        <!-- spring-boot-starter-thymeleaf -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-thymeleaf</artifactId>
-        </dependency>
-
-        <!-- spring-boot-starter-security -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-
-        <!-- caffeine -->
-        <dependency>
-            <groupId>com.github.ben-manes.caffeine</groupId>
-            <artifactId>caffeine</artifactId>
-        </dependency>
-
-        <!-- spring-boot-starter-cache -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-cache</artifactId>
-        </dependency>
-
-        <!-- spring-boot-starter-web -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-tomcat</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <!-- spring-boot-starter-jetty -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jetty</artifactId>
-        </dependency>
-
-        <!-- spring-boot-configuration-processor -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-configuration-processor</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-        <!-- spring-boot-starter-aop -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-aop</artifactId>
-        </dependency>
-
-        <!-- jackson -->
-        <!-- jackson-core -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <!-- jackson-databind -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <!-- jackson-annotations -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <!-- jackson-datatype-jsr310 -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.yaml/snakeyaml -->
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>${snakeyaml.version}</version>
-        </dependency>
-
-        <!-- nashorn-core，JavaScript引擎 -->
-        <dependency>
-            <groupId>org.openjdk.nashorn</groupId>
-            <artifactId>nashorn-core</artifactId>
-            <version>${nashorn-core.version}</version>
-        </dependency>
-
-        <!-- jgit -->
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
             <version>${jgit.version}</version>
         </dependency>
 
-        <!-- jsch -->
         <dependency>
-            <groupId>com.jcraft</groupId>
-            <artifactId>jsch</artifactId>
-            <version>${jsch.version}</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
-        <!-- commons -->
+        <!-- 模板引擎 -->
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>${commons-lang3.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-collections4</artifactId>
-            <version>${commons-collections4.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${commons-io.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
-            <version>${commons-text.version}</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-compress -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-compress</artifactId>
-            <version>${commons-compress.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
 
-        <!-- junit -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>${mybatis-plus.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
 
-        <!-- lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
-
     </dependencies>
 
     <dependencyManagement>
         <dependencies>
-
             <!-- https://spring.io/projects/spring-boot#learn -->
             <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies -->
             <dependency>
@@ -241,97 +87,19 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
 
     <build>
-        <finalName>${project.name}-${project.version}</finalName>
-
+        <finalName>${name}-${spring.profiles.active}-${project.version}</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
-                <includes>
-                    <include>*.yml</include>
-                    <include>*.xml</include>
-                    <include>templates/**</include>
-                </includes>
             </resource>
-
-            <!-- 静态资源不需要过滤，否则会导致某些文件（例如：icomoon.woff、icomoon.ttf等等）访问异常 -->
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>false</filtering>
-                <includes>
-                    <include>config/**</include>
-                    <include>i18n/**</include>
-                    <include>static/**</include>
-                </includes>
-            </resource>
-
         </resources>
-
         <plugins>
-            <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-compiler-plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin.version}</version>
-                <configuration>
-                    <target>${maven.compiler.target}</target>
-                    <source>${maven.compiler.source}</source>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-            </plugin>
-
-            <!-- https://maven.apache.org/plugins/maven-resources-plugin/ -->
-            <!-- https://maven.apache.org/plugins/maven-resources-plugin/examples/ -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>${maven-resources-plugin.version}</version>
-                <executions>
-                    <!-- copy script -->
-                    <execution>
-                        <id>copy-script</id>
-
-                        <!-- 在validate阶段执行 -->
-                        <phase>validate</phase>
-
-                        <!--
-                        最经常使用的两个goal:
-                        1、resources：这是process-resources阶段的默认goal, 在不配置任何参数的状况下，将默认使用build.resources中的目录做为源路径，将build.outputDirectory做为目标路径（其实是这目录下的classes）
-                        2、copy-resources：须要明确的指定源路径和目标路径.
-                        -->
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-
-                        <configuration>
-                            <!-- 输出到指定路径 -->
-                            <outputDirectory>${project.basedir}/target/conf</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <!-- 资源路径 -->
-                                    <directory>${project.basedir}/conf</directory>
-
-                                    <!-- 开启资源文件插值操做 -->
-                                    <filtering>true</filtering>
-
-                                    <includes>
-                                        <include>*.sh</include>
-                                        <include>*.bat</include>
-                                    </includes>
-                                </resource>
-                            </resources>
-                            <!-- 若是配置为true,则本操做不被执行 -->
-                            <skip>false</skip>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
+            <!-- spring-boot打包插件 -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -344,45 +112,37 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-assembly-plugin -->
-            <!-- maven打包项目，包含第三方库依赖 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>${maven-assembly-plugin.version}</version>
-                <configuration>
-                    <finalName>${build.finalName}</finalName>
-                    <encoding>utf-8</encoding>
-
-                    <!--
-                     | 注意：如果没有配置appendAssemblyId为false，那么打包出来的jar包会带有jar-with-dependencies，引入该库依赖的时候需要使用classifier，
-                     |例如：<classifier>jar-with-dependencies</classifier>
-                     |-->
-                    <appendAssemblyId>false</appendAssemblyId>
-                    <!--
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                    -->
-
-                    <descriptors>
-                        <descriptor>${project.basedir}/conf/assembly.xml</descriptor>
-                    </descriptors>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>assembly</id>
-                        <!-- none,package -->
-                        <phase>package</phase>
-                        <goals>
-                            <!-- single -->
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 
+    <!-- 环境标识 -->
+    <profiles>
+        <!-- 开发环境 -->
+        <profile>
+            <id>dev</id>
+            <properties>
+                <spring.profiles.active>dev</spring.profiles.active>
+            </properties>
+            <activation>
+                <!-- 默认环境 -->
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+
+        <!-- 测试环境 -->
+        <profile>
+            <id>test</id>
+            <properties>
+                <spring.profiles.active>test</spring.profiles.active>
+            </properties>
+        </profile>
+
+        <!-- 正式环境 -->
+        <profile>
+            <id>prod</id>
+            <properties>
+                <spring.profiles.active>prod</spring.profiles.active>
+            </properties>
+        </profile>
+    </profiles>
 </project>

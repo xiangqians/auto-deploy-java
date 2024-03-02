@@ -1,74 +1,100 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+debug      : 当此属性设置为true时，将打印出logback内部日志信息，实时查看logback运行状态。默认值为false。
+scan       : 当此属性设置为true时，配置文件如果发生改变，将会被重新加载，默认值为true
+scanPeriod : 设置监测配置文件是否有修改的时间间隔，如果没有给出时间单位，默认单位是毫秒。当scan为true时，此属性生效。默认的时间间隔为1分钟。
+-->
 <configuration debug="false" scan="false">
 
-    <property name="LOG_PATH" value="logs"/>
-    <property name="LOG_PATTERN" value="%date [%thread] %-5level [%logger{50}] %file:%line - %msg%n"/>
+    <!-- property用来定义变量值的标签，有两个属性：name和value。
+     | 其中name的值是变量的名称，value的值时变量定义的值。
+     | 通过定义的值会被插入到logger上下文中。
+     | 定义变量后，可以使“${}”来使用变量。
+     |-->
 
-    <property name="MAX_FILE_SIZE" value="50MB"/>
-    <property name="MAX_HISTORY" value="30"/>
+    <!-- 日志文件路径 -->
+    <property name="LOG_PATH" value="./log"/>
 
-    <!-- 彩色日志格式 -->
+    <!-- 日志格式
+     | %d{yyyy-MM-dd HH:mm:ss.SSS} : 记录时间格式
+     | %p                          : 日志级别
+     | %t                          : 线程名
+     | %logger                     : 全类名
+     | %M                          : 方法名
+     | %L                          : 行数
+     | %m                          : 消息
+     | %n                          : 换行符
+     |-->
+    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %p [%t] %logger#%M:%L : %m%n"/>
+
+    <!-- 控制台彩色日志格式 -->
     <property name="CONSOLE_LOG_PATTERN"
-              value="${CONSOLE_LOG_PATTERN:-%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
-
+              value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%p) %clr([%t]){faint} %clr(%logger#%M:%L){cyan} %clr(:){faint} %m%n"/>
     <!-- 彩色日志依赖的渲染类 -->
-    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+    <conversionRule conversionWord="clr"
+                    converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
     <conversionRule conversionWord="wex"
                     converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>
     <conversionRule conversionWord="wEx"
                     converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
 
-    <!-- log -->
-    <appender name="LOG" class="org.auto.deploy.logback.LogAppender">
-        <encoder>
-            <pattern>${LOG_PATTERN}</pattern>
-        </encoder>
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>DEBUG</level>
-        </filter>
-    </appender>
+    <!-- 单个日志文件最大100MB，超过则创建一个新的日志文件，日志文件的名字最后+1 -->
+    <property name="MAX_FILE_SIZE" value="100MB"/>
+    <!-- 日志文件保留天数 -->
+    <property name="MAX_HISTORY" value="30"/>
+    <!-- 所有的日志文件最大10GB，超过则会删除旧的日志 -->
+    <property name="TOTAL_SIZE_CAP" value="10GB"/>
 
-    <!-- Console log output -->
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <!-- 控制台日志追加器 -->
+    <appender name="CONSOLE_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <!-- 设置字符集 -->
+            <charset>UTF-8</charset>
         </encoder>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>DEBUG</level>
         </filter>
     </appender>
 
-    <!-- Log file debug output -->
-    <appender name="DEBUG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!-- debug级别日志文件追加器 -->
+    <appender name="DEBUG_FILE_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/debug.log</file>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${LOG_PATH}/%d{yyyy-MM, aux}/debug.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
             <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
             <maxHistory>${MAX_HISTORY}</maxHistory>
+            <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
         </rollingPolicy>
-        <encoder>
-            <pattern>${LOG_PATTERN}</pattern>
-        </encoder>
+        <!-- 只记录debug级别日志 -->
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <!-- debug级别日志 -->
             <level>DEBUG</level>
+            <!-- 表示匹配该级别及以上 -->
             <onMatch>ACCEPT</onMatch>
-            <!--
+            <!-- 表示不匹配该级别及以上 -->
             <onMismatch>DENY</onMismatch>
-            -->
         </filter>
     </appender>
 
-    <!-- Log file info output -->
-    <appender name="INFO_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!-- info级别日志文件追加器 -->
+    <appender name="INFO_FILE_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/info.log</file>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${LOG_PATH}/%d{yyyy-MM, aux}/info.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
             <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
             <maxHistory>${MAX_HISTORY}</maxHistory>
+            <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
         </rollingPolicy>
-        <encoder>
-            <pattern>${LOG_PATTERN}</pattern>
-        </encoder>
+        <!-- 只记录info级别日志 -->
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>INFO</level>
             <onMatch>ACCEPT</onMatch>
@@ -76,18 +102,20 @@
         </filter>
     </appender>
 
-
-    <!-- Log file warn output -->
-    <appender name="WARN_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!-- warn级别日志文件追加器 -->
+    <appender name="WARN_FILE_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/warn.log</file>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${LOG_PATH}/%d{yyyy-MM, aux}/warn.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
             <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
             <maxHistory>${MAX_HISTORY}</maxHistory>
+            <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
         </rollingPolicy>
-        <encoder>
-            <pattern>${LOG_PATTERN}</pattern>
-        </encoder>
+        <!-- 只记录warn级别日志 -->
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>WARN</level>
             <onMatch>ACCEPT</onMatch>
@@ -95,54 +123,34 @@
         </filter>
     </appender>
 
-    <!-- Log file error output -->
-    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!-- error级别日志文件追加器 -->
+    <appender name="ERROR_FILE_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/error.log</file>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${LOG_PATH}/%d{yyyy-MM}/error.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
             <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
             <maxHistory>${MAX_HISTORY}</maxHistory>
+            <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
         </rollingPolicy>
-        <encoder>
-            <pattern>${LOG_PATTERN}</pattern>
-        </encoder>
-
+        <!-- 记录error级别及以上的日志 -->
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>ERROR</level>
         </filter>
     </appender>
 
-    <!-- 指定包指定输出日志级别 -->
-    <logger name="org.hibernate" level="WARN">
-        <appender-ref ref="WARN_FILE"/>
-        <appender-ref ref="ERROR_FILE"/>
-    </logger>
-    <logger name="com.baomidou" level="WARN">
-        <appender-ref ref="WARN_FILE"/>
-        <appender-ref ref="ERROR_FILE"/>
-    </logger>
-    <logger name="net.sf" level="WARN">
-        <appender-ref ref="WARN_FILE"/>
-        <appender-ref ref="ERROR_FILE"/>
-    </logger>
-    <logger name="org.eclipse.jetty" level="INFO">
-        <appender-ref ref="INFO_FILE"/>
-        <appender-ref ref="WARN_FILE"/>
-        <appender-ref ref="ERROR_FILE"/>
-    </logger>
-    <logger name="org.springframework" level="INFO">
-        <appender-ref ref="INFO_FILE"/>
-        <appender-ref ref="WARN_FILE"/>
-        <appender-ref ref="ERROR_FILE"/>
-    </logger>
-
+    <!-- 根Logger配置 -->
+    <!-- 如果设置根Logger的日志级别为INFO，意味着只有INFO级别及以上的日志事件才会被根Logger处理和输出，更低级别的日志事件，如DEBUG或TRACE将被忽略 -->
+    <!-- 日志级别: TRACE < DEBUG < INFO < WARN < ERROR < FATAL -->
     <root level="DEBUG">
-        <appender-ref ref="LOG"/>
-        <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="DEBUG_FILE"/>
-        <appender-ref ref="INFO_FILE"/>
-        <appender-ref ref="WARN_FILE"/>
-        <appender-ref ref="ERROR_FILE"/>
+        <appender-ref ref="CONSOLE_APPENDER"/>
+        <appender-ref ref="DEBUG_FILE_APPENDER"/>
+        <appender-ref ref="INFO_FILE_APPENDER"/>
+        <appender-ref ref="WARN_FILE_APPENDER"/>
+        <appender-ref ref="ERROR_FILE_APPENDER"/>
     </root>
 
 </configuration>
