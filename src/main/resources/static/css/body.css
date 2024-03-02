@@ -3,7 +3,7 @@
  * @date 20:02 2023/07/10
  */
 
-.body {
+body {
     min-height: 100%;
     padding: 5px 10px 10px 10px;
     font-family: "Mona Sans", "Mona Sans Fallback", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
@@ -11,39 +11,44 @@
     display: block;
 }
 
-.body a {
+body error {
+    padding-bottom: 10px;
+    display: block;
+    color: red;
+}
+
+body a {
     padding: 0;
     margin: 0;
     /* 去掉<a>标签文本下划线 */
     text-decoration: none;
 }
 
-.body button {
+body button {
     /* 鼠标经过或点击显示小手样式 */
     cursor: pointer
 }
 
-.body form input[type="submit"] {
-    /* 鼠标经过或点击显示小手样式 */
-    cursor: pointer
-}
-
-.body form table {
+body > form table {
     border-collapse: collapse;
 }
 
-.body form table tbody tr td {
+body > form table tbody tr td {
     padding-right: 20px;
 }
 
-.body .table {
+body > form input[type="submit"] {
+    /* 鼠标经过或点击显示小手样式 */
+    cursor: pointer
+}
+
+body > table {
     /* 设置为行内元素 */
     display: inline-table;
-
     border-collapse: collapse;
 }
 
-.body .table thead td {
+body > table thead td {
     height: 50px;
     font-weight: bold;
     padding-right: 40px;
@@ -51,22 +56,42 @@
 }
 
 /* 偶数行背景色 */
-.body .table tbody tr:nth-child(even) {
+body > table tbody tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
-.body .table tbody tr td {
-    height: 45px;
+body > table tbody tr td {
+    height: 40px;
     border-bottom: 1px solid #CCCCCC;
 }
 
+body > table tbody tr td:last-child {
+    background-color: white;
+    border-bottom: none;
+}
+
 /* 鼠标经过显示背景颜色 */
-.body .table tbody tr:hover {
+body > table tbody tr:hover {
     background-color: #CCCCCC;
 }
 
-.body error {
+body > table tfoot tr td {
+    padding-top: 10px;
     padding-bottom: 10px;
+    padding-right: 10px;
+}
+
+body > foot {
+    padding-top: 15px;
     display: block;
-    color: red;
+}
+
+body > foot li {
+    padding-bottom: 4px;
+}
+
+body > foot a.disabled {
+    pointer-events: none;
+    cursor: default;
+    color: gray;
 }

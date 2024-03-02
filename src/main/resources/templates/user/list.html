@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <link rel="icon" type="image/x-icon" th:href="@{/static/favicon.ico}">
     <link rel="stylesheet" th:href="@{/static/css/body.css}" type="text/css" />
-    <link rel="stylesheet" th:href="@{/static/css/foot.css}" type="text/css" />
     <title>用户</title>
 </head>
-<body class="body">
+<body>
 <table class="table">
     <thead>
     <tr>
@@ -20,16 +19,119 @@
     </tr>
     </thead>
     <tbody>
-    <tr th:each="user : ${users}">
+    <tr th:each="user : ${users}" th:id="${user.id}" th:name="${user.getName()}" th:nickname="${user.nickname}">
         <td th:text="${user.getName()}"></td>
         <td th:text="${user.nickname}"></td>
         <td th:text="${user.locked} == 0? '否' : '是'"></td>
         <td th:text="${user.currentLoginIp}"></td>
         <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(user.currentLoginTime)}"></td>
         <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(user.addTime)}"></td>
+        <td style="display: none;">
+            <button name="resetPasswd">重置密码</button>
+            <button th:name="${user.locked} == 0? 'lock' : 'unlock'" th:text="${user.locked} == 0? '锁定' : '解锁'"></button>
+            <button name="del">删除</button>
+        </td>
     </tr>
     </tbody>
+    <tfoot>
+    <tr>
+        <td colspan="6">
+            <a id="add" href="">新增</a>
+        </td>
+    </tr>
+    </tfoot>
 </table>
 </body>
 <div th:replace="foot"></div>
 </html>
+<script type="text/javascript" th:src="@{/static/js/jquery.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/body.js}"></script>
+<script type="text/javascript">
+    ;
+    $(function () {
+        function User(id, name, nickname) {
+            this.id = id
+            this.name = name
+            this.nickname = nickname
+        }
+
+        User.prototype.toString = function () {
+            if (this.nickname === '') {
+                return this.name
+            }
+            return `${this.name} ( ${this.nickname} )`
+        }
+
+        function getUser($element) {
+            // 查找元素最近的父级<tr>元素
+            let $tr = $element.closest('tr')
+
+            let id = $tr.attr('id')
+            let name = $tr.attr('name')
+            let nickname = $tr.attr('nickname')
+            return new User(id, name, nickname)
+        }
+
+        // 重置密码
+        $('button[name=resetPasswd]').click(function (event) {
+            // 获取目标<button>元素
+            let $button = $(event.currentTarget)
+
+            let user = getUser($button)
+            let passwd = prompt(`重置用户 ${user.toString()} 密码`, "")
+
+            // cancel
+            if (passwd == null) {
+                return
+            }
+
+            passwd = passwd.trim()
+            if (passwd === '') {
+                return
+            }
+
+            // ok
+            console.log(passwd)
+        })
+
+        // 锁定
+        $('button[name=lock]').click(function (event) {
+            // 获取目标<button>元素
+            let $button = $(event.currentTarget)
+
+            let user = getUser($button)
+            if (confirm(`确定锁定用户：${user.toString()} ？`)) {
+                console.log("You clicked OK!")
+            } else {
+                console.log("You clicked Cancel!")
+            }
+        })
+
+        // 解锁
+        $('button[name=unlock]').click(function (event) {
+            // 获取目标<button>元素
+            let $button = $(event.currentTarget)
+
+            let user = getUser($button)
+            if (confirm(`确定解锁用户：${user.toString()} ？`)) {
+                console.log("You clicked OK!")
+            } else {
+                console.log("You clicked Cancel!")
+            }
+        })
+
+        // 删除
+        $('button[name=del]').click(function (event) {
+            // 获取目标<button>元素
+            let $button = $(event.currentTarget)
+
+            let user = getUser($button)
+            if (confirm(`确定删除用户：${user.toString()} ？`)) {
+                console.log("You clicked OK!")
+            } else {
+                console.log("You clicked Cancel!")
+            }
+        })
+    })
+    ;
+</script>
