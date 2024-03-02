@@ -65,7 +65,7 @@ public class UserEntity implements UserDetails {
     // 是否未被限时锁定
     public boolean isNonLimitedTimeLocked() {
         return tryCount < 3 || // 连续输错密码小于3次
-                Duration.between(LocalDateTime.now(), DateUtil.ofSecond(updTime)).toHoursPart() >= 12; // 锁定12小时
+                Duration.between(DateUtil.ofSecond(updTime), LocalDateTime.now()).toHoursPart() >= 12; // 锁定12小时
     }
 
     /**
