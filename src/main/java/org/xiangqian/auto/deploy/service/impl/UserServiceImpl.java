@@ -36,17 +36,20 @@ public class UserServiceImpl implements UserService {
 
         threadLocal.set(entity);
 
-        if (entity.getTryCount() >= 3) {
-            // 12小时后解锁
-            if (entity.getLocked() == 0 && DateUtil.toSecond(LocalDateTime.now()) - entity.getUpdTime() > 12 * 60 * 60) {
-                UserEntity updEntity = new UserEntity();
-                updEntity.setId(entity.getId());
-                updEntity.setTryCount(0);
-                updEntity.setUpdTime(DateUtil.toSecond(LocalDateTime.now()));
-                mapper.updateById(updEntity);
+        // 未被锁定
+        if (entity.getLocked() == 0) {
+            // 未被限时锁定
+            if (entity.isNonLimitedTimeLocked()) {
+                if (entity.getTryCount() >= 3) {
+                    UserEntity updEntity = new UserEntity();
+                    updEntity.setId(entity.getId());
+                    updEntity.setTryCount(0);
+                    updEntity.setUpdTime(DateUtil.toSecond(LocalDateTime.now()));
+                    mapper.updateById(updEntity);
 
-                entity.setTryCount(updEntity.getTryCount());
-                entity.setUpdTime(updEntity.getUpdTime());
+                    entity.setTryCount(updEntity.getTryCount());
+                    entity.setUpdTime(updEntity.getUpdTime());
+                }
             } else {
                 entity.setLocked(1);
             }

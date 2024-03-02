@@ -7,7 +7,10 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.xiangqian.auto.deploy.util.DateUtil;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -58,6 +61,12 @@ public class UserEntity implements UserDetails {
 
     // 修改时间（时间戳，单位s）
     private Long updTime;
+
+    // 是否未被限时锁定
+    public boolean isNonLimitedTimeLocked() {
+        return tryCount < 3 || // 连续输错密码小于3次
+                Duration.between(LocalDateTime.now(), DateUtil.ofSecond(updTime)).toHoursPart() >= 12; // 锁定12小时
+    }
 
     /**
      * 获取用户名

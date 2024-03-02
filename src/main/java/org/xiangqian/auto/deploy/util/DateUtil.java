@@ -86,6 +86,9 @@ public class DateUtil {
     }
 
     public static String formatSecond(long second) {
+        if (second <= 0) {
+            return "";
+        }
         return format(ofSecond(second));
     }
 

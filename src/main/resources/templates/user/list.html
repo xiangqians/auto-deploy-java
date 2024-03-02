@@ -13,7 +13,7 @@
         <td>用户名</td>
         <td>昵称</td>
         <td>是否已锁定</td>
-        <td>最近一次登录ip</td>
+        <td>最近一次登录IP</td>
         <td>最近一次登录时间</td>
         <td>创建时间</td>
     </tr>
@@ -22,13 +22,15 @@
     <tr th:each="user : ${users}" th:id="${user.id}" th:name="${user.getName()}" th:nickname="${user.nickname}">
         <td th:text="${user.getName()}"></td>
         <td th:text="${user.nickname}"></td>
-        <td th:text="${user.locked} == 0? '否' : '是'"></td>
+        <td th:text="${user.locked} == 0 ? (${user.isNonLimitedTimeLocked()} ? '否' : '是（限时）') : '是'"
+            th:style="${user.locked} == 0 ? (${user.isNonLimitedTimeLocked()} ? '' : 'color:red;') : 'color:red;'"></td>
         <td th:text="${user.currentLoginIp}"></td>
         <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(user.currentLoginTime)}"></td>
         <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(user.addTime)}"></td>
         <td style="display: none;">
             <button name="resetPasswd">重置密码</button>
-            <button th:name="${user.locked} == 0? 'lock' : 'unlock'" th:text="${user.locked} == 0? '锁定' : '解锁'"></button>
+            <button th:name="${user.locked} == 0 ? (${user.isNonLimitedTimeLocked()} ? 'lock' : 'unlock') : 'unlock'"
+                    th:text="${user.locked} == 0 ? (${user.isNonLimitedTimeLocked()} ? '锁定' : '解锁') : '解锁'"></button>
             <button name="del">删除</button>
         </td>
     </tr>
