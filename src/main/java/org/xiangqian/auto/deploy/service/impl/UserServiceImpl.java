@@ -12,6 +12,7 @@ import org.xiangqian.auto.deploy.service.UserService;
 import org.xiangqian.auto.deploy.util.DateUtil;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @author xiangqian
@@ -52,6 +53,11 @@ public class UserServiceImpl implements UserService {
         }
 
         return entity;
+    }
+
+    @Override
+    public List<UserEntity> list() {
+        return mapper.selectList(new LambdaQueryWrapper<UserEntity>());
     }
 
     @Override

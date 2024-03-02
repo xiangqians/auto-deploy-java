@@ -8,9 +8,28 @@
     <title>用户</title>
 </head>
 <body class="body">
-用户列表
-servletPath<span th:text="${servletPath}"></span>
-
+<table class="table">
+    <thead>
+    <tr>
+        <td>用户名</td>
+        <td>昵称</td>
+        <td>是否已锁定</td>
+        <td>最近一次登录ip</td>
+        <td>最近一次登录时间</td>
+        <td>创建时间</td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="user : ${users}">
+        <td th:text="${user.getName()}"></td>
+        <td th:text="${user.nickname}"></td>
+        <td th:text="${user.locked} == 0? '否' : '是'"></td>
+        <td th:text="${user.currentLoginIp}"></td>
+        <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(user.currentLoginTime)}"></td>
+        <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(user.addTime)}"></td>
+    </tr>
+    </tbody>
+</table>
 </body>
 <div th:replace="foot"></div>
 </html>

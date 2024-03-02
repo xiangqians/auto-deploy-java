@@ -12,6 +12,7 @@ public interface AttributeName {
     String USER_NAME = "userName";
     String IS_LOGGEDIN = "isLoggedin";
     String USER = "user";
+    String USERS = "users";
     String SERVLET_PATH = "servletPath";
     String TIMESTAMP = "timestamp";
 

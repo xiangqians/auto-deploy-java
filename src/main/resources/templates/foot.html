@@ -17,15 +17,15 @@
     <p th:if="${isLoggedin}">
         <a th:href="@{'#?t=' + ${timestamp}}" th:class="'/' == ${servletPath}? 'disabled' : ''" style="padding-left: 0px;">
             <span style="padding-left: 0px;" th:text="${user.getName()}"></span>
-            <span style="padding-left: 0px;" th:if="${T(org.apache.commons.lang3.StringUtils).isNotEmpty(user.getNickname())}"> ( [[${user.getNickname()}]] )</span>
+            <span style="padding-left: 0px;" th:if="${T(org.apache.commons.lang3.StringUtils).isNotEmpty(user.nickname)}"> ( [[${user.nickname}]] )</span>
         </a>
         <span></span>
         <a th:href="@{'/logout?t=' + ${timestamp}}">退出登录</a>
     </p>
     <p th:if="${isLoggedin}">
         <span style="padding-left: 0px;">最近一次登录</span>
-        <span th:text="${user.getLastLoginIp()}"></span>
-        <span th:if="${user.getLastLoginTime() > 0}">[[${T(org.xiangqian.auto.deploy.util.DateUtil).formatSecond(user.getLastLoginTime())}]]</span>
+        <span th:text="${user.lastLoginTime}"></span>
+        <span th:if="${user.lastLoginTime > 0}">[[${T(org.xiangqian.auto.deploy.util.DateUtil).formatSecond(user.lastLoginTime)}]]</span>
     </p>
     <p>© 2024 xiangqian<a href="https://github.com/xiangqians/auto-deploy" target="_blank">关于</a></p>
 </div>

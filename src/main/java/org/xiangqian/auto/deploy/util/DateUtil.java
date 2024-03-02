@@ -1,9 +1,6 @@
 package org.xiangqian.auto.deploy.util;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
@@ -93,13 +90,41 @@ public class DateUtil {
     }
 
     /**
-     * 人性化
+     * 人性化日期时间戳（s）
      *
      * @param second
      * @return
      */
     public static String humanSecond(long second) {
-        return format(ofSecond(second));
+        if (second <= 0) {
+            return "-";
+        }
+
+        LocalDateTime dateTime = ofSecond(second);
+        Duration duration = Duration.between(dateTime, LocalDateTime.now());
+
+        // toXxxPart()返回Xxx数（不足一Xxx的则被忽略）
+
+        // 天
+        if (duration.toDaysPart() > 0) {
+            return format(dateTime);
+        }
+
+        // 小时
+        long hour = duration.toHoursPart();
+        if (hour > 0) {
+            return hour + "小时前";
+        }
+
+        // 分钟
+        int minute = duration.toMinutesPart();
+        if (minute > 0) {
+            return minute + "分钟前";
+        }
+
+        // 秒
+        second = duration.toSecondsPart();
+        return second + "秒前";
     }
 
 }

@@ -8,11 +8,11 @@ CREATE TABLE `user` -- 用户信息表
     `name`               VARCHAR(64)  NOT NULL,             -- 用户名
     `nickname`           VARCHAR(64)  NOT NULL,             -- 昵称
     `passwd`             VARCHAR(128) NOT NULL,             -- 密码
-    `locked`             TINYINT     DEFAULT 0,             -- 是否已锁定，0-未锁定，1-已锁定
+    `locked`             TINYINT     DEFAULT 0,             -- 是否已锁定，0-否，1-是
     `try_count`          TINYINT     DEFAULT 0,             -- 尝试输入密码次数，超过3次账号将会被锁定
     `last_login_ip`      VARCHAR(64) DEFAULT '',            -- 上一次登录ip
     `last_login_time`    INTEGER     DEFAULT 0,             -- 上一次登录时间（时间戳，单位s）
-    `current_login_ip`   VARCHAR(64) DEFAULT '',            -- 当前次登录ip
+    `current_login_ip`   VARCHAR(64) DEFAULT '',            -- 当前登录ip
     `current_login_time` INTEGER     DEFAULT 0,             -- 当前登录时间（时间戳，单位s）
     `add_time`           INTEGER     DEFAULT 0,             -- 创建时间（时间戳，s）
     `upd_time`           INTEGER     DEFAULT 0              -- 修改时间（时间戳，单位s）

@@ -111,7 +111,7 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                         updEntity.setUpdTime(DateUtil.toSecond(LocalDateTime.now()));
                         service.updById(updEntity);
                         if (updEntity.getTryCount() == 2) {
-                            loginError = "您已连续两次输错密码，如连续输错三次，用户将被锁定";
+                            loginError = "已连续两次输错密码，如连续输错三次，用户将被锁定";
                         }
                     }
                 } else if (exception instanceof LockedException) {

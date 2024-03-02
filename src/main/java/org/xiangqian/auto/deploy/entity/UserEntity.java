@@ -35,7 +35,7 @@ public class UserEntity implements UserDetails {
     // 密码
     private String passwd;
 
-    // 是否已锁定，0-未锁定，1-已锁定
+    // 是否已锁定，0-否，1-是
     private Integer locked;
 
     // 尝试输入密码次数，超过3次账号将会被锁定

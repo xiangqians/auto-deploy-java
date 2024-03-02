@@ -10,6 +10,8 @@ spring:
     # 模板编码
     encoding: UTF-8
 
+    excluded-variables: user
+
   # 环境标识
   profiles:
     active: @spring.profiles.active@

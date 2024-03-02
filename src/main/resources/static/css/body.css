@@ -36,10 +36,37 @@
     padding-right: 20px;
 }
 
+.body .table {
+    /* 设置为行内元素 */
+    display: inline-table;
+
+    border-collapse: collapse;
+}
+
+.body .table thead td {
+    height: 50px;
+    font-weight: bold;
+    padding-right: 40px;
+    border-bottom: 2px solid #CCCCCC;
+}
+
+/* 偶数行背景色 */
+.body .table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.body .table tbody tr td {
+    height: 45px;
+    border-bottom: 1px solid #CCCCCC;
+}
+
+/* 鼠标经过显示背景颜色 */
+.body .table tbody tr:hover {
+    background-color: #CCCCCC;
+}
+
 .body error {
     padding-bottom: 10px;
     display: block;
     color: red;
 }
-
-
