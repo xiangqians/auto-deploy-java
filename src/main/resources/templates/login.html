@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <link rel="icon" type="image/x-icon" th:href="@{/static/favicon.ico}">
     <link rel="stylesheet" th:href="@{/static/css/body.css}" type="text/css" />
-    <link rel="stylesheet" th:href="@{/static/css/form.css}" type="text/css" />
     <link rel="stylesheet" th:href="@{/static/css/foot.css}" type="text/css" />
     <title>登录</title>
 </head>
-<body>
+<body class="body">
 <div th:if="${param.error}">
     <error th:text="${loginError}"></error>
 </div>

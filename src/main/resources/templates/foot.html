@@ -13,22 +13,19 @@
         <li><a href='#'>项目</a></li>
     </ul>
     </p>
-    <!-- 定义user变量 -->
+    <!-- 定义user变量并使用 -->
     <p th:if="${T(org.xiangqian.auto.deploy.util.SecurityUtil).isAuthenticated()}"
        th:with="user=${T(org.xiangqian.auto.deploy.util.SecurityUtil).getUser()}">
-        <a href="#" style="padding-left: 0px;">
-            <!-- 使用user变量 -->
-            <span th:text="${user.getName()}"></span>
-            <span th:if="${T(org.apache.commons.lang3.StringUtils).isNotEmpty(user.getNickname())}">( [[${user.getNickname()}]] )</span>
-        </a>
-        <a th:href="@{/logout}" style="padding-left: 15px">退出登录</a>
+        <a href="#" style="padding-left: 0px;"><span style="padding-left: 0px;" th:text="${user.getName()}"></span><span style="padding-left: 0px;" th:if="${T(org.apache.commons.lang3.StringUtils).isNotEmpty(user.getNickname())}"> ( [[${user.getNickname()}]] )</span></a>
+        <span></span>
+        <a th:href="@{/logout}">退出登录</a>
     </p>
     <p th:if="${T(org.xiangqian.auto.deploy.util.SecurityUtil).isAuthenticated()}"
        th:with="user=${T(org.xiangqian.auto.deploy.util.SecurityUtil).getUser()}">
-        <span>最近一次登录</span>
-        <span style="padding-left: 10px;" th:text="${user.getLastLoginIp()}"></span>
-        <span style="padding-left: 10px;" th:if="${user.getLastLoginTime() > 0}">
-            [[${T(org.xiangqian.auto.deploy.util.DateUtil).human(user.getLastLoginTime())}]]
+        <span style="padding-left: 0px;">最近一次登录</span>
+        <span th:text="${user.getLastLoginIp()}"></span>
+        <span th:if="${user.getLastLoginTime() > 0}">
+            [[${T(org.xiangqian.auto.deploy.util.DateUtil).formatSecond(user.getLastLoginTime())}]]
         </span>
     </p>
     <p>© 2024 xiangqian<a href="https://github.com/xiangqians/auto-deploy" target="_blank">关于</a></p>

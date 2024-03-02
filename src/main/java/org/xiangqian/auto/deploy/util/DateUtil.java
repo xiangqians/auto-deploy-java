@@ -88,13 +88,17 @@ public class DateUtil {
         return date.toInstant().atZone(zoneId).toLocalDateTime();
     }
 
+    public static String formatSecond(long second) {
+        return format(ofSecond(second));
+    }
+
     /**
      * 人性化
      *
      * @param second
      * @return
      */
-    public static String human(long second) {
+    public static String humanSecond(long second) {
         return format(ofSecond(second));
     }
 

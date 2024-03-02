@@ -22,3 +22,7 @@
     cursor: default;
     color: gray;
 }
+
+.foot span {
+    padding-left: 10px;
+}
