@@ -11,7 +11,7 @@
 <div th:if="${param.error}">
     <error th:text="${loginError}"></error>
 </div>
-<form method="post" th:action="@{/login}">
+<form method="post" th:action="@{'/login?t=' + ${timestamp}}">
     <table>
         <tbody>
         <tr>

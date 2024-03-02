@@ -6,15 +6,15 @@ import org.springframework.web.servlet.ModelAndView;
 
 /**
  * @author xiangqian
- * @date 21:54 2024/02/29
+ * @date 18:09 2024/03/02
  */
 @Controller
-@RequestMapping("/")
-public class IndexController extends AbsController {
+@RequestMapping("/error")
+public class ErrorController extends AbsController implements org.springframework.boot.web.servlet.error.ErrorController {
 
     @RequestMapping
-    public ModelAndView index(ModelAndView modelAndView) {
-        modelAndView.setViewName("index");
+    public ModelAndView error(ModelAndView modelAndView) {
+        modelAndView.setViewName("error");
         return modelAndView;
     }
 

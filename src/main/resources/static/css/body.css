@@ -28,8 +28,18 @@
     cursor: pointer
 }
 
+.body form table {
+    border-collapse: collapse;
+}
+
+.body form table tbody tr td {
+    padding-right: 20px;
+}
+
 .body error {
     padding-bottom: 10px;
     display: block;
     color: red;
 }
+
+

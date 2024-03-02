@@ -4,29 +4,28 @@
  |-->
 
 <div class="foot">
-    <p th:if="${T(org.xiangqian.auto.deploy.util.SecurityUtil).isAuthenticated()}">导航
-    <ul th:if="${T(org.xiangqian.auto.deploy.util.SecurityUtil).isAuthenticated()}">
-        <li><a href='#' class='disabled'>首页</a></li>
-        <li><a href='#'>用户</a></li>
-        <li><a href='#'>Git</a></li>
-        <li><a href='#'>服务器</a></li>
-        <li><a href='#'>项目</a></li>
+    <p th:if="${isLoggedin}">导航
+    <ul th:if="${isLoggedin}">
+        <li><a th:href="@{'/?t=' + ${timestamp}}" th:class="'/' == ${servletPath}? 'disabled' : ''">首页</a></li>
+        <li><a th:href="@{'/user/list?t=' + ${timestamp}}" th:class="'/user/list' == ${servletPath}? 'disabled' : ''">用户</a></li>
+        <li><a th:href="@{'/git/list?t=' + ${timestamp}}" th:class="'/git/list' == ${servletPath}? 'disabled' : ''">Git</a></li>
+        <li><a th:href="@{'/server/list?t=' + ${timestamp}}" th:class="'/server/list' == ${servletPath}? 'disabled' : ''">服务器</a></li>
+        <li><a th:href="@{'/item/list?t=' + ${timestamp}}" th:class="'/item/list' == ${servletPath}? 'disabled' : ''">项目</a></li>
     </ul>
     </p>
     <!-- 定义user变量并使用 -->
-    <p th:if="${T(org.xiangqian.auto.deploy.util.SecurityUtil).isAuthenticated()}"
-       th:with="user=${T(org.xiangqian.auto.deploy.util.SecurityUtil).getUser()}">
-        <a href="#" style="padding-left: 0px;"><span style="padding-left: 0px;" th:text="${user.getName()}"></span><span style="padding-left: 0px;" th:if="${T(org.apache.commons.lang3.StringUtils).isNotEmpty(user.getNickname())}"> ( [[${user.getNickname()}]] )</span></a>
+    <p th:if="${isLoggedin}">
+        <a th:href="@{'#?t=' + ${timestamp}}" th:class="'/' == ${servletPath}? 'disabled' : ''" style="padding-left: 0px;">
+            <span style="padding-left: 0px;" th:text="${user.getName()}"></span>
+            <span style="padding-left: 0px;" th:if="${T(org.apache.commons.lang3.StringUtils).isNotEmpty(user.getNickname())}"> ( [[${user.getNickname()}]] )</span>
+        </a>
         <span></span>
-        <a th:href="@{/logout}">退出登录</a>
+        <a th:href="@{'/logout?t=' + ${timestamp}}">退出登录</a>
     </p>
-    <p th:if="${T(org.xiangqian.auto.deploy.util.SecurityUtil).isAuthenticated()}"
-       th:with="user=${T(org.xiangqian.auto.deploy.util.SecurityUtil).getUser()}">
+    <p th:if="${isLoggedin}">
         <span style="padding-left: 0px;">最近一次登录</span>
         <span th:text="${user.getLastLoginIp()}"></span>
-        <span th:if="${user.getLastLoginTime() > 0}">
-            [[${T(org.xiangqian.auto.deploy.util.DateUtil).formatSecond(user.getLastLoginTime())}]]
-        </span>
+        <span th:if="${user.getLastLoginTime() > 0}">[[${T(org.xiangqian.auto.deploy.util.DateUtil).formatSecond(user.getLastLoginTime())}]]</span>
     </p>
     <p>© 2024 xiangqian<a href="https://github.com/xiangqians/auto-deploy" target="_blank">关于</a></p>
 </div>

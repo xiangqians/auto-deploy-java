@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -27,6 +28,9 @@ import org.xiangqian.auto.deploy.util.SecurityUtil;
  */
 @EnableWebSecurity
 @Configuration(proxyBeanMethods = false)
+@EnableMethodSecurity(prePostEnabled = true, // 开启预处理验证
+        jsr250Enabled = true, // 启用JSR250注解支持
+        securedEnabled = true) // 启用 {@link org.springframework.security.access.annotation.Secured} 注解支持
 public class SecurityConfiguration implements WebMvcConfigurer {
 
     // 处理静态资源
@@ -70,6 +74,8 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                         // 放行资源
                         .permitAll()
                 )
+                // 处理权限不足的请求
+                .exceptionHandling(configurer -> configurer.accessDeniedPage("/error"))
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .csrf(AbstractHttpConfigurer::disable);
         return http.build();
@@ -80,14 +86,12 @@ public class SecurityConfiguration implements WebMvcConfigurer {
         registry.addInterceptor(new HandlerInterceptor() {
             @Override
             public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-                if ("/login".equals(request.getServletPath()) && SecurityUtil.isAuthenticated()) {
+                if ("/login".equals(request.getServletPath()) && SecurityUtil.isLoggedin()) {
                     // 重定向到首页
                     response.sendRedirect("/");
-
                     // 不继续执行后续的拦截器
                     return false;
                 }
-
                 // 继续执行后续的拦截器
                 return true;
             }

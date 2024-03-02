@@ -15,11 +15,10 @@ import java.util.Optional;
  */
 @Controller
 @RequestMapping("/login")
-public class LoginController {
+public class LoginController extends AbsController {
 
     @GetMapping
-    public ModelAndView login(HttpSession session) {
-        ModelAndView modelAndView = new ModelAndView();
+    public ModelAndView login(ModelAndView modelAndView, HttpSession session) {
         String loginError = Optional.ofNullable(session.getAttribute(AttributeName.LOGIN_ERROR)).map(Object::toString).orElse(null);
         if (loginError != null) {
             session.removeAttribute(AttributeName.LOGIN_ERROR);
