@@ -35,9 +35,8 @@ public class UserEntity implements UserDetails {
     // 密码
     private String passwd;
 
-    // 是否锁定，0-正常，1-锁定
-    @TableField("`lock`")
-    private Integer lock;
+    // 是否已锁定，0-未锁定，1-已锁定
+    private Integer locked;
 
     // 尝试输入密码次数，超过3次账号将会被锁定
     private Integer tryCount;
@@ -117,7 +116,7 @@ public class UserEntity implements UserDetails {
      */
     @Override
     public boolean isAccountNonLocked() {
-        return lock == 0;
+        return locked == 0;
     }
 
     /**

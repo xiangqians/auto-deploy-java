@@ -8,7 +8,7 @@ CREATE TABLE `user` -- 用户信息表
     `name`               VARCHAR(64)  NOT NULL,             -- 用户名
     `nickname`           VARCHAR(64)  NOT NULL,             -- 昵称
     `passwd`             VARCHAR(128) NOT NULL,             -- 密码
-    `lock`               TINYINT     DEFAULT 0,             -- 是否锁定，0-正常，1-锁定
+    `locked`             TINYINT     DEFAULT 0,             -- 是否已锁定，0-未锁定，1-已锁定
     `try_count`          TINYINT     DEFAULT 0,             -- 尝试输入密码次数，超过3次账号将会被锁定
     `last_login_ip`      VARCHAR(64) DEFAULT '',            -- 上一次登录ip
     `last_login_time`    INTEGER     DEFAULT 0,             -- 上一次登录时间（时间戳，单位s）
