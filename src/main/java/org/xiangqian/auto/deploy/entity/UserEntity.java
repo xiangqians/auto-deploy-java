@@ -5,11 +5,10 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.xiangqian.auto.deploy.util.DateUtil;
+import org.xiangqian.auto.deploy.util.SecurityUtil;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -173,14 +172,13 @@ public class UserEntity implements UserDetails {
 
     /**
      * 用户拥有的权限
-     * {@link SecurityExpressionRoot#defaultRolePrefix}
      *
      * @return
      */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if ("admin".equals(name)) {
-            return Set.of(new SimpleGrantedAuthority("ROLE_" + "ADMIN"));
+            return Set.of(SecurityUtil.createAdminRoleAuthority());
         }
         return Collections.emptySet();
     }

@@ -4,8 +4,8 @@
  |-->
 
 <foot>
-    <p th:if="${isLoggedin}">导航
-    <ul th:if="${isLoggedin}">
+    <p th:if="${isLoggedin} and ${T(org.xiangqian.auto.deploy.util.SecurityUtil).isAdminRole()}">导航
+    <ul th:if="${isLoggedin} and ${T(org.xiangqian.auto.deploy.util.SecurityUtil).isAdminRole()}">
         <li><a th:href="@{'/?t=' + ${timestamp}}" th:class="'/' == ${servletPath}? 'disabled' : ''">首页</a></li>
         <li><a th:href="@{'/user/list?t=' + ${timestamp}}" th:class="'/user/list' == ${servletPath}? 'disabled' : ''">用户</a></li>
         <li><a th:href="@{'/git/list?t=' + ${timestamp}}" th:class="'/git/list' == ${servletPath}? 'disabled' : ''">Git</a></li>
