@@ -21,9 +21,6 @@ CREATE TABLE `user` -- 用户信息表
 -- admin
 INSERT INTO `user`(`name`, `nickname`, `passwd`, `add_time`)
 VALUES ('admin', 'admin', '$2a$10$ZsS2bA7B7AQtIBBpW7xz3OIw3FWU0CnXX7HZMi6vBNt9ZNcA2RNGG', STRFTIME('%s', 'now'));
--- 1
-INSERT INTO `user`(`name`, `nickname`, `passwd`, `add_time`)
-VALUES ('1', '1', '$2a$10$GAOtq6PUSvglcOj3t/cULu2cR0knkJMnoLJ3F031dkXeFk3.divKi', STRFTIME('%s', 'now'));
 
 
 -- -----------------------
@@ -33,7 +30,6 @@ DROP TABLE IF EXISTS `git`;
 CREATE TABLE `git` -- Git信息表
 (
     `id`       INTEGER PRIMARY KEY AUTOINCREMENT, -- id
-    `user_id`  INTEGER     NOT NULL,              -- 所属用户 user.id
     `name`     VARCHAR(64) NOT NULL,              -- 名称
     `type`     TINYINT     NOT NULL,              -- 授权类型：1-用户名和密码，2-key
     `user`     VARCHAR(64)  DEFAULT '',           -- 用户
@@ -51,12 +47,11 @@ DROP TABLE IF EXISTS `server`;
 CREATE TABLE `server` -- 远程主机信息表
 (
     `id`       INTEGER PRIMARY KEY AUTOINCREMENT, -- id
-    `user_id`  INTEGER     NOT NULL,              -- 所属用户 user.id
     `name`     VARCHAR(64) NOT NULL,              -- 名称
     `host`     VARCHAR(64) NOT NULL,              -- 远程主机
     `port`     INTEGER     NOT NULL,              -- 端口
     `user`     VARCHAR(64) NOT NULL,              -- 用户
-    `type`     TINYINT     NOT NULL,              -- 授权类型。1-密码，2-key
+    `type`     TINYINT     NOT NULL,              -- 授权类型：1-密码，2-key
     `passwd`   VARCHAR(128) DEFAULT '',           -- 密码
     `key`      TEXT         DEFAULT '',           -- key
     `add_time` INTEGER      DEFAULT 0,            -- 创建时间（时间戳，s）

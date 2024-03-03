@@ -10,5 +10,6 @@ public interface AttributeName {
 
     String ERROR = "error";
     String VO = "vo";
+    String VOS = "vos";
 
 }

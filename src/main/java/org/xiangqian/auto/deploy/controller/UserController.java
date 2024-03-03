@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import org.xiangqian.auto.deploy.service.UserService;
+import org.xiangqian.auto.deploy.util.AttributeName;
 import org.xiangqian.auto.deploy.util.DateUtil;
 import org.xiangqian.auto.deploy.util.SessionUtil;
 import org.xiangqian.auto.deploy.vo.user.UserAddVo;
@@ -73,7 +74,7 @@ public class UserController extends AbsController {
 
     @GetMapping("/list")
     public ModelAndView list(ModelAndView modelAndView) {
-        modelAndView.addObject("users", service.list());
+        modelAndView.addObject(AttributeName.VOS, service.list());
         modelAndView.setViewName("user/list");
         return modelAndView;
     }
