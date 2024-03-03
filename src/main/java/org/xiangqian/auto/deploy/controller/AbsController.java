@@ -17,7 +17,7 @@ public abstract class AbsController {
 
     // 在每个请求之前设置ModelAndView值
     @ModelAttribute
-    public void addCustomAttributes(HttpServletRequest request, ModelAndView modelAndView) {
+    public void modelAttribute(ModelAndView modelAndView, HttpServletRequest request) {
         boolean isLoggedin = SecurityUtil.isLoggedin();
         modelAndView.addObject(AttributeName.IS_LOGGEDIN, isLoggedin);
         if (isLoggedin) {

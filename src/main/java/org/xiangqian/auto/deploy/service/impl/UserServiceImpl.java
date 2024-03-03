@@ -2,14 +2,20 @@ package org.xiangqian.auto.deploy.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.Getter;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.xiangqian.auto.deploy.entity.UserEntity;
 import org.xiangqian.auto.deploy.mapper.UserMapper;
 import org.xiangqian.auto.deploy.service.UserService;
 import org.xiangqian.auto.deploy.util.DateUtil;
+import org.xiangqian.auto.deploy.vo.user.ResetPasswdVo;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,6 +26,12 @@ import java.util.List;
  */
 @Service
 public class UserServiceImpl implements UserService {
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private SessionRegistry sessionRegistry;
 
     @Autowired
     private UserMapper mapper;
@@ -59,6 +71,62 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Boolean del(Long id) {
+        Assert.notNull(id, "用户id不能为空");
+
+        if (mapper.deleteById(id) > 0) {
+            expireNow(id);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Boolean unlock(Long id) {
+        Assert.notNull(id, "用户id不能为空");
+
+        UserEntity updEntity = new UserEntity();
+        updEntity.setId(id);
+        updEntity.setLocked(0);
+        updEntity.setTryCount(0);
+
+        return mapper.updateById(updEntity) > 0;
+    }
+
+    @Override
+    public Boolean lock(Long id) {
+        Assert.notNull(id, "用户id不能为空");
+
+        UserEntity updEntity = new UserEntity();
+        updEntity.setId(id);
+        updEntity.setLocked(1);
+
+        if (mapper.updateById(updEntity) > 0) {
+            expireNow(id);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Boolean resetPasswd(ResetPasswdVo vo) {
+        Long id = vo.getId();
+        String passwd = vo.getPasswd();
+        Assert.notNull(id, "用户id不能为空");
+        Assert.notNull(passwd, "密码不能为空");
+
+        UserEntity updEntity = new UserEntity();
+        updEntity.setId(id);
+        updEntity.setPasswd(passwordEncoder.encode(passwd));
+
+        if (mapper.updateById(updEntity) > 0) {
+            expireNow(id);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public List<UserEntity> list() {
         return mapper.selectList(new LambdaQueryWrapper<UserEntity>().ne(UserEntity::getName, "admin"));
     }
@@ -66,6 +134,24 @@ public class UserServiceImpl implements UserService {
     @Override
     public Boolean updById(UserEntity entity) {
         return mapper.updateById(entity) > 0;
+    }
+
+    /**
+     * 使指定用户session过期
+     *
+     * @param id
+     */
+    private void expireNow(Long id) {
+        UserEntity entity = mapper.selectById(id);
+        if (entity == null) {
+            return;
+        }
+
+        List<SessionInformation> sessions = sessionRegistry.getAllSessions(entity,
+                false); // 是否包括过期的会话
+        if (CollectionUtils.isNotEmpty(sessions)) {
+            sessions.forEach(SessionInformation::expireNow);
+        }
     }
 
 }

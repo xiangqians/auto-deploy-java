@@ -16,24 +16,33 @@
         <td>最近一次登录IP</td>
         <td>最近一次登录时间</td>
         <td>创建时间</td>
-        <td>修改时间</td>
     </tr>
     </thead>
     <tbody>
-    <tr th:each="user : ${users}" th:id="${user.id}" th:name="${user.getName()}" th:nickname="${user.nickname}">
+    <tr th:each="user : ${users}" th:id="${user.id}" th:name="${user.getName()}" th:nickname="${user.nickname}"
+        th:with="locked=${user.locked} == 0 ? (${user.isNonLimitedTimeLocked()} ? 0 : 2) : 1">
         <td th:text="${user.getName()}"></td>
         <td th:text="${user.nickname}"></td>
-        <td th:text="${user.locked} == 0 ? (${user.isNonLimitedTimeLocked()} ? '否' : '是（限时）') : '是'"
-            th:style="${user.locked} == 0 ? (${user.isNonLimitedTimeLocked()} ? '' : 'color:red;') : 'color:red;'"></td>
+        <td th:text="${locked} == 0 ? '否' : (${locked} == 1 ? '是' : '是（限时）')"
+            th:style="${locked} > 0 ? 'color:red;' : ''"></td>
         <td th:text="${user.currentLoginIp}"></td>
         <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(user.currentLoginTime)}"></td>
         <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(user.addTime)}"></td>
-        <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(user.updTime)}"></td>
         <td style="display: none;">
-            <button name="resetPasswd">重置密码</button>
-            <button th:name="${user.locked} == 0 ? (${user.isNonLimitedTimeLocked()} ? 'lock' : 'unlock') : 'unlock'"
-                    th:text="${user.locked} == 0 ? (${user.isNonLimitedTimeLocked()} ? '锁定' : '解锁') : '解锁'"></button>
-            <button name="del">删除</button>
+            <form method="post" th:action="@{'/user/resetPasswd?t=' + ${timestamp}}" style="display: inline-block;">
+                <input name="_method" value="PUT" type="hidden">
+                <input name="id" th:value="${user.id}" type="hidden">
+                <input name="passwd" value="" type="hidden">
+                <button name="resetPasswd" type="submit">重置密码</button>
+            </form>
+            <form method="post" th:action="@{'/user/' + (${locked} > 0 ? 'unlock/' : 'lock/') + ${user.id} + '?t=' + ${timestamp}}" style="display: inline-block;">
+                <input name="_method" value="PUT" type="hidden">
+                <button th:name="${locked} > 0 ? 'unlock' : 'lock'" th:text="${locked} > 0 ? '解锁' : '锁定'"></button>
+            </form>
+            <form method="post" th:action="@{'/user/' + ${user.id} + '?t=' + ${timestamp}}" style="display: inline-block;">
+                <input name="_method" value="DELETE" type="hidden">
+                <button name="del">删除</button>
+            </form>
         </td>
     </tr>
     </tbody>
@@ -86,16 +95,24 @@
 
             // cancel
             if (passwd == null) {
-                return
+                return false
             }
 
             passwd = passwd.trim()
             if (passwd === '') {
-                return
+                return false
             }
 
-            // ok
-            console.log(passwd)
+            // 查找元素最近的父级<form>元素
+            let $form = $button.closest('form')
+
+            // 查找input[name='passwd']元素
+            let $passwd = $form.find("input[name='passwd']")
+
+            // 设置密码
+            $passwd.val(passwd)
+
+            return true
         })
 
         // 锁定
@@ -105,9 +122,9 @@
 
             let user = getUser($button)
             if (confirm(`确定锁定用户：${user.toString()} ？`)) {
-                console.log("You clicked OK!")
+                return true
             } else {
-                console.log("You clicked Cancel!")
+                return false
             }
         })
 
@@ -118,9 +135,9 @@
 
             let user = getUser($button)
             if (confirm(`确定解锁用户：${user.toString()} ？`)) {
-                console.log("You clicked OK!")
+                return true
             } else {
-                console.log("You clicked Cancel!")
+                return false
             }
         })
 
@@ -131,9 +148,9 @@
 
             let user = getUser($button)
             if (confirm(`确定删除用户：${user.toString()} ？`)) {
-                console.log("You clicked OK!")
+                return true
             } else {
-                console.log("You clicked Cancel!")
+                return false
             }
         })
     })
