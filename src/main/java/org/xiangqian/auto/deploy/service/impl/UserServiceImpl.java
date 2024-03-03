@@ -14,10 +14,8 @@ import org.springframework.util.Assert;
 import org.xiangqian.auto.deploy.entity.UserEntity;
 import org.xiangqian.auto.deploy.mapper.UserMapper;
 import org.xiangqian.auto.deploy.service.UserService;
-import org.xiangqian.auto.deploy.util.DateUtil;
 import org.xiangqian.auto.deploy.vo.user.ResetPasswdVo;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -56,11 +54,8 @@ public class UserServiceImpl implements UserService {
                     UserEntity updEntity = new UserEntity();
                     updEntity.setId(entity.getId());
                     updEntity.setTryCount(0);
-                    updEntity.setUpdTime(DateUtil.toSecond(LocalDateTime.now()));
                     mapper.updateById(updEntity);
-
                     entity.setTryCount(updEntity.getTryCount());
-                    entity.setUpdTime(updEntity.getUpdTime());
                 }
             } else {
                 entity.setLocked(1);

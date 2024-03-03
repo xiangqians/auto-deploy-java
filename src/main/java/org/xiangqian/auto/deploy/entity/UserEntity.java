@@ -87,7 +87,28 @@ public class UserEntity implements UserDetails {
     // 是否未被限时锁定
     public boolean isNonLimitedTimeLocked() {
         return tryCount < 3 || // 连续输错密码小于3次
-                Duration.between(DateUtil.ofSecond(updTime), LocalDateTime.now()).toHoursPart() >= 12; // 锁定12小时
+                Duration.ofSeconds(DateUtil.toSecond(LocalDateTime.now()) - updTime).toHours() >= 24; // 锁定24小时
+    }
+
+    // 人性化限时时间
+    public String humanLimitedTime() {
+        Duration duration = Duration.ofSeconds(Duration.ofHours(24).toSeconds() - (DateUtil.toSecond(LocalDateTime.now()) - updTime));
+
+        // 小时
+        long hour = duration.toHours();
+        if (hour > 0) {
+            return hour + "小时";
+        }
+
+        // 分钟
+        long minute = duration.toMinutes();
+        if (minute > 0) {
+            return minute + "分钟";
+        }
+
+        // 秒
+        long second = duration.toSeconds();
+        return second + "秒";
     }
 
     /**

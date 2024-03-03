@@ -106,27 +106,25 @@ public class DateUtil {
         LocalDateTime dateTime = ofSecond(second);
         Duration duration = Duration.between(dateTime, LocalDateTime.now());
 
-        // toXxxPart()返回Xxx数（不足一Xxx的则被忽略）
-
         // 天
-        if (duration.toDaysPart() > 0) {
+        if (duration.toDays() > 0) {
             return format(dateTime);
         }
 
         // 小时
-        long hour = duration.toHoursPart();
+        long hour = duration.toHours();
         if (hour > 0) {
             return hour + "小时前";
         }
 
         // 分钟
-        int minute = duration.toMinutesPart();
+        long minute = duration.toMinutes();
         if (minute > 0) {
             return minute + "分钟前";
         }
 
         // 秒
-        second = duration.toSecondsPart();
+        second = duration.toSeconds();
         return second + "秒前";
     }
 

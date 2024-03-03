@@ -23,8 +23,7 @@
         th:with="locked=${user.locked} == 0 ? (${user.isNonLimitedTimeLocked()} ? 0 : 2) : 1">
         <td th:text="${user.getName()}"></td>
         <td th:text="${user.nickname}"></td>
-        <td th:text="${locked} == 0 ? '否' : (${locked} == 1 ? '是' : '是（限时）')"
-            th:style="${locked} > 0 ? 'color:red;' : ''"></td>
+        <td th:text="${locked} == 0 ? '否' : (${locked} == 1 ? '是' : '是（限时）')" th:style="${locked} > 0 ? 'color:red;' : ''" th:title="${locked} == 2 ? (${user.humanLimitedTime()}) + '后解锁' : ''"></td>
         <td th:text="${user.currentLoginIp}"></td>
         <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(user.currentLoginTime)}"></td>
         <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(user.addTime)}"></td>
