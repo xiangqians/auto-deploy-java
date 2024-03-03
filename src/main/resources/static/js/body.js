@@ -6,7 +6,7 @@
 ;
 $(function () {
     // 鼠标进入<tr>时执行的函数
-    $('.table tbody tr').mouseenter(function (event) {
+    $('body > table tbody tr').mouseenter(function (event) {
         // 获取目标<tr>元素
         let $tr = $(event.currentTarget)
 
@@ -18,7 +18,7 @@ $(function () {
     });
 
     // 鼠标离开<tr>时执行的函数
-    $('.table tbody tr').mouseleave(function (event) {
+    $('body > table tbody tr').mouseleave(function (event) {
         // 获取目标<tr>元素
         let $tr = $(event.currentTarget)
 

@@ -3,6 +3,7 @@ package org.xiangqian.auto.deploy.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
@@ -14,8 +15,11 @@ import org.springframework.util.Assert;
 import org.xiangqian.auto.deploy.entity.UserEntity;
 import org.xiangqian.auto.deploy.mapper.UserMapper;
 import org.xiangqian.auto.deploy.service.UserService;
-import org.xiangqian.auto.deploy.vo.user.ResetPasswdVo;
+import org.xiangqian.auto.deploy.util.DateUtil;
+import org.xiangqian.auto.deploy.vo.user.UserAddVo;
+import org.xiangqian.auto.deploy.vo.user.UserResetPasswdVo;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -66,6 +70,30 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Boolean add(UserAddVo vo) {
+        String name = StringUtils.trim(vo.getName());
+        String nickname = StringUtils.trim(vo.getNickname());
+        String passwd = StringUtils.trim(vo.getPasswd());
+        Assert.isTrue(StringUtils.isNotEmpty(name), "用户名不能为空");
+        Assert.isTrue(StringUtils.isNotEmpty(nickname), "昵称不能为空");
+        Assert.isTrue(StringUtils.isNotEmpty(passwd), "密码不能为空");
+
+        UserEntity entity = mapper.selectOne(new LambdaQueryWrapper<UserEntity>()
+                .select(UserEntity::getId)
+                .eq(UserEntity::getName, name)
+                .last("LIMIT 1"));
+        Assert.isNull(entity, "用户名已存在");
+
+        UserEntity addEntity = new UserEntity();
+        addEntity.setName(name);
+        addEntity.setNickname(nickname);
+        addEntity.setPasswd(passwordEncoder.encode(passwd));
+        addEntity.setAddTime(DateUtil.toSecond(LocalDateTime.now()));
+
+        return mapper.insert(addEntity) > 0;
+    }
+
+    @Override
     public Boolean del(Long id) {
         Assert.notNull(id, "用户id不能为空");
 
@@ -104,7 +132,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Boolean resetPasswd(ResetPasswdVo vo) {
+    public Boolean resetPasswd(UserResetPasswdVo vo) {
         Long id = vo.getId();
         String passwd = vo.getPasswd();
         Assert.notNull(id, "用户id不能为空");

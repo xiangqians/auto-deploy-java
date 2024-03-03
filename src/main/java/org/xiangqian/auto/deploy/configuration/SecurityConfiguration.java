@@ -36,9 +36,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.xiangqian.auto.deploy.entity.UserEntity;
 import org.xiangqian.auto.deploy.mapper.UserMapper;
 import org.xiangqian.auto.deploy.service.UserService;
-import org.xiangqian.auto.deploy.util.AttributeName;
 import org.xiangqian.auto.deploy.util.DateUtil;
 import org.xiangqian.auto.deploy.util.SecurityUtil;
+import org.xiangqian.auto.deploy.util.SessionUtil;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -75,7 +75,7 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                         // 放行静态资源
                         .requestMatchers("/static/**").permitAll()
                         // 放行/login?error
-                        .requestMatchers(request -> "/login?error".equals(request.getServletPath() + "?" + request.getQueryString()) && request.getSession(true).getAttribute(AttributeName.LOGIN_ERROR) != null).permitAll()
+                        .requestMatchers(request -> "/login?error".equals(request.getServletPath() + "?" + request.getQueryString()) && SessionUtil.getError(request.getSession(true)) != null).permitAll()
                         // 其他请求需要授权
                         .anyRequest().authenticated())
                 // 自定义表单登录
@@ -117,9 +117,9 @@ public class SecurityConfiguration implements WebMvcConfigurer {
             public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
                 String userName = request.getParameter("username");
                 HttpSession session = request.getSession(true);
-                String loginError = null;
+                String error = null;
                 if (exception instanceof BadCredentialsException) {
-                    loginError = "用户名或密码不正确";
+                    error = "用户名或密码不正确";
                     ThreadLocal<UserEntity> threadLocal = service.getThreadLocal();
                     UserEntity entity = threadLocal.get();
                     if (entity != null) {
@@ -130,16 +130,16 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                         updEntity.setUpdTime(DateUtil.toSecond(LocalDateTime.now()));
                         service.updById(updEntity);
                         if (updEntity.getTryCount() == 2) {
-                            loginError = "已连续两次输错密码，如连续输错三次，用户将被锁定";
+                            error = "已连续两次输错密码，如连续输错三次，用户将被锁定";
                         }
                     }
                 } else if (exception instanceof LockedException) {
-                    loginError = "用户已被锁定";
+                    error = "用户已被锁定";
                 } else {
-                    loginError = exception.getMessage();
+                    error = exception.getMessage();
                 }
-                session.setAttribute(AttributeName.LOGIN_ERROR, loginError);
-                session.setAttribute(AttributeName.USER_NAME, userName);
+                SessionUtil.setError(session, error);
+                session.setAttribute("userName", userName);
                 response.sendRedirect("/login?error");
             }
         };

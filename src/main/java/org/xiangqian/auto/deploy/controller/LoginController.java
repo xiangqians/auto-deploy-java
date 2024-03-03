@@ -5,7 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import org.xiangqian.auto.deploy.util.AttributeName;
+import org.xiangqian.auto.deploy.util.SessionUtil;
 
 import java.util.Optional;
 
@@ -19,10 +19,10 @@ public class LoginController extends AbsController {
 
     @GetMapping
     public ModelAndView login(ModelAndView modelAndView, HttpSession session) {
-        String loginError = Optional.ofNullable(session.getAttribute(AttributeName.LOGIN_ERROR)).map(Object::toString).orElse(null);
-        if (loginError != null) {
-            session.removeAttribute(AttributeName.LOGIN_ERROR);
-            modelAndView.addObject(AttributeName.LOGIN_ERROR, loginError);
+        String error = Optional.ofNullable(SessionUtil.getError(session)).map(Object::toString).orElse(null);
+        if (error != null) {
+            SessionUtil.delError(session);
+            setError(modelAndView, error);
         }
         modelAndView.setViewName("login");
         return modelAndView;

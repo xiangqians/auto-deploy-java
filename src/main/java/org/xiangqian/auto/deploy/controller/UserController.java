@@ -1,5 +1,7 @@
 package org.xiangqian.auto.deploy.controller;
 
+import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -7,9 +9,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import org.xiangqian.auto.deploy.service.UserService;
-import org.xiangqian.auto.deploy.util.AttributeName;
 import org.xiangqian.auto.deploy.util.DateUtil;
-import org.xiangqian.auto.deploy.vo.user.ResetPasswdVo;
+import org.xiangqian.auto.deploy.util.SessionUtil;
+import org.xiangqian.auto.deploy.vo.user.UserAddVo;
+import org.xiangqian.auto.deploy.vo.user.UserResetPasswdVo;
 
 import java.time.LocalDateTime;
 
@@ -17,6 +20,7 @@ import java.time.LocalDateTime;
  * @author xiangqian
  * @date 17:09 2024/03/02
  */
+@Slf4j
 @Controller
 @RequestMapping("/user")
 @PreAuthorize("hasRole('ADMIN')")
@@ -24,6 +28,25 @@ public class UserController extends AbsController {
 
     @Autowired
     private UserService service;
+
+    @PostMapping("/add")
+    public RedirectView add(UserAddVo vo, HttpSession session) {
+        try {
+            service.add(vo);
+        } catch (Exception e) {
+            log.error("", e);
+            session.setAttribute("vo", vo);
+            SessionUtil.setError(session, e.getMessage());
+            return new RedirectView("/user/add?error&t=" + DateUtil.toSecond(LocalDateTime.now()));
+        }
+        return redirectListView();
+    }
+
+    @GetMapping("/add")
+    public ModelAndView addView(ModelAndView modelAndView) {
+        modelAndView.setViewName("user/add");
+        return modelAndView;
+    }
 
     @DeleteMapping("/{id}")
     public RedirectView del(@PathVariable Long id) {
@@ -44,14 +67,14 @@ public class UserController extends AbsController {
     }
 
     @PutMapping("/resetPasswd")
-    public RedirectView resetPasswd(ResetPasswdVo vo) {
+    public RedirectView resetPasswd(UserResetPasswdVo vo) {
         service.resetPasswd(vo);
         return redirectListView();
     }
 
     @GetMapping("/list")
     public ModelAndView list(ModelAndView modelAndView) {
-        modelAndView.addObject(AttributeName.USERS, service.list());
+        modelAndView.addObject("users", service.list());
         modelAndView.setViewName("user/list");
         return modelAndView;
     }

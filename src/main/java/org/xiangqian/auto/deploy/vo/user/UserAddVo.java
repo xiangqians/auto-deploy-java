@@ -4,12 +4,13 @@ import lombok.Data;
 
 /**
  * @author xiangqian
- * @date 15:06 2024/03/03
+ * @date 17:12 2024/03/03
  */
 @Data
-public class ResetPasswdVo {
+public class UserAddVo {
 
-    private Long id;
+    private String name;
+    private String nickname;
     private String passwd;
 
 }

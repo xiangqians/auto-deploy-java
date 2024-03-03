@@ -1,3 +1,8 @@
+<!--
+ | @author xiangqian
+ | @date 17:15 2024/03/02
+ |-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +12,7 @@
     <title>用户</title>
 </head>
 <body>
-<table class="table">
+<table>
     <thead>
     <tr>
         <td>用户名</td>
@@ -48,7 +53,7 @@
     <tfoot>
     <tr>
         <td colspan="6">
-            <a id="add" href="">新增</a>
+            <a id="add" th:href="@{/user/add}">新增</a>
         </td>
     </tr>
     </tfoot>
