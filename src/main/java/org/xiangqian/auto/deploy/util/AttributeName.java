@@ -9,5 +9,6 @@ package org.xiangqian.auto.deploy.util;
 public interface AttributeName {
 
     String ERROR = "error";
+    String VO = "vo";
 
 }

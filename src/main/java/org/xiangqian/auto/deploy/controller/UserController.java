@@ -1,6 +1,5 @@
 package org.xiangqian.auto.deploy.controller;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,13 +29,13 @@ public class UserController extends AbsController {
     private UserService service;
 
     @PostMapping("/add")
-    public RedirectView add(UserAddVo vo, HttpSession session) {
+    public RedirectView add(UserAddVo vo) {
         try {
             service.add(vo);
         } catch (Exception e) {
             log.error("", e);
-            session.setAttribute("vo", vo);
-            SessionUtil.setError(session, e.getMessage());
+            SessionUtil.setVo(vo);
+            SessionUtil.setError(e.getMessage());
             return new RedirectView("/user/add?error&t=" + DateUtil.toSecond(LocalDateTime.now()));
         }
         return redirectListView();

@@ -17,6 +17,11 @@ body error {
     color: red;
 }
 
+/* 如果<error>为空时，设置 padding-bottom: 0px */
+body error:empty {
+    padding-bottom: 0px;
+}
+
 body a {
     padding: 0;
     margin: 0;

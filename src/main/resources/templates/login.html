@@ -12,15 +12,13 @@
     <title>登录</title>
 </head>
 <body>
-<div th:if="${param.error}">
-    <error th:text="${error}"></error>
-</div>
+<error th:text="${error}"></error>
 <form method="post" th:action="@{'/login?t=' + ${timestamp}}">
     <table>
         <tbody>
         <tr>
             <td><span style="font-weight: bold;">*</span><label>用户名</label></td>
-            <td><input id="username" name="username" type="text" th:value="${session.userName}" required autofocus></td>
+            <td><input id="username" name="username" type="text" th:value="${vo} != null ? ${vo.name} : ''" required autofocus></td>
         </tr>
         <tr>
             <td><span style="font-weight: bold;">*</span><label>密码</label></td>

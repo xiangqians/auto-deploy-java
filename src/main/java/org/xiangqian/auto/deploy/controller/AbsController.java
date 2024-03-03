@@ -20,23 +20,26 @@ public abstract class AbsController {
     // 在每个请求之前设置ModelAndView值
     @ModelAttribute
     public void modelAttribute(ModelAndView modelAndView, HttpServletRequest request, HttpSession session) {
+        modelAndView.addObject("servletPath", request.getServletPath());
+        modelAndView.addObject("timestamp", DateUtil.toSecond(LocalDateTime.now()));
+
         boolean isLoggedin = SecurityUtil.isLoggedin();
         modelAndView.addObject("isLoggedin", isLoggedin);
         if (isLoggedin) {
             modelAndView.addObject("user", SecurityUtil.getUser());
         }
-        modelAndView.addObject("servletPath", request.getServletPath());
-        modelAndView.addObject("timestamp", DateUtil.toSecond(LocalDateTime.now()));
 
-        Object error = SessionUtil.getError(session);
-        if (error != null) {
-            setError(modelAndView, error);
-            SessionUtil.delError(session);
+        Object vo = SessionUtil.getVo();
+        if (vo != null) {
+            SessionUtil.delVo();
+            modelAndView.addObject(AttributeName.VO, vo);
         }
-    }
 
-    protected final void setError(ModelAndView modelAndView, Object error) {
-        modelAndView.addObject(AttributeName.ERROR, error);
+        Object error = SessionUtil.getError();
+        if (error != null) {
+            SessionUtil.delError();
+            modelAndView.addObject(AttributeName.ERROR, error);
+        }
     }
 
 }

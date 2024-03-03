@@ -75,7 +75,7 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                         // 放行静态资源
                         .requestMatchers("/static/**").permitAll()
                         // 放行/login?error
-                        .requestMatchers(request -> "/login?error".equals(request.getServletPath() + "?" + request.getQueryString()) && SessionUtil.getError(request.getSession(true)) != null).permitAll()
+                        .requestMatchers(request -> "/login?error".equals(request.getServletPath() + "?" + request.getQueryString()) && SessionUtil.getError() != null).permitAll()
                         // 其他请求需要授权
                         .anyRequest().authenticated())
                 // 自定义表单登录
@@ -115,7 +115,7 @@ public class SecurityConfiguration implements WebMvcConfigurer {
 
             @Override
             public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-                String userName = request.getParameter("username");
+                String name = request.getParameter("username");
                 HttpSession session = request.getSession(true);
                 String error = null;
                 if (exception instanceof BadCredentialsException) {
@@ -138,8 +138,13 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 } else {
                     error = exception.getMessage();
                 }
-                SessionUtil.setError(session, error);
-                session.setAttribute("userName", userName);
+
+                SessionUtil.setError(error);
+
+                UserEntity entity = new UserEntity();
+                entity.setName(name);
+                SessionUtil.setVo(entity);
+
                 response.sendRedirect("/login?error");
             }
         };
