@@ -78,7 +78,6 @@ public class GitServiceImpl implements GitService {
         Integer type = vo.getType();
         Assert.notNull(type, "授权类型不能为空");
         Assert.isTrue(type == 1 || type == 2, "授权类型错误");
-        vo.setType(type);
 
         // 用户名和密码
         if (type == 1) {

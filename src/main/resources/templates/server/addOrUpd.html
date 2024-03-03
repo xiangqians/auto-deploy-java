@@ -1,0 +1,96 @@
+<!--
+ | @author xiangqian
+ | @date 21:16 2024/03/03
+ |-->
+
+<!DOCTYPE html>
+<html lang="en" th:with="isUpd=${vo} != null and ${vo.id} != null">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" th:href="@{/static/favicon.ico}">
+    <link rel="stylesheet" th:href="@{/static/css/body.css}" type="text/css" />
+    <title th:text="${isUpd ? ('修改服务器：' + vo.name) : '新增服务器'}"></title>
+</head>
+<body>
+<error th:text="${error}"></error>
+<form method="post" th:action="@{'/server?t=' + ${timestamp}}">
+    <input th:if="${isUpd}" name="_method" value="PUT" type="hidden">
+    <input th:if="${isUpd}" name="id" th:value="${vo.id}" type="hidden">
+    <table>
+        <tbody>
+        <tr>
+            <td><span style="font-weight: bold;">*</span><label>名称</label></td>
+            <td><input id="name" name="name" type="text" th:value="${vo != null ? vo.name : ''}" required autofocus></td>
+        </tr>
+        <tr>
+            <td><span style="font-weight: bold;">*</span><label>远程主机</label></td>
+            <td><input id="host" name="host" type="text" th:value="${vo != null ? vo.host : ''}" required autofocus></td>
+        </tr>
+        <tr>
+            <td><span style="font-weight: bold;">*</span><label>端口</label></td>
+            <td><input id="port" name="port" type="number" th:value="${vo != null ? vo.port : ''}" required autofocus></td>
+        </tr>
+        <tr>
+            <td><span style="font-weight: bold;">*</span><label>用户</label></td>
+            <td><input id="user" name="user" type="text" th:value="${vo != null ? vo.port : ''}" required autofocus></td>
+        </tr>
+        <tr>
+            <td><span style="font-weight: bold;">*</span><label>授权类型</label></td>
+            <td>
+                <input id="passwdType" name="type" value="1" type="radio" th:checked="${vo == null or vo.type == 1}">
+                <label for="passwdType">密码</label>
+                <input id="keyType" name="type" value="2" type="radio" th:checked="${vo != null and vo.type == 2}">
+                <label for="keyType">key</label>
+            </td>
+        </tr>
+        <tr th:style="${vo == null or vo.type == null or vo.type == 1 ? '' : 'display: none;'}">
+            <td><span style="font-weight: bold;">*</span><label>密码</label></td>
+            <td><input id="passwd" name="passwd" type="text" th:value="${vo != null ? vo.passwd : ''}"></td>
+        </tr>
+        <tr th:style="${vo != null and vo.type == 2 ? '' : 'display: none;'}">
+            <td><span style="font-weight: bold;">*</span><label>key</label></td>
+            <td><textarea id="key" name="key" type="text" th:text="${vo != null ? vo.key : ''}" style="width: 500px; height: 200px;"></textarea></td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <input type="submit" th:value="${isUpd ? '修改' : '新增'}">
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</form>
+</body>
+<div th:replace="foot"></div>
+</html>
+<script type="text/javascript" th:src="@{/static/js/jquery.js}"></script>
+<script type="text/javascript">
+    ;
+    $(function () {
+        // 查找元素最近的父级<tr>元素
+        let $passwd = $('#passwd').closest('tr')
+
+        // 查找元素最近的父级<tr>元素
+        let $key = $('#key').closest('tr')
+
+        $('input[type="radio"][name="type"]').change(function () {
+            let value = $(this).val();
+            // 密码
+            if (value === "1") {
+                // 显示<tr>元素
+                $passwd.css('display', '')
+
+                // 隐藏<tr>元素
+                $key.css('display', 'none')
+            }
+            // key
+            else if (value === "2") {
+                // 显示<tr>元素
+                $key.css('display', '')
+
+                // 隐藏<tr>元素
+                $passwd.css('display', 'none')
+            }
+        });
+    })
+    ;
+</script>

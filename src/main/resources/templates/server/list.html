@@ -1,0 +1,89 @@
+<!--
+ | @author xiangqian
+ | @date 21:11 2024/03/03
+ |-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" th:href="@{/static/favicon.ico}">
+    <link rel="stylesheet" th:href="@{/static/css/body.css}" type="text/css" />
+    <title>服务器</title>
+</head>
+<body>
+<table>
+    <thead>
+    <tr>
+        <td>名称</td>
+        <td>远程主机</td>
+        <td>端口</td>
+        <td>用户</td>
+        <td>授权类型</td>
+        <td>创建时间</td>
+        <td>修改时间</td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="vo : ${vos}" th:id="${vo.id}" th:name="${vo.name}">
+        <td th:text="${vo.name}"></td>
+        <td th:text="${vo.host}"></td>
+        <td th:text="${vo.port}"></td>
+        <td th:text="${vo.user}"></td>
+        <td th:text="${vo.type == 1 ? '密码' : 'key'}"></td>
+        <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(vo.addTime)}"></td>
+        <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(vo.updTime)}"></td>
+        <td style="display: none;">
+            <a th:href="@{'/server/' + ${vo.id} + '?t=' + ${timestamp}}"><button>修改</button></a>
+            <form method="post" th:action="@{'/server/' + ${vo.id} + '?t=' + ${timestamp}}" style="display: inline-block;">
+                <input name="_method" value="DELETE" type="hidden">
+                <button name="del">删除</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+    <tfoot>
+    <tr>
+        <td colspan="6">
+            <a id="add" th:href="@{'/server/add?t=' + ${timestamp}}">新增</a>
+        </td>
+    </tr>
+    </tfoot>
+</table>
+</body>
+<div th:replace="foot"></div>
+</html>
+<script type="text/javascript" th:src="@{/static/js/jquery.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/body.js}"></script>
+<script type="text/javascript">
+    ;
+    $(function () {
+        function Server(id, name) {
+            this.id = id
+            this.name = name
+        }
+
+        function getServer($element) {
+            // 查找元素最近的父级<tr>元素
+            let $tr = $element.closest('tr')
+
+            let id = $tr.attr('id')
+            let name = $tr.attr('name')
+            return new Server(id, name)
+        }
+
+        // 删除
+        $('button[name=del]').click(function (event) {
+            // 获取目标<button>元素
+            let $button = $(event.currentTarget)
+
+            let server = getServer($button)
+            if (confirm(`确定删除服务器：${server.name} ？`)) {
+                return true
+            } else {
+                return false
+            }
+        })
+    })
+    ;
+</script>

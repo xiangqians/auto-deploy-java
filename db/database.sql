@@ -44,7 +44,7 @@ CREATE TABLE `git` -- Git信息表
 -- Table structure for server
 -- --------------------------
 DROP TABLE IF EXISTS `server`;
-CREATE TABLE `server` -- 远程主机信息表
+CREATE TABLE `server` -- 服务器信息表
 (
     `id`       INTEGER PRIMARY KEY AUTOINCREMENT, -- id
     `name`     VARCHAR(64) NOT NULL,              -- 名称
@@ -66,7 +66,6 @@ DROP TABLE IF EXISTS `item`;
 CREATE TABLE `item` -- 项目信息表
 (
     `id`        INTEGER PRIMARY KEY AUTOINCREMENT, -- id
-    `user_id`   INTEGER      NOT NULL,             -- 所属用户 user.id
     `name`      VARCHAR(64)  NOT NULL,             -- 名称
     `git_id`    INTEGER      NOT NULL,             -- 所属Git git.id
     `repo_url`  VARCHAR(512) NOT NULL,             -- 仓库地址

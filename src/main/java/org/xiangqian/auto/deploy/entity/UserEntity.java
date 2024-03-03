@@ -18,6 +18,8 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
+ * 用户信息
+ *
  * @author xiangqian
  * @date 21:33 2024/02/29
  */

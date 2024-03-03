@@ -7,14 +7,14 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 /**
- * Git信息
+ * 服务器信息
  *
  * @author xiangqian
- * @date 18:26 2024/03/03
+ * @date 20:56 2024/03/03
  */
 @Data
-@TableName("git")
-public class GitEntity {
+@TableName("server")
+public class ServerEntity {
 
     private static final long serialVersionUID = 1L;
 
@@ -26,15 +26,21 @@ public class GitEntity {
     @TableField("`name`")
     private String name;
 
-    // 授权类型：1-用户名和密码，2-key
-    private Integer type;
+    // 远程主机
+    private String host;
+
+    // 端口
+    private Integer port;
 
     // 用户
     private String user;
 
-    // 密码
-    private String passwd;
+    // 授权类型：1-密码，2-key
+    private Integer type;
 
+    // 密码
+
+    private String passwd;
     // key
     @TableField("`key`")
     private String key;
