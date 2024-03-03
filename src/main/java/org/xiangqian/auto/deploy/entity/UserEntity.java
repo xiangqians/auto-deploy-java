@@ -5,7 +5,9 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.xiangqian.auto.deploy.util.DateUtil;
 
@@ -13,6 +15,8 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author xiangqian
@@ -61,6 +65,24 @@ public class UserEntity implements UserDetails {
 
     // 修改时间（时间戳，单位s）
     private Long updTime;
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+
+        return Objects.equals(name, ((UserEntity) object).name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
+    }
 
     // 是否未被限时锁定
     public boolean isNonLimitedTimeLocked() {
@@ -130,11 +152,15 @@ public class UserEntity implements UserDetails {
 
     /**
      * 用户拥有的权限
+     * {@link SecurityExpressionRoot#defaultRolePrefix}
      *
      * @return
      */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if ("admin".equals(name)) {
+            return Set.of(new SimpleGrantedAuthority("ROLE_" + "ADMIN"));
+        }
         return Collections.emptySet();
     }
 

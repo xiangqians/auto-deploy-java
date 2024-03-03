@@ -4,6 +4,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +18,9 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -36,6 +40,7 @@ import org.xiangqian.auto.deploy.util.SecurityUtil;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @author xiangqian
@@ -60,14 +65,15 @@ public class SecurityConfiguration implements WebMvcConfigurer {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    AuthenticationFailureHandler authenticationFailureHandler,
-                                                   AuthenticationSuccessHandler authenticationSuccessHandler) throws Exception {
+                                                   AuthenticationSuccessHandler authenticationSuccessHandler,
+                                                   SessionRegistry sessionRegistry) throws Exception {
         http
                 // http授权请求配置
                 .authorizeHttpRequests((authorize) -> authorize
                         // 放行静态资源
                         .requestMatchers("/static/**").permitAll()
                         // 放行/login?error
-                        .requestMatchers(request -> "/login?error".equals(request.getServletPath() + "?" + request.getQueryString()) && request.getSession().getAttribute(AttributeName.LOGIN_ERROR) != null).permitAll()
+                        .requestMatchers(request -> "/login?error".equals(request.getServletPath() + "?" + request.getQueryString()) && request.getSession(true).getAttribute(AttributeName.LOGIN_ERROR) != null).permitAll()
                         // 其他请求需要授权
                         .anyRequest().authenticated())
                 // 自定义表单登录
@@ -83,6 +89,17 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 )
                 // 处理权限不足的请求
                 .exceptionHandling(configurer -> configurer.accessDeniedPage("/error"))
+                // session会话管理：限制同一个用户只允许一端登录
+                .sessionManagement(configurer -> configurer
+                        // 设置每个用户最大会话数为1，这意味着同一个用户只允许一端登录
+                        .maximumSessions(1)
+                        // 当达到最大会话数时阻止新的登录，确保用户无法在多个地方同时登录
+                        //.maxSessionsPreventsLogin(true)
+                        // 当达到最大会话数时剔除旧登录
+                        .sessionRegistry(sessionRegistry)
+                        // 会话过期后跳转的URL
+                        .expiredUrl("/login?expired")
+                )
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .csrf(AbstractHttpConfigurer::disable);
         return http.build();
@@ -115,7 +132,7 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                         }
                     }
                 } else if (exception instanceof LockedException) {
-                    loginError = "用户已锁定";
+                    loginError = "用户已被锁定";
                 } else {
                     loginError = exception.getMessage();
                 }
@@ -132,9 +149,26 @@ public class SecurityConfiguration implements WebMvcConfigurer {
             @Autowired
             private UserMapper mapper;
 
+            @Autowired
+            private SessionRegistry sessionRegistry;
+
             @Override
             public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
                 UserEntity entity = (UserEntity) authentication.getPrincipal();
+
+                // 限制同一个用户只允许一端登录
+                List<SessionInformation> sessions = sessionRegistry.getAllSessions(entity,
+                        false); // 是否包括过期的会话
+                if (CollectionUtils.isNotEmpty(sessions)) {
+                    HttpSession currentSession = request.getSession(true);
+                    String currentSessionId = currentSession.getId();
+                    for (SessionInformation session : sessions) {
+                        if (!currentSessionId.equals(session.getSessionId())) {
+                            session.expireNow();
+                        }
+                    }
+                }
+
                 UserEntity updEntity = new UserEntity();
                 updEntity.setId(entity.getId());
                 updEntity.setTryCount(0);
@@ -148,6 +182,11 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 super.onAuthenticationSuccess(request, response, authentication);
             }
         };
+    }
+
+    @Bean
+    public SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
     }
 
     @Override

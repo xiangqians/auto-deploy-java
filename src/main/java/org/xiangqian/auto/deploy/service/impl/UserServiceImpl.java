@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserEntity> list() {
-        return mapper.selectList(new LambdaQueryWrapper<UserEntity>());
+        return mapper.selectList(new LambdaQueryWrapper<UserEntity>().ne(UserEntity::getName, "admin"));
     }
 
     @Override

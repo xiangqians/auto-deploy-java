@@ -12,10 +12,11 @@
     <tr>
         <td>用户名</td>
         <td>昵称</td>
-        <td>是否已锁定</td>
+        <td>是否已被锁定</td>
         <td>最近一次登录IP</td>
         <td>最近一次登录时间</td>
         <td>创建时间</td>
+        <td>修改时间</td>
     </tr>
     </thead>
     <tbody>
@@ -27,6 +28,7 @@
         <td th:text="${user.currentLoginIp}"></td>
         <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(user.currentLoginTime)}"></td>
         <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(user.addTime)}"></td>
+        <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(user.updTime)}"></td>
         <td style="display: none;">
             <button name="resetPasswd">重置密码</button>
             <button th:name="${user.locked} == 0 ? (${user.isNonLimitedTimeLocked()} ? 'lock' : 'unlock') : 'unlock'"
