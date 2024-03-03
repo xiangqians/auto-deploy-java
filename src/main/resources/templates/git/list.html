@@ -9,41 +9,27 @@
     <meta charset="UTF-8">
     <link rel="icon" type="image/x-icon" th:href="@{/static/favicon.ico}">
     <link rel="stylesheet" th:href="@{/static/css/body.css}" type="text/css" />
-    <title>用户</title>
+    <title>Git</title>
 </head>
 <body>
 <table>
     <thead>
     <tr>
-        <td>用户名</td>
-        <td>昵称</td>
-        <td>是否已被锁定</td>
-        <td>最近一次登录IP</td>
-        <td>最近一次登录时间</td>
+        <td>名称</td>
+        <td>授权类型</td>
         <td>创建时间</td>
+        <td>修改时间</td>
     </tr>
     </thead>
     <tbody>
-    <tr th:each="vo : ${vos}" th:id="${vo.id}" th:name="${vo.name}" th:nickname="${vo.nickname}"
-        th:with="locked=${vo.locked} == 0 ? (${vo.isNonLimitedTimeLocked()} ? 0 : 2) : 1">
+    <tr th:each="vo : ${vos}" th:id="${vo.id}" th:name="${vo.name}">
         <td th:text="${vo.name}"></td>
-        <td th:text="${vo.nickname}"></td>
-        <td th:text="${locked} == 0 ? '否' : (${locked} == 1 ? '是' : '是（限时）')" th:style="${locked} > 0 ? 'color:red;' : ''" th:title="${locked} == 2 ? (${vo.humanLimitedTime()}) + '后解锁' : ''"></td>
-        <td th:text="${vo.currentLoginIp}"></td>
-        <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(vo.currentLoginTime)}"></td>
+        <td th:text="${vo.type == 1 ? '用户名和密码' : 'key'}"></td>
         <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(vo.addTime)}"></td>
+        <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(vo.updTime)}"></td>
         <td style="display: none;">
-            <form method="post" th:action="@{'/user/resetPasswd?t=' + ${timestamp}}" style="display: inline-block;">
-                <input name="_method" value="PUT" type="hidden">
-                <input name="id" th:value="${vo.id}" type="hidden">
-                <input name="passwd" value="" type="hidden">
-                <button name="resetPasswd" type="submit">重置密码</button>
-            </form>
-            <form method="post" th:action="@{'/user/' + (${locked} > 0 ? 'unlock/' : 'lock/') + ${vo.id} + '?t=' + ${timestamp}}" style="display: inline-block;">
-                <input name="_method" value="PUT" type="hidden">
-                <button th:name="${locked} > 0 ? 'unlock' : 'lock'" th:text="${locked} > 0 ? '解锁' : '锁定'"></button>
-            </form>
-            <form method="post" th:action="@{'/user/' + ${vo.id} + '?t=' + ${timestamp}}" style="display: inline-block;">
+            <a th:href="@{'/git/' + ${vo.id} + '?t=' + ${timestamp}}"><button>修改</button></a>
+            <form method="post" th:action="@{'/git/' + ${vo.id} + '?t=' + ${timestamp}}" style="display: inline-block;">
                 <input name="_method" value="DELETE" type="hidden">
                 <button name="del">删除</button>
             </form>
@@ -53,7 +39,7 @@
     <tfoot>
     <tr>
         <td colspan="6">
-            <a id="add" th:href="@{/user/add}">新增</a>
+            <a id="add" th:href="@{'/git/add?t=' + ${timestamp}}">新增</a>
         </td>
     </tr>
     </tfoot>
@@ -66,92 +52,27 @@
 <script type="text/javascript">
     ;
     $(function () {
-        function User(id, name, nickname) {
+        function Git(id, name) {
             this.id = id
             this.name = name
-            this.nickname = nickname
         }
 
-        User.prototype.toString = function () {
-            if (this.nickname === '') {
-                return this.name
-            }
-            return `${this.name} ( ${this.nickname} )`
-        }
-
-        function getUser($element) {
+        function getGit($element) {
             // 查找元素最近的父级<tr>元素
             let $tr = $element.closest('tr')
 
             let id = $tr.attr('id')
             let name = $tr.attr('name')
-            let nickname = $tr.attr('nickname')
-            return new User(id, name, nickname)
+            return new Git(id, name)
         }
-
-        // 重置密码
-        $('button[name=resetPasswd]').click(function (event) {
-            // 获取目标<button>元素
-            let $button = $(event.currentTarget)
-
-            let user = getUser($button)
-            let passwd = prompt(`重置用户 ${user.toString()} 密码`, "")
-
-            // cancel
-            if (passwd == null) {
-                return false
-            }
-
-            passwd = passwd.trim()
-            if (passwd === '') {
-                return false
-            }
-
-            // 查找元素最近的父级<form>元素
-            let $form = $button.closest('form')
-
-            // 查找input[name='passwd']元素
-            let $passwd = $form.find("input[name='passwd']")
-
-            // 设置密码
-            $passwd.val(passwd)
-
-            return true
-        })
-
-        // 锁定
-        $('button[name=lock]').click(function (event) {
-            // 获取目标<button>元素
-            let $button = $(event.currentTarget)
-
-            let user = getUser($button)
-            if (confirm(`确定锁定用户：${user.toString()} ？`)) {
-                return true
-            } else {
-                return false
-            }
-        })
-
-        // 解锁
-        $('button[name=unlock]').click(function (event) {
-            // 获取目标<button>元素
-            let $button = $(event.currentTarget)
-
-            let user = getUser($button)
-            if (confirm(`确定解锁用户：${user.toString()} ？`)) {
-                return true
-            } else {
-                return false
-            }
-        })
 
         // 删除
         $('button[name=del]').click(function (event) {
             // 获取目标<button>元素
             let $button = $(event.currentTarget)
 
-            let user = getUser($button)
-            if (confirm(`确定删除用户：${user.toString()} ？`)) {
+            let git = getGit($button)
+            if (confirm(`确定删除Git：${git.name} ？`)) {
                 return true
             } else {
                 return false

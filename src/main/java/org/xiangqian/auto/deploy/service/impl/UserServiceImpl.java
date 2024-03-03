@@ -94,7 +94,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Boolean del(Long id) {
+    public Boolean delById(Long id) {
         Assert.notNull(id, "用户id不能为空");
 
         if (mapper.deleteById(id) > 0) {

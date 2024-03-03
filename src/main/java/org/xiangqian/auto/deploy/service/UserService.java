@@ -15,7 +15,7 @@ public interface UserService extends UserDetailsService {
 
     Boolean add(UserAddVo vo);
 
-    Boolean del(Long id);
+    Boolean delById(Long id);
 
     Boolean unlock(Long id);
 

@@ -13,7 +13,7 @@ $(function () {
         // 获取目标<tr>元素中的最后一个<td>元素
         let $lastTd = $($tr.find('td:last'))
 
-        // 设置<td>元素的display样式为none
+        // 隐藏<td>元素
         $lastTd.css('display', '')
     });
 
@@ -25,7 +25,7 @@ $(function () {
         // 获取目标<tr>元素中的最后一个<td>元素
         let $lastTd = $($tr.find('td:last'))
 
-        // 设置<td>元素的display样式为none
+        // 显示<td>元素
         $lastTd.css('display', 'none')
     });
 })

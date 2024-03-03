@@ -49,8 +49,8 @@ public class UserController extends AbsController {
     }
 
     @DeleteMapping("/{id}")
-    public RedirectView del(@PathVariable Long id) {
-        service.del(id);
+    public RedirectView delById(@PathVariable Long id) {
+        service.delById(id);
         return redirectListView();
     }
 

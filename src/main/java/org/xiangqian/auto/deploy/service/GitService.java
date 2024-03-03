@@ -10,6 +10,13 @@ import java.util.List;
  */
 public interface GitService {
 
+    Boolean delById(Long id);
+
+    Boolean updById(GitEntity vo);
+
+    GitEntity getById(Long id);
+
+    Boolean add(GitEntity vo);
 
     List<GitEntity> list();
 
