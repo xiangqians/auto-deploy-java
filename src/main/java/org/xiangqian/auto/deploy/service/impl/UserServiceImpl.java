@@ -16,8 +16,8 @@ import org.xiangqian.auto.deploy.entity.UserEntity;
 import org.xiangqian.auto.deploy.mapper.UserMapper;
 import org.xiangqian.auto.deploy.service.UserService;
 import org.xiangqian.auto.deploy.util.DateUtil;
-import org.xiangqian.auto.deploy.vo.user.UserAddVo;
-import org.xiangqian.auto.deploy.vo.user.UserResetPasswdVo;
+import org.xiangqian.auto.deploy.vo.UserAddVo;
+import org.xiangqian.auto.deploy.vo.UserResetPasswdVo;
 
 import java.time.LocalDateTime;
 import java.util.List;

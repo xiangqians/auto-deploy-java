@@ -1,4 +1,4 @@
-package org.xiangqian.auto.deploy.vo.user;
+package org.xiangqian.auto.deploy.vo;
 
 import lombok.Data;
 

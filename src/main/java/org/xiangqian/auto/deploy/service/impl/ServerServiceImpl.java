@@ -52,7 +52,7 @@ public class ServerServiceImpl implements ServerService {
         return mapper.selectList(new LambdaQueryWrapper<ServerEntity>());
     }
 
-    public Boolean addOrUpd(ServerEntity vo) {
+    private Boolean addOrUpd(ServerEntity vo) {
         Long id = vo.getId();
 
         String name = StringUtils.trim(vo.getName());

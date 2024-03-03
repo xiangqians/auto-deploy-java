@@ -70,7 +70,7 @@ CREATE TABLE `item` -- 项目信息表
     `git_id`    INTEGER      NOT NULL,             -- 所属Git git.id
     `repo_url`  VARCHAR(512) NOT NULL,             -- 仓库地址
     `branch`    VARCHAR(64)  NOT NULL,             -- 分支名
-    `server_id` INTEGER      NOT NULL,             -- 所属服务 server.id
+    `server_id` INTEGER      NOT NULL,             -- 所属服务器 server.id
     `script`    TEXT         DEFAULT '',           -- 自动部署脚本
     `secret`    VARCHAR(128) DEFAULT '',           -- Webhook密钥
     `add_time`  INTEGER      DEFAULT 0,            -- 创建时间（时间戳，s）
@@ -78,43 +78,16 @@ CREATE TABLE `item` -- 项目信息表
 );
 
 
--- -------------------------
--- Table structure for share
--- -------------------------
-DROP TABLE IF EXISTS `share`;
-CREATE TABLE `share` -- 共享信息表
+-- -----------------------------
+-- Table structure for user_item
+-- -----------------------------
+DROP TABLE IF EXISTS `user_item`;
+CREATE TABLE `user_item` -- 用户-项目信息表
 (
-    `id`       INTEGER PRIMARY KEY AUTOINCREMENT, -- id
-    `user_id`  INTEGER     NOT NULL,              -- 拥有者 user.id
-    `name`     VARCHAR(64) NOT NULL,              -- 名称
-    `add_time` INTEGER DEFAULT 0,                 -- 创建时间（时间戳，s）
-    `upd_time` INTEGER DEFAULT 0                  -- 修改时间（时间戳，s）
-);
-
-
--- ------------------------------
--- Table structure for share_user
--- ------------------------------
-DROP TABLE IF EXISTS `share_user`;
-CREATE TABLE `share_user` -- 共享-用户信息表
-(
-    `share_id` INTEGER NOT NULL,  -- 共享id share.id
-    `user_id`  INTEGER DEFAULT 0, -- 共享者 user.id，如果为 0 说明待共享者加入
-    `add_time` INTEGER DEFAULT 0, -- 创建时间（时间戳，s）
-    PRIMARY KEY (`share_id`, `user_id`)
-);
-
-
--- ------------------------------
--- Table structure for share_item
--- ------------------------------
-DROP TABLE IF EXISTS `share_item`;
-CREATE TABLE `share_item` -- 共享-项目信息表
-(
-    `share_id` INTEGER NOT NULL,  -- 共享id share.id
+    `user_id`  INTEGER NOT NULL,  -- 用户id user.id
     `item_id`  INTEGER NOT NULL,  -- 项目id item.id
     `add_time` INTEGER DEFAULT 0, -- 创建时间（时间戳，s）
-    PRIMARY KEY (`share_id`, `item_id`)
+    PRIMARY KEY (`user_id`, `item_id`)
 );
 
 

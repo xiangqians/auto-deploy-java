@@ -2,8 +2,8 @@ package org.xiangqian.auto.deploy.service;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.xiangqian.auto.deploy.entity.UserEntity;
-import org.xiangqian.auto.deploy.vo.user.UserAddVo;
-import org.xiangqian.auto.deploy.vo.user.UserResetPasswdVo;
+import org.xiangqian.auto.deploy.vo.UserAddVo;
+import org.xiangqian.auto.deploy.vo.UserResetPasswdVo;
 
 import java.util.List;
 

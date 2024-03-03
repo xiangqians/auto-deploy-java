@@ -68,6 +68,12 @@ body > table tbody tr:nth-child(even) {
 body > table tbody tr td {
     height: 40px;
     border-bottom: 1px solid #CCCCCC;
+
+    /* 设置最大宽度 */
+    max-width: 500px;
+
+    /* 设置文本自动换行 */
+    word-wrap: break-word;
 }
 
 body > table tbody tr td:last-child {
