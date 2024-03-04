@@ -17,6 +17,7 @@
     <tr>
         <td>用户名</td>
         <td>昵称</td>
+        <td>项目数量</td>
         <td>是否已被锁定</td>
         <td>最近一次登录IP</td>
         <td>最近一次登录时间</td>
@@ -28,11 +29,12 @@
         th:with="locked=${vo.locked} == 0 ? (${vo.isNonLimitedTimeLocked()} ? 0 : 2) : 1">
         <td th:text="${vo.name}"></td>
         <td th:text="${vo.nickname}"></td>
+        <td><a th:href="@{'#?t=' + ${timestamp}}" th:text="${vo.itemCount}"></a></td>
         <td th:text="${locked} == 0 ? '否' : (${locked} == 1 ? '是' : '是（限时）')" th:style="${locked} > 0 ? 'color:red;' : ''" th:title="${locked} == 2 ? (${vo.humanLimitedTime()}) + '后解锁' : ''"></td>
         <td th:text="${vo.currentLoginIp}"></td>
         <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(vo.currentLoginTime)}"></td>
         <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(vo.addTime)}"></td>
-        <td style="display: none;">
+        <td style="visibility: hidden;">
             <form method="post" th:action="@{'/user/resetPasswd?t=' + ${timestamp}}" style="display: inline-block;">
                 <input name="_method" value="PUT" type="hidden">
                 <input name="id" th:value="${vo.id}" type="hidden">

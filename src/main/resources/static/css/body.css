@@ -76,9 +76,16 @@ body > table tbody tr td {
     word-wrap: break-word;
 }
 
+/* 设置table tbody tr最后一个td样式 */
 body > table tbody tr td:last-child {
     background-color: white;
     border-bottom: none;
+    padding-right: 15px;
+}
+
+/* 设置table tbody tr最后一个td子元素之间间隔 */
+body > table tbody tr td:last-child > * {
+    padding-left: 15px;
 }
 
 /* 鼠标经过显示背景颜色 */

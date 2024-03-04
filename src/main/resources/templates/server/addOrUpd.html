@@ -9,7 +9,7 @@
     <meta charset="UTF-8">
     <link rel="icon" type="image/x-icon" th:href="@{/static/favicon.ico}">
     <link rel="stylesheet" th:href="@{/static/css/body.css}" type="text/css" />
-    <title th:text="${isUpd ? ('修改服务器：' + vo.name) : '新增服务器'}"></title>
+    <title th:text="${isUpd ? ('服务器：' + vo.name) : '新增服务器'}"></title>
 </head>
 <body>
 <error th:text="${error}"></error>

@@ -1,0 +1,123 @@
+<!--
+ | @author xiangqian
+ | @date 23:16 2024/03/03
+ |-->
+
+<!DOCTYPE html>
+<html lang="en" th:with="isUpd=${vo} != null and ${vo.id} != null">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" th:href="@{/static/favicon.ico}">
+    <link rel="stylesheet" th:href="@{/static/css/body.css}" type="text/css"/>
+
+    <!--
+     | https://codemirror.net
+     | GitHub: https://github.com/codemirror/codemirror5
+     | doc: https://codemirror.net/5/doc/manual.html
+     |-->
+    <!-- 引入核心文件 codemirror.css -->
+    <link rel="stylesheet" th:href="@{/static/css/codemirror.css}" type="text/css"/>
+
+    <style type="text/css">
+        .CodeMirror {
+            /* 设置编辑器宽度 */
+            width: 1500px;
+            /* 设置编辑器高度 */
+            height: 800px;
+            /* 设置边框样式 */
+            border: 1px solid #ccc;
+            /* 设置边框圆角 */
+            border-radius: 5px;
+            /* 设置字体大小  */
+            font-size: 16px;
+        }
+    </style>
+
+    <title th:text="${isUpd ? ('项目：' + vo.name) : '新增项目'}"></title>
+</head>
+<body>
+<error th:text="${error}"></error>
+<form method="post" th:action="@{'/item?t=' + ${timestamp}}">
+    <input th:if="${isUpd}" name="_method" value="PUT" type="hidden">
+    <input th:if="${isUpd}" name="id" th:value="${vo.id}" type="hidden">
+    <table>
+        <tbody>
+        <tr>
+            <td><span style="font-weight: bold;">*</span><label>名称</label></td>
+            <td><input id="name" name="name" type="text" th:value="${vo != null ? vo.name : ''}" required autofocus></td>
+        </tr>
+        <tr>
+            <td><span style="font-weight: bold;">*</span><label>Git</label></td>
+            <td>
+                <select id="gitId" name="gitId">
+                    <option></option>
+                    <option th:each="gitVo : ${gitVos}"
+                            th:value="${gitVo.id}"
+                            th:text="${gitVo.name}"
+                            th:selected="${vo != null and vo.gitId == gitVo.id}">
+                    </option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td><span style="font-weight: bold;">*</span><label>仓库地址</label></td>
+            <td><input id="repoUrl" name="repoUrl" type="text" th:value="${vo != null ? vo.repoUrl : ''}" required></td>
+        </tr>
+        <tr>
+            <td><span style="font-weight: bold;">*</span><label>分支名</label></td>
+            <td><input id="branch" name="branch" type="text" th:value="${vo != null ? vo.branch : ''}" required></td>
+        </tr>
+        <tr>
+            <td><span style="font-weight: bold;">*</span><label>服务器</label></td>
+            <td>
+                <select id="serverId" name="serverId">
+                    <option></option>
+                    <option th:each="serverVo : ${serverVos}"
+                            th:value="${serverVo.id}"
+                            th:text="${serverVo.name}"
+                            th:selected="${vo != null and vo.serverId == serverVo.id}">
+                    </option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td style="vertical-align: top;"><span style="font-weight: bold;">*</span><label>自动部署脚本</label></td>
+            <td><textarea id="script" name="script" type="text" th:text="${vo != null ? vo.script : ''}"></textarea></td>
+        </tr>
+        <tr>
+            <td>Webhook密钥</td>
+            <td><input id="secret" name="secret" type="text" th:value="${vo != null ? vo.secret : ''}"></td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <input type="submit" th:value="${isUpd ? '修改' : '新增'}">
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</form>
+</body>
+<div th:replace="foot"></div>
+</html>
+<script type="text/javascript" th:src="@{/static/js/jquery.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/codemirror.js}"></script>
+<script type="text/javascript">
+    ;
+    $(function () {
+        let editor = CodeMirror.fromTextArea(document.getElementById("script"), {
+            // 指定编辑器的语言模式，例如 "javascript", "xml", "css" 等
+            mode: 'shell',
+            // 设置编辑器的主题，控制编辑器的外观样式
+            theme: "default",
+            // 是否显示行号
+            lineNumbers: true,
+            // 是否启用自动换行
+            lineWrapping: false,
+            // 设置编辑器为只读模式
+            readOnly: false,
+            // 是否启用括号匹配高亮
+            matchBrackets: true,
+        })
+    })
+    ;
+</script>

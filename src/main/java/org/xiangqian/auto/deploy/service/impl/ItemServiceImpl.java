@@ -75,8 +75,7 @@ public class ItemServiceImpl implements ItemService {
         String script = StringUtils.trim(vo.getScript());
         Assert.isTrue(StringUtils.isNotEmpty(script), "自动部署脚本不能为空");
 
-        String secret = StringUtils.trim(vo.getSecret());
-        Assert.isTrue(StringUtils.isNotEmpty(secret), "Webhook密钥不能为空");
+        String secret = StringUtils.trimToEmpty(vo.getSecret());
 
         ItemEntity entity = new ItemEntity();
         entity.setName(name);

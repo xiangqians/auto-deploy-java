@@ -128,4 +128,42 @@ public class DateUtil {
         return second + "秒前";
     }
 
+    /**
+     * 人性化 {@link Duration}
+     *
+     * @param duration
+     * @return
+     */
+    public static String humanDuration(Duration duration) {
+        if (duration == null) {
+            return "-秒";
+        }
+
+        if (duration.toSeconds() == 0) {
+            return "0秒";
+        }
+
+        StringBuilder builder = new StringBuilder();
+
+        // 小时
+        long hour = duration.toHours();
+        if (hour > 0) {
+            builder.append(hour).append("小时");
+        }
+
+        // 分钟
+        int minute = duration.toMinutesPart();
+        if (minute > 0) {
+            builder.append(minute).append("分钟");
+        }
+
+        // 秒
+        int second = duration.toSecondsPart();
+        if (second > 0) {
+            builder.append(second).append("秒");
+        }
+
+        return builder.toString();
+    }
+
 }

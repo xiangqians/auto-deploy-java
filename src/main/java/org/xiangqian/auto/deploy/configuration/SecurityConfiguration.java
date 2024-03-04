@@ -186,6 +186,13 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 updEntity.setUpdTime(DateUtil.toSecond(LocalDateTime.now()));
                 mapper.updateById(updEntity);
 
+                entity.setTryCount(updEntity.getTryCount());
+                entity.setLastLoginIp(updEntity.getLastLoginIp());
+                entity.setLastLoginTime(updEntity.getLastLoginTime());
+                entity.setCurrentLoginIp(updEntity.getCurrentLoginIp());
+                entity.setCurrentLoginTime(updEntity.getCurrentLoginTime());
+                entity.setUpdTime(updEntity.getUpdTime());
+
                 super.onAuthenticationSuccess(request, response, authentication);
             }
         };

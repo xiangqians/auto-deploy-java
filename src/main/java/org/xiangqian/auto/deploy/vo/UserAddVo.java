@@ -9,8 +9,13 @@ import lombok.Data;
 @Data
 public class UserAddVo {
 
+    // 用户名
     private String name;
+
+    // 用户昵称
     private String nickname;
+
+    // 密码
     private String passwd;
 
 }

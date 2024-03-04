@@ -13,8 +13,8 @@ $(function () {
         // 获取目标<tr>元素中的最后一个<td>元素
         let $lastTd = $($tr.find('td:last'))
 
-        // 隐藏<td>元素
-        $lastTd.css('display', '')
+        // 显示<td>元素
+        $lastTd.css('visibility', 'visible')
     });
 
     // 鼠标离开<tr>时执行的函数
@@ -25,8 +25,8 @@ $(function () {
         // 获取目标<tr>元素中的最后一个<td>元素
         let $lastTd = $($tr.find('td:last'))
 
-        // 显示<td>元素
-        $lastTd.css('display', 'none')
+        // 隐藏<td>元素
+        $lastTd.css('visibility', 'hidden')
     });
 })
 ;

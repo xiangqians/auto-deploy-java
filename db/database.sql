@@ -67,10 +67,10 @@ CREATE TABLE `item` -- 项目信息表
 (
     `id`        INTEGER PRIMARY KEY AUTOINCREMENT, -- id
     `name`      VARCHAR(64)  NOT NULL,             -- 名称
-    `git_id`    INTEGER      NOT NULL,             -- 所属Git git.id
+    `git_id`    INTEGER      NOT NULL,             -- Git id
     `repo_url`  VARCHAR(512) NOT NULL,             -- 仓库地址
     `branch`    VARCHAR(64)  NOT NULL,             -- 分支名
-    `server_id` INTEGER      NOT NULL,             -- 所属服务器 server.id
+    `server_id` INTEGER      NOT NULL,             -- 服务器id
     `script`    TEXT         DEFAULT '',           -- 自动部署脚本
     `secret`    VARCHAR(128) DEFAULT '',           -- Webhook密钥
     `add_time`  INTEGER      DEFAULT 0,            -- 创建时间（时间戳，s）
@@ -84,8 +84,8 @@ CREATE TABLE `item` -- 项目信息表
 DROP TABLE IF EXISTS `user_item`;
 CREATE TABLE `user_item` -- 用户-项目信息表
 (
-    `user_id`  INTEGER NOT NULL,  -- 用户id user.id
-    `item_id`  INTEGER NOT NULL,  -- 项目id item.id
+    `user_id`  INTEGER NOT NULL,  -- 用户id
+    `item_id`  INTEGER NOT NULL,  -- 项目id
     `add_time` INTEGER DEFAULT 0, -- 创建时间（时间戳，s）
     PRIMARY KEY (`user_id`, `item_id`)
 );
@@ -95,18 +95,19 @@ CREATE TABLE `user_item` -- 用户-项目信息表
 -- Table structure for record
 -- --------------------------
 DROP TABLE IF EXISTS `record`;
-CREATE TABLE `record` -- 项目部署记录信息表（xx_etime = -1 时，说明xx流程发生了异常）
+CREATE TABLE `record` -- 项目部署记录信息表
 (
     `id`            INTEGER PRIMARY KEY AUTOINCREMENT, -- id
-    `item_id`       INTEGER NOT NULL,                  -- 所属项目 item.id
-    `user_id`       INTEGER      DEFAULT 0,            -- 触发用户 user.id
+    `item_id`       INTEGER NOT NULL,                  -- 项目id
+    `user_id`       INTEGER      DEFAULT 0,            -- 用户id
+    `state`         TINYINT      DEFAULT 0,            -- 状态，0-部署中，1-部署成功，2-部署失败
     `add_time`      INTEGER      DEFAULT 0,            -- 创建时间（时间戳，s）
     `pull_stime`    INTEGER      DEFAULT 0,            -- 【从远程仓库拉取代码】开始时间（时间戳，s）
     `pull_etime`    INTEGER      DEFAULT 0,            -- 【从远程仓库拉取代码】结束时间（时间戳，s）
     `pull_msg`      TEXT         DEFAULT '',           -- 【从远程仓库拉取代码】信息
     `commit_id`     VARCHAR(128) DEFAULT '',           -- 提交id
     `commit_author` VARCHAR(128) DEFAULT '',           -- 提交作者
-    `commit_date`   VARCHAR(128) DEFAULT '',           -- 提交日期
+    `commit_time`   VARCHAR(128) DEFAULT '',           -- 提交日期
     `commit_msg`    VARCHAR(512) DEFAULT '',           -- 提交信息
     `build_stime`   INTEGER      DEFAULT 0,            -- 【构建】开始时间（时间戳，s）
     `build_etime`   INTEGER      DEFAULT 0,            -- 【构建】结束时间（时间戳，s）

@@ -33,8 +33,8 @@
         <td th:text="${vo.type == 1 ? '密码' : 'key'}"></td>
         <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(vo.addTime)}"></td>
         <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(vo.updTime)}"></td>
-        <td style="display: none;">
-            <a th:href="@{'/server/' + ${vo.id} + '?t=' + ${timestamp}}"><button>修改</button></a>
+        <td style="visibility: hidden;">
+            <a th:href="@{'/server/' + ${vo.id} + '?t=' + ${timestamp}}">修改</a>
             <form method="post" th:action="@{'/server/' + ${vo.id} + '?t=' + ${timestamp}}" style="display: inline-block;">
                 <input name="_method" value="DELETE" type="hidden">
                 <button name="del">删除</button>

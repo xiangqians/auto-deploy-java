@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Boolean add(UserAddVo vo) {
+    public synchronized Boolean add(UserAddVo vo) {
         String name = StringUtils.trim(vo.getName());
         String nickname = StringUtils.trim(vo.getNickname());
         String passwd = StringUtils.trim(vo.getPasswd());
@@ -151,11 +151,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserEntity> list() {
-        return mapper.selectList(new LambdaQueryWrapper<UserEntity>().ne(UserEntity::getName, "admin"));
+        return mapper.list();
     }
 
     @Override
-    public Boolean updById(UserEntity entity) {
+    public synchronized Boolean updById(UserEntity entity) {
         return mapper.updateById(entity) > 0;
     }
 

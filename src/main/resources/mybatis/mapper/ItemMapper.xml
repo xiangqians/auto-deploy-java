@@ -3,16 +3,13 @@
 <mapper namespace="org.xiangqian.auto.deploy.mapper.ItemMapper">
 
     <select id="list" resultType="org.xiangqian.auto.deploy.entity.ItemEntity">
-        <!--  -->
         SELECT
         i.*,
         g.name AS 'git_name',
-        s.name AS 'server_name',
-        COUNT(ui.user_id) AS 'user_count'
+        s.name AS 'server_name'
         FROM item i
         LEFT JOIN git g ON g.id = i.git_id
         LEFT JOIN server s ON s.id = i.server_id
-        LEFT JOIN user_item ui ON ui.item_id = i.id
         GROUP BY i.id
     </select>
 

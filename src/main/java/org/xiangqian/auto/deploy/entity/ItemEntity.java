@@ -58,8 +58,4 @@ public class ItemEntity {
     // 修改时间（时间戳，单位s）
     private Long updTime;
 
-    // 共享用户数量
-    @TableField(exist = false)
-    private Integer userCount;
-
 }

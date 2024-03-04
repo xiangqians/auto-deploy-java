@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.xiangqian.auto.deploy.mapper.UserMapper">
+
+    <select id="list" resultType="org.xiangqian.auto.deploy.entity.UserEntity">
+        SELECT
+        u.*,
+        COUNT(ui.item_id) AS 'item_count'
+        FROM `user` u
+        LEFT JOIN user_item ui ON ui.user_id = u.id
+        WHERE u.`name` != 'admin'
+        GROUP BY u.id
+    </select>
+
+</mapper>

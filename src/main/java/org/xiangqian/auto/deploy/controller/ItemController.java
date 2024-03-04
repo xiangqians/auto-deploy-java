@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import org.xiangqian.auto.deploy.entity.ItemEntity;
+import org.xiangqian.auto.deploy.service.GitService;
 import org.xiangqian.auto.deploy.service.ItemService;
+import org.xiangqian.auto.deploy.service.ServerService;
 import org.xiangqian.auto.deploy.util.AttributeName;
 import org.xiangqian.auto.deploy.util.DateUtil;
 import org.xiangqian.auto.deploy.util.SessionUtil;
@@ -27,6 +29,12 @@ public class ItemController extends AbsController {
 
     @Autowired
     private ItemService service;
+
+    @Autowired
+    private GitService gitService;
+
+    @Autowired
+    private ServerService serverService;
 
     @DeleteMapping("/{id}")
     public RedirectView delById(@PathVariable Long id) {
@@ -50,6 +58,8 @@ public class ItemController extends AbsController {
     @GetMapping("/{id}")
     public ModelAndView updById(ModelAndView modelAndView, @PathVariable Long id) {
         modelAndView.addObject(AttributeName.VO, service.getById(id));
+        modelAndView.addObject("gitVos", gitService.list());
+        modelAndView.addObject("serverVos", serverService.list());
         modelAndView.setViewName("item/addOrUpd");
         return modelAndView;
     }
@@ -69,6 +79,8 @@ public class ItemController extends AbsController {
 
     @GetMapping("/add")
     public ModelAndView add(ModelAndView modelAndView) {
+        modelAndView.addObject("gitVos", gitService.list());
+        modelAndView.addObject("serverVos", serverService.list());
         modelAndView.setViewName("item/addOrUpd");
         return modelAndView;
     }

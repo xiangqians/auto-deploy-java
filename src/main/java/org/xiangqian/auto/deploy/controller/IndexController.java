@@ -1,8 +1,11 @@
 package org.xiangqian.auto.deploy.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.xiangqian.auto.deploy.service.IndexService;
+import org.xiangqian.auto.deploy.util.AttributeName;
 
 /**
  * @author xiangqian
@@ -12,8 +15,12 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/")
 public class IndexController extends AbsController {
 
+    @Autowired
+    private IndexService service;
+
     @RequestMapping
     public ModelAndView index(ModelAndView modelAndView) {
+        modelAndView.addObject(AttributeName.VOS, service.list());
         modelAndView.setViewName("index");
         return modelAndView;
     }

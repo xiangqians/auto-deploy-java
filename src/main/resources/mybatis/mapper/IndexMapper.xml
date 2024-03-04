@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.xiangqian.auto.deploy.mapper.IndexMapper">
+
+    <select id="list" resultType="org.xiangqian.auto.deploy.vo.IndexVo">
+        SELECT
+        i.id AS 'item_id',
+        i.`name` AS 'item_name',
+        i.repo_url,
+        i.branch,
+        r.commit_id,
+        r.commit_author,
+        r.commit_time,
+        r.commit_msg,
+        r.user_id,
+        u.`name` AS 'user_name',
+        u.nickname AS 'user_nickname',
+        r.add_time AS 'time',
+        r.state AS 'state',
+        (CASE
+        WHEN r.state = 0 THEN (
+        ((CASE WHEN r.pull_stime != 0 AND r.pull_etime = 0 THEN STRFTIME('%s', 'now') ELSE r.pull_etime END) - r.pull_stime)
+        + ((CASE WHEN r.build_stime != 0 AND r.build_etime = 0 THEN STRFTIME('%s', 'now') ELSE r.build_etime END) - r.build_stime)
+        + ((CASE WHEN r.pack_stime != 0 AND r.pack_etime = 0 THEN STRFTIME('%s', 'now') ELSE r.pack_etime END) - r.pack_stime)
+        + ((CASE WHEN r.upload_stime != 0 AND r.upload_etime = 0 THEN STRFTIME('%s', 'now') ELSE r.upload_etime END) - r.upload_stime)
+        + ((CASE WHEN r.unpack_stime != 0 AND r.unpack_etime = 0 THEN STRFTIME('%s', 'now') ELSE r.unpack_etime END) - r.unpack_stime)
+        + ((CASE WHEN r.deploy_stime != 0 AND r.deploy_etime = 0 THEN STRFTIME('%s', 'now') ELSE r.deploy_etime END) - r.deploy_stime)
+        )
+        WHEN r.state = 1 OR r.state = 2 THEN (
+        (r.pull_etime - r.pull_stime)
+        + (r.build_etime - r.build_stime)
+        + (r.pack_etime - r.pack_stime)
+        + (r.upload_etime - r.upload_stime)
+        + (r.unpack_etime - r.unpack_stime)
+        + (r.deploy_etime - r.deploy_stime)
+        )
+        ELSE NULL END
+        ) AS 'duration'
+        FROM item i
+        LEFT JOIN(SELECT * FROM record WHERE id IN (SELECT MAX(id) FROM record GROUP BY item_id)) r ON r.item_id = i.id
+        LEFT JOIN user u ON u.id = r.user_id
+        GROUP BY i.id
+    </select>
+
+</mapper>

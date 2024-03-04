@@ -67,6 +67,10 @@ public class UserEntity implements UserDetails {
     // 修改时间（时间戳，单位s）
     private Long updTime;
 
+    // 项目数量
+    @TableField(exist = false)
+    private Integer itemCount;
+
     @Override
     public boolean equals(Object object) {
         if (this == object) {
@@ -93,23 +97,7 @@ public class UserEntity implements UserDetails {
 
     // 人性化限时时间
     public String humanLimitedTime() {
-        Duration duration = Duration.ofSeconds(Duration.ofHours(24).toSeconds() - (DateUtil.toSecond(LocalDateTime.now()) - updTime));
-
-        // 小时
-        long hour = duration.toHours();
-        if (hour > 0) {
-            return hour + "小时";
-        }
-
-        // 分钟
-        long minute = duration.toMinutes();
-        if (minute > 0) {
-            return minute + "分钟";
-        }
-
-        // 秒
-        long second = duration.toSeconds();
-        return second + "秒";
+        return DateUtil.humanDuration(Duration.ofSeconds(Duration.ofHours(24).toSeconds() - (DateUtil.toSecond(LocalDateTime.now()) - updTime)));
     }
 
     /**

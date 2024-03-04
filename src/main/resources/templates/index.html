@@ -8,10 +8,48 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/x-icon" th:href="@{/static/favicon.ico}">
-    <link rel="stylesheet" th:href="@{/static/css/body.css}" type="text/css" />
+    <link rel="stylesheet" th:href="@{/static/css/body.css}" type="text/css"/>
     <title>首页</title>
 </head>
 <body>
+<table>
+    <thead>
+    <tr>
+        <td>项目名称</td>
+        <td>仓库地址</td>
+        <td>分支名</td>
+        <td>最近一次提交信息</td>
+        <td>最近一次部署触发者</td>
+        <td>最近一次部署时间</td>
+        <td>最近一次部署状态</td>
+        <td>最近一次部署耗时</td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="vo : ${vos}" th:itemId="${vo.itemId}" th:itemName="${vo.itemName}">
+        <td><a th:href="@{'/record/' + ${vo.itemId} + '?t=' + ${timestamp}}" th:text="${vo.itemName}"></a></td>
+        <td th:text="${vo.repoUrl}"></td>
+        <td th:text="${vo.branch}"></td>
+        <td th:text="${vo.getCommitString()}"></td>
+        <td th:text="${vo.getUserString()}"></td>
+        <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(vo.time)}"></td>
+        <td th:switch="${vo.state}">
+            <span th:case="0" style="color: rgba(128, 128, 128, 0.9);">部署中</span>
+            <span th:case="1" style="color: green;">部署成功</span>
+            <span th:case="2" style="color: red;">部署失败</span>
+        </td>
+        <td th:with="duration=${T(java.time.Duration).ofSeconds(vo.duration)}" th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanDuration(duration)}"></td>
+        <td style="visibility: hidden;">
+            <form method="post" th:action="@{'/item1/' + ${vo.itemId} + '?t=' + ${timestamp}}" style="display: inline-block;">
+                <input name="_method" value="DELETE" type="hidden">
+                <button name="del">部署</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
 </body>
 <div th:replace="foot"></div>
 </html>
+<script type="text/javascript" th:src="@{/static/js/jquery.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/body.js}"></script>
