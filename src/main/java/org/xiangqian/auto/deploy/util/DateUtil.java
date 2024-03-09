@@ -99,8 +99,12 @@ public class DateUtil {
      * @return
      */
     public static String humanSecond(Long second) {
-        if (second == null || second <= 0) {
-            return "";
+        if (second == null || second < 0) {
+            return "-秒前";
+        }
+
+        if (second == 0) {
+            return "0秒前";
         }
 
         LocalDateTime dateTime = ofSecond(second);
@@ -135,16 +139,16 @@ public class DateUtil {
      * @return
      */
     public static String humanDurationSecond(Long second) {
-        if (second == null || second <= 0) {
-            return "";
+        if (second == null || second < 0) {
+            return "-秒";
         }
 
-        Duration duration = Duration.ofSeconds(second);
-        if (duration.toSeconds() == 0) {
+        if (second == 0) {
             return "0秒";
         }
 
         StringBuilder builder = new StringBuilder();
+        Duration duration = Duration.ofSeconds(second);
 
         // 小时
         long hour = duration.toHours();

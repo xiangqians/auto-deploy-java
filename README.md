@@ -2,3 +2,6 @@
 
 部署java、vue项目
 
+```shell
+java -Xms512m -Xmx512m
+```

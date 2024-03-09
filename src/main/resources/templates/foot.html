@@ -27,5 +27,34 @@
         <span th:text="${session.user.lastLoginIp}" style="padding-left: 10px;"></span>
         <span th:if="${session.user.lastLoginTime > 0}" style="padding-left: 10px;">[[${T(org.xiangqian.auto.deploy.util.DateUtil).formatSecond(session.user.lastLoginTime)}]]</span>
     </p>
+    <table th:if="${session.isLoggedin}">
+        <thead>
+        <tr><td>JVM信息</td><td style="padding-left: 60px">操作系统信息</td></tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <table>
+                    <tbody>
+                    <tr><td>厂商</td><td th:text="*{jvm.vendor}" style="padding-left: 10px;"></td></tr>
+                    <tr><td>版本</td><td th:text="*{jvm.version}" style="padding-left: 10px;"></td></tr>
+                    <tr><td>最大内存</td><td th:text="*{jvm.maxMemory}" style="padding-left: 10px;"></td></tr>
+                    <tr><td>空闲内存</td><td th:text="*{jvm.freeMemory}" style="padding-left: 10px;"></td></tr>
+                    </tbody>
+                </table>
+            </td>
+            <td style="padding-left: 60px">
+                <table>
+                    <tbody>
+                    <tr><td>名称</td><td th:text="*{os.name}" style="padding-left: 10px;"></td></tr>
+                    <tr><td>CPU负载</td><td th:text="*{os.cpuLoad}" style="padding-left: 10px;"></td></tr>
+                    <tr><td>总内存</td><td th:text="*{os.totalMemory}" style="padding-left: 10px;"></td></tr>
+                    <tr><td>空闲内存</td><td th:text="*{os.freeMemory}" style="padding-left: 10px;"></td></tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        </tbody>
+    </table>
     <p style="font-style: italic;"><span style="padding-right: 10px;">© 2024 xiangqian</span><a href="https://github.com/xiangqians/auto-deploy" target="_blank">关于</a></p>
 </foot>
