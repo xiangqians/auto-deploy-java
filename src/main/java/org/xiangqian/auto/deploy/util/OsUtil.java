@@ -19,12 +19,8 @@ public class OsUtil {
      * @return
      */
     public static String humanByte(Long b) {
-        if (b == null || b < 0) {
-            return "-B";
-        }
-
-        if (b == 0) {
-            return "0B";
+        if (b == null || b <= 0) {
+            return "";
         }
 
         StringBuilder builder = new StringBuilder();

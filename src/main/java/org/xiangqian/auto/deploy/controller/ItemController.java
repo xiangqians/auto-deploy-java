@@ -14,6 +14,7 @@ import org.xiangqian.auto.deploy.service.ItemService;
 import org.xiangqian.auto.deploy.service.ServerService;
 import org.xiangqian.auto.deploy.util.AttributeName;
 import org.xiangqian.auto.deploy.util.DateUtil;
+import org.xiangqian.auto.deploy.util.List;
 
 import java.time.LocalDateTime;
 
@@ -24,7 +25,6 @@ import java.time.LocalDateTime;
 @Slf4j
 @Controller
 @RequestMapping("/item")
-@PreAuthorize("hasRole('ADMIN')")
 public class ItemController extends AbsController {
 
     @Autowired
@@ -36,13 +36,27 @@ public class ItemController extends AbsController {
     @Autowired
     private ServerService serverService;
 
+    @GetMapping("/{itemId}/record/list")
+    public ModelAndView recordList(ModelAndView modelAndView, @PathVariable Long itemId, List list) {
+        list = service.recordList(list, itemId);
+        modelAndView.addObject("item", service.getById(itemId));
+        modelAndView.addObject("offset", list.getOffset());
+        modelAndView.addObject("rows", list.getRows());
+        modelAndView.addObject("records", list.getData());
+        modelAndView.addObject("offsets", list.getOffsets());
+        modelAndView.setViewName("item/record/list");
+        return modelAndView;
+    }
+
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public RedirectView delById(@PathVariable Long id) {
         service.delById(id);
         return redirectList();
     }
 
     @PutMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public RedirectView updById(HttpSession session, ItemEntity vo) {
         try {
             service.updById(vo);
@@ -56,6 +70,7 @@ public class ItemController extends AbsController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ModelAndView updById(ModelAndView modelAndView, @PathVariable Long id) {
         modelAndView.addObject(AttributeName.VO, service.getById(id));
         modelAndView.addObject("gitVos", gitService.list());
@@ -65,6 +80,7 @@ public class ItemController extends AbsController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public RedirectView add(HttpSession session, ItemEntity vo) {
         try {
             service.add(vo);
@@ -78,6 +94,7 @@ public class ItemController extends AbsController {
     }
 
     @GetMapping("/add")
+    @PreAuthorize("hasRole('ADMIN')")
     public ModelAndView add(ModelAndView modelAndView) {
         modelAndView.addObject("gitVos", gitService.list());
         modelAndView.addObject("serverVos", serverService.list());
@@ -86,6 +103,7 @@ public class ItemController extends AbsController {
     }
 
     @GetMapping("/list")
+    @PreAuthorize("hasRole('ADMIN')")
     public ModelAndView list(ModelAndView modelAndView) {
         modelAndView.addObject(AttributeName.VOS, service.list());
         modelAndView.setViewName("item/list");

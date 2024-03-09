@@ -6,11 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.xiangqian.auto.deploy.entity.ItemEntity;
+import org.xiangqian.auto.deploy.entity.RecordEntity;
+import org.xiangqian.auto.deploy.entity.UserEntity;
+import org.xiangqian.auto.deploy.entity.UserItemEntity;
 import org.xiangqian.auto.deploy.mapper.ItemMapper;
+import org.xiangqian.auto.deploy.mapper.UserItemMapper;
 import org.xiangqian.auto.deploy.service.ItemService;
 import org.xiangqian.auto.deploy.util.DateUtil;
+import org.xiangqian.auto.deploy.util.SecurityUtil;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -22,6 +28,29 @@ public class ItemServiceImpl implements ItemService {
 
     @Autowired
     private ItemMapper mapper;
+
+    @Autowired
+    private UserItemMapper userItemMapper;
+
+    @Override
+    public org.xiangqian.auto.deploy.util.List<RecordEntity> recordList(org.xiangqian.auto.deploy.util.List list, Long itemId) {
+        Assert.notNull(itemId, "项目id不能为空");
+        UserEntity user = SecurityUtil.getUser();
+        if (user.isAdminRole()) {
+            return mapper.recordList(list, itemId);
+        }
+
+        UserItemEntity userItem = userItemMapper.selectOne(new LambdaQueryWrapper<UserItemEntity>()
+                .select(UserItemEntity::getItemId)
+                .eq(UserItemEntity::getUserId, user.getId())
+                .eq(UserItemEntity::getItemId, itemId)
+                .last("LIMIT 1"));
+        if (userItem == null) {
+            list.setData(Collections.emptyList());
+            return list;
+        }
+        return mapper.recordList(list, itemId);
+    }
 
     @Override
     public Boolean delById(Long id) {

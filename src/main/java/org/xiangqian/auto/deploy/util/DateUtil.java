@@ -99,12 +99,8 @@ public class DateUtil {
      * @return
      */
     public static String humanSecond(Long second) {
-        if (second == null || second < 0) {
-            return "-秒前";
-        }
-
-        if (second == 0) {
-            return "0秒前";
+        if (second == null || second <= 0) {
+            return "";
         }
 
         LocalDateTime dateTime = ofSecond(second);
@@ -139,12 +135,8 @@ public class DateUtil {
      * @return
      */
     public static String humanDurationSecond(Long second) {
-        if (second == null || second < 0) {
-            return "-秒";
-        }
-
-        if (second == 0) {
-            return "0秒";
+        if (second == null || second <= 0) {
+            return "";
         }
 
         StringBuilder builder = new StringBuilder();

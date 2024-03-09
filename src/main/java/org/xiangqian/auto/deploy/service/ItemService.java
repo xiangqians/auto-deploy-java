@@ -1,6 +1,7 @@
 package org.xiangqian.auto.deploy.service;
 
 import org.xiangqian.auto.deploy.entity.ItemEntity;
+import org.xiangqian.auto.deploy.entity.RecordEntity;
 
 import java.util.List;
 
@@ -9,6 +10,8 @@ import java.util.List;
  * @date 21:38 2024/03/03
  */
 public interface ItemService {
+
+    org.xiangqian.auto.deploy.util.List<RecordEntity> recordList(org.xiangqian.auto.deploy.util.List list, Long itemId);
 
     Boolean delById(Long id);
 

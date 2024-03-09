@@ -2,6 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.xiangqian.auto.deploy.mapper.ItemMapper">
 
+    <select id="recordList" resultType="org.xiangqian.auto.deploy.entity.RecordEntity">
+        SELECT
+        r.*,
+        u.`name` AS 'user_name',
+        u.nickname AS 'user_nickname'
+        FROM record r
+        LEFT JOIN item i ON i.id = r.item_id
+        LEFT JOIN user u ON u.id = r.user_id
+        WHERE i.id = #{itemId}
+        GROUP BY r.id
+    </select>
+
     <select id="list" resultType="org.xiangqian.auto.deploy.entity.ItemEntity">
         SELECT
         i.*,

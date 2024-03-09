@@ -2,9 +2,11 @@ package org.xiangqian.auto.deploy.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
-import org.xiangqian.auto.deploy.vo.IndexVo;
+import org.apache.ibatis.annotations.Param;
+import org.xiangqian.auto.deploy.vo.ItemRecordVo;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author xiangqian
@@ -13,6 +15,6 @@ import java.util.List;
 @Mapper
 public interface IndexMapper extends BaseMapper {
 
-    List<IndexVo> list();
+    List<ItemRecordVo> list(@Param("itemIds") Set<Long> itemIds);
 
 }

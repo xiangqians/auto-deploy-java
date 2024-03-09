@@ -9,18 +9,22 @@ package org.xiangqian.auto.deploy.util;
 public interface AttributeName {
 
     // 是否已登陆
+    @Deprecated
     String IS_LOGGEDIN = "isLoggedin";
 
     // 是否是管理员角色
+    @Deprecated
     String IS_ADMIN_ROLE = "isAdminRole";
 
     // 用户
+    @Deprecated
     String USER = "user";
 
     // 项目集
     @Deprecated
     String ITEMS = "items";
 
+    @Deprecated
     String VO = "vo";
 
     @Deprecated

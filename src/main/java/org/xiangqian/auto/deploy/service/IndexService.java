@@ -1,6 +1,6 @@
 package org.xiangqian.auto.deploy.service;
 
-import org.xiangqian.auto.deploy.vo.IndexVo;
+import org.xiangqian.auto.deploy.vo.ItemRecordVo;
 
 import java.util.List;
 
@@ -10,6 +10,6 @@ import java.util.List;
  */
 public interface IndexService {
 
-    List<IndexVo> list();
+    List<ItemRecordVo> list();
 
 }

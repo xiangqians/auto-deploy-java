@@ -26,23 +26,24 @@
     </tr>
     </thead>
     <tbody>
-    <tr th:each="vo : ${vos}" th:itemId="${vo.itemId}" th:itemName="${vo.itemName}">
-        <td><a th:href="@{'/item/' + ${vo.itemId} + '/record/list?t=' + ${timestamp}}" th:text="${vo.itemName}"></a></td>
-        <td th:text="${vo.repoUrl}"></td>
-        <td th:text="${vo.branch}"></td>
-        <td th:text="${vo.getCommitString()}"></td>
-        <td th:text="${vo.getUserString()}"></td>
-        <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(vo.time)}"></td>
-        <td th:switch="${vo.state}">
+    <tr th:each="itemRecord : ${itemRecords}" th:itemId="${itemRecord.itemId}" th:itemName="${itemRecord.itemName}">
+        <td><a th:href="@{'/item/' + ${itemRecord.itemId} + '/record/list?t=' + ${timestamp}}" th:text="${itemRecord.itemName}"></a></td>
+        <td th:text="${itemRecord.repoUrl}"></td>
+        <td th:text="${itemRecord.branch}"></td>
+        <td th:with="commitMsg=${T(org.apache.commons.lang3.StringUtils).isNotEmpty(itemRecord.commitId) ? (itemRecord.commitAuthor + ' ' + itemRecord.commitTime + ' ' + itemRecord.commitMsg) : ''}"
+            th:text="${commitMsg.length > 30 ? T(org.apache.commons.lang3.StringUtils).substring(commitMsg, 0, 30) + ' ...' : commitMsg}"
+            th:title="${commitMsg}"></td>
+        <td th:text="${T(org.apache.commons.lang3.StringUtils).isNotEmpty(itemRecord.userNickname) ? (itemRecord.userName + ' ( ' + itemRecord.userNickname + ' )') : itemRecord.userName}"></td>
+        <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(itemRecord.addTime)}"></td>
+        <td th:switch="${itemRecord.state}">
             <span th:case="0" style="color: rgba(128, 128, 128, 0.9);">部署中</span>
             <span th:case="1" style="color: green;">部署成功</span>
             <span th:case="2" style="color: red;">部署失败</span>
         </td>
-        <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanDurationSecond(vo.duration)}"></td>
+        <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanDurationSecond(itemRecord.getDuration())}"></td>
         <td style="visibility: hidden;">
-            <form method="post" th:action="@{'/item1/' + ${vo.itemId} + '?t=' + ${timestamp}}" style="display: inline-block;">
-                <input name="_method" value="DELETE" type="hidden">
-                <button name="del">部署</button>
+            <form method="post" th:action="@{'/item/' + ${itemRecord.itemId} + '/deploy?t=' + ${timestamp}}" style="display: inline-block;">
+                <button del>部署</button>
             </form>
         </td>
     </tr>
@@ -53,3 +54,35 @@
 </html>
 <script type="text/javascript" th:src="@{/static/js/jquery.js}"></script>
 <script type="text/javascript" th:src="@{/static/js/body.js}"></script>
+<script type="text/javascript">
+    ;
+    $(function () {
+        function ItemRecord(itemId, itemName) {
+            this.itemId = itemId
+            this.itemName = itemName
+        }
+
+        function getItemRecord($element) {
+            // 查找元素最近的父级<tr>元素
+            let $tr = $element.closest('tr')
+
+            let itemId = $tr.attr('itemId')
+            let itemName = $tr.attr('itemName')
+            return new ItemRecord(itemId, itemName)
+        }
+
+        // 删除
+        $('button[del]').click(function (event) {
+            // 获取目标<button>元素
+            let $button = $(event.currentTarget)
+
+            let itemRecord = getItemRecord($button)
+            if (confirm(`确定部署项目：${itemRecord.itemName} ？`)) {
+                return true
+            } else {
+                return false
+            }
+        })
+    })
+    ;
+</script>
