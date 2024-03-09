@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.xiangqian.auto.deploy.mapper.UserItemMapper">
+
+    <select id="list" resultType="org.xiangqian.auto.deploy.entity.UserItemEntity">
+        SELECT
+        ui.*,
+        i.`name` AS 'item_name'
+        FROM user_item ui
+        LEFT JOIN item i ON i.id = ui.item_id
+        WHERE ui.user_id = #{userId}
+        GROUP BY ui.user_id, ui.item_id
+    </select>
+
+</mapper>

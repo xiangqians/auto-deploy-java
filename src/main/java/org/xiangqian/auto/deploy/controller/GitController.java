@@ -1,5 +1,6 @@
 package org.xiangqian.auto.deploy.controller;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,7 +12,6 @@ import org.xiangqian.auto.deploy.entity.GitEntity;
 import org.xiangqian.auto.deploy.service.GitService;
 import org.xiangqian.auto.deploy.util.AttributeName;
 import org.xiangqian.auto.deploy.util.DateUtil;
-import org.xiangqian.auto.deploy.util.SessionUtil;
 
 import java.time.LocalDateTime;
 
@@ -35,13 +35,13 @@ public class GitController extends AbsController {
     }
 
     @PutMapping
-    public RedirectView updById(GitEntity vo) {
+    public RedirectView updById(HttpSession session, GitEntity vo) {
         try {
             service.updById(vo);
         } catch (Exception e) {
             log.error("", e);
-            SessionUtil.setVo(vo);
-            SessionUtil.setError(e.getMessage());
+            setVoAttribute(session, vo);
+            setErrorAttribute(session, e.getMessage());
             return new RedirectView("/git/" + vo.getId() + "?error&t=" + DateUtil.toSecond(LocalDateTime.now()));
         }
         return redirectList();
@@ -55,13 +55,13 @@ public class GitController extends AbsController {
     }
 
     @PostMapping
-    public RedirectView add(GitEntity vo) {
+    public RedirectView add(HttpSession session, GitEntity vo) {
         try {
             service.add(vo);
         } catch (Exception e) {
             log.error("", e);
-            SessionUtil.setVo(vo);
-            SessionUtil.setError(e.getMessage());
+            setVoAttribute(session, vo);
+            setErrorAttribute(session, e.getMessage());
             return new RedirectView("/git/add?error&t=" + DateUtil.toSecond(LocalDateTime.now()));
         }
         return redirectList();

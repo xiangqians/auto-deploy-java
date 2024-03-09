@@ -17,6 +17,8 @@ public interface UserService extends UserDetailsService {
 
     Boolean delById(Long id);
 
+    UserEntity getById(Long id);
+
     Boolean unlock(Long id);
 
     Boolean lock(Long id);
@@ -26,7 +28,5 @@ public interface UserService extends UserDetailsService {
     List<UserEntity> list();
 
     Boolean updById(UserEntity entity);
-
-    ThreadLocal<UserEntity> getThreadLocal();
 
 }

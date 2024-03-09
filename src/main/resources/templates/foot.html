@@ -4,28 +4,28 @@
  |-->
 
 <foot>
-    <p th:if="${isLoggedin} and ${T(org.xiangqian.auto.deploy.util.SecurityUtil).isAdminRole()}">导航
-    <ul th:if="${isLoggedin} and ${T(org.xiangqian.auto.deploy.util.SecurityUtil).isAdminRole()}">
+    <p th:if="${session.isLoggedin}">导航
+    <ul th:if="${session.isLoggedin}">
         <li><a th:href="@{'/?t=' + ${timestamp}}" th:class="'/' == ${servletPath}? 'disabled' : ''">首页</a></li>
-        <li><a th:href="@{'/user/list?t=' + ${timestamp}}" th:class="'/user/list' == ${servletPath}? 'disabled' : ''">用户</a></li>
-        <li><a th:href="@{'/git/list?t=' + ${timestamp}}" th:class="'/git/list' == ${servletPath}? 'disabled' : ''">Git</a></li>
-        <li><a th:href="@{'/server/list?t=' + ${timestamp}}" th:class="'/server/list' == ${servletPath}? 'disabled' : ''">服务器</a></li>
-        <li><a th:href="@{'/item/list?t=' + ${timestamp}}" th:class="'/item/list' == ${servletPath}? 'disabled' : ''">项目</a></li>
+        <li th:if="${session.isAdminRole}"><a th:href="@{'/user/list?t=' + ${timestamp}}" th:class="'/user/list' == ${servletPath}? 'disabled' : ''">用户</a></li>
+        <li th:if="${session.isAdminRole}"><a th:href="@{'/git/list?t=' + ${timestamp}}" th:class="'/git/list' == ${servletPath}? 'disabled' : ''">Git</a></li>
+        <li th:if="${session.isAdminRole}"><a th:href="@{'/server/list?t=' + ${timestamp}}" th:class="'/server/list' == ${servletPath}? 'disabled' : ''">服务器</a></li>
+        <li th:if="${session.isAdminRole}"><a th:href="@{'/item/list?t=' + ${timestamp}}" th:class="'/item/list' == ${servletPath}? 'disabled' : ''">项目</a></li>
     </ul>
     </p>
     <!-- 定义user变量并使用 -->
-    <p th:if="${isLoggedin}">
+    <p th:if="${session.isLoggedin}">
         <a th:href="@{'#?t=' + ${timestamp}}" th:class="'/' == ${servletPath}? 'disabled' : ''">
-            <span th:text="${user.getName()}"></span>
-            <span th:if="${T(org.apache.commons.lang3.StringUtils).isNotEmpty(user.nickname)}"> ( [[${user.nickname}]] )</span>
+            <span th:text="${session.user.getName()}"></span>
+            <span th:if="${T(org.apache.commons.lang3.StringUtils).isNotEmpty(session.user.nickname)}"> ( [[${session.user.nickname}]] )</span>
         </a>
         <span style="padding-left: 20px;"></span>
         <a th:href="@{'/logout?t=' + ${timestamp}}">退出登录</a>
     </p>
-    <p th:if="${isLoggedin}">
+    <p th:if="${session.isLoggedin}">
         <span style="padding-left: 0px;">最近一次登录</span>
-        <span th:text="${user.lastLoginIp}" style="padding-left: 10px;"></span>
-        <span th:if="${user.lastLoginTime > 0}" style="padding-left: 10px;">[[${T(org.xiangqian.auto.deploy.util.DateUtil).formatSecond(user.lastLoginTime)}]]</span>
+        <span th:text="${session.user.lastLoginIp}" style="padding-left: 10px;"></span>
+        <span th:if="${session.user.lastLoginTime > 0}" style="padding-left: 10px;">[[${T(org.xiangqian.auto.deploy.util.DateUtil).formatSecond(session.user.lastLoginTime)}]]</span>
     </p>
-    <p style="font-style: italic;">© 2024 xiangqian<a href="https://github.com/xiangqians/auto-deploy" target="_blank" style="padding-left: 10px;">关于</a></p>
+    <p style="font-style: italic;"><span style="padding-right: 10px;">© 2024 xiangqian</span><a href="https://github.com/xiangqians/auto-deploy" target="_blank">关于</a></p>
 </foot>

@@ -1,0 +1,147 @@
+<!--
+ | @author xiangqian
+ | @date 21:30 2024/03/04
+ |-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" th:href="@{/static/favicon.ico}">
+    <link rel="stylesheet" th:href="@{/static/css/body.css}" type="text/css"/>
+    <title th:text="${vo.item.name} + '项目部署记录'"></title>
+</head>
+<body>
+<table>
+    <thead>
+    <tr>
+        <td>阶段视图</td>
+        <td>提交id</td>
+<!--        <td>提交作者</td>-->
+<!--        <td>提交时间</td>-->
+<!--        <td>提交信息</td>-->
+        <td>触发者</td>
+        <td>部署时间</td>
+        <td>部署状态</td>
+        <td>部署耗时</td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="e : ${vo.data}" th:id="${e.id}" th:with="t=$(T(org.xiangqian.auto.deploy.util.DateUtil).toS(e.pullEtime - e.pullStime))">
+        <td>
+            <a th:if="${e.pullStime == 0}">拉取资源</a>
+            <a th:if="${e.pullStime > 0}"
+               th:with="state=${e.pullEtime > 0 ? (e.state == 0 ? 1 : (e.buildStime > 0 ? 1 : e.state)) : 0 }"
+               th:href="@{'/item/' + ${vo.item.id} + '/record/' + ${e.id} + '/pull?t=' + ${timestamp}}"
+               th:text="'拉取资源' + ${state == 0 ? (' ( ' + T(org.xiangqian.auto.deploy.util.DateUtil).humanDurationSecond(e.pullEtime - e.pullStime) + ' )') : (' ( ' + T(org.xiangqian.auto.deploy.util.DateUtil).humanDurationSecond(e.pullEtime - e.pullStime) + ' )')}"
+               th:title="${e.pullMsg}"
+               th:style="${state == 0 ? 'color: rgba(128, 128, 128, 0.9);' : (state == 1 ? 'color: green;' : 'color: red;')}"></a>
+            →
+            <a th:if="${e.buildStime == 0}">构建</a>
+            <a th:if="${e.buildStime > 0}"
+               th:with="state=${e.buildEtime > 0 ? (e.state == 0 ? 1 : (e.packStime > 0 ? 1 : e.state)) : 0 }"
+               th:href="@{'/item/' + ${vo.item.id} + '/record/' + ${e.id} + '/build?t=' + ${timestamp}}"
+               th:text="'构建' + ${state == 0 ? '' : (' ( ' + T(org.xiangqian.auto.deploy.util.DateUtil).humanDurationSecond(e.buildEtime - e.buildStime) + ' )')}"
+               th:title="${e.buildMsg}"
+               th:style="${state == 0 ? 'color: rgba(128, 128, 128, 0.9);' : (state == 1 ? 'color: green;' : 'color: red;')}"></a>
+            →
+            <a th:if="${e.packStime == 0}">打包</a>
+            <a th:if="${e.packStime > 0}"
+               th:with="state=${e.packEtime > 0 ? (e.state == 0 ? 1 : (e.uploadStime > 0 ? 1 : e.state)) : 0 }"
+               th:href="@{'/item/' + ${vo.item.id} + '/record/' + ${e.id} + '/pack?t=' + ${timestamp}}"
+               th:text="'打包' + ${state == 0 ? '' : (' ( ' + T(org.xiangqian.auto.deploy.util.DateUtil).humanDurationSecond(e.packEtime - e.packStime) + ' )')}"
+               th:title="${e.packMsg}"
+               th:style="${state == 0 ? 'color: rgba(128, 128, 128, 0.9);' : (state == 1 ? 'color: green;' : 'color: red;')}"></a>
+            →
+            <a th:if="${e.uploadStime == 0}">上传</a>
+            <a th:if="${e.uploadStime > 0}"
+               th:with="state=${e.uploadEtime > 0 ? (e.state == 0 ? 1 : (e.unpackStime > 0 ? 1 : e.state)) : 0 }"
+               th:href="@{'/item/' + ${vo.item.id} + '/record/' + ${e.id} + '/upload?t=' + ${timestamp}}"
+               th:text="'上传' + ${state == 0 ? '' : (' ( ' + T(org.xiangqian.auto.deploy.util.DateUtil).humanDurationSecond(e.uploadEtime - e.uploadStime) + ' )')}"
+               th:title="${e.uploadMsg}"
+               th:style="${state == 0 ? 'color: rgba(128, 128, 128, 0.9);' : (state == 1 ? 'color: green;' : 'color: red;')}"></a>
+            →
+            <a th:if="${e.unpackStime == 0}">解包</a>
+            <a th:if="${e.unpackStime > 0}"
+               th:with="state=${e.unpackEtime > 0 ? (e.state == 0 ? 1 : (e.deployStime > 0 ? 1 : e.state)) : 0 }"
+               th:href="@{'/item/' + ${vo.item.id} + '/record/' + ${e.id} + '/unpack?t=' + ${timestamp}}"
+               th:text="'解包' + ${state == 0 ? '' : (' ( ' + T(org.xiangqian.auto.deploy.util.DateUtil).humanDurationSecond(e.unpackEtime - e.unpackStime) + ' )')}"
+               th:title="${e.unpackMsg}"
+               th:style="${state == 0 ? 'color: rgba(128, 128, 128, 0.9);' : (state == 1 ? 'color: green;' : 'color: red;')}"></a>
+            →
+            <a th:if="${e.deployStime == 0}">部署</a>
+            <a th:if="${e.deployStime > 0}"
+               th:with="state=${e.state}"
+               th:href="@{'/item/' + ${vo.item.id} + '/record/' + ${e.id} + '/deploy?t=' + ${timestamp}}"
+               th:text="'部署' + ${state == 0 ? '' : (' ( ' + T(org.xiangqian.auto.deploy.util.DateUtil).humanDurationSecond(e.deployEtime - e.deployStime) + ' )')}"
+               th:title="${e.deployMsg}"
+               th:style="${state == 0 ? 'color: rgba(128, 128, 128, 0.9);' : (state == 1 ? 'color: green;' : 'color: red;')}"></a>
+        </td>
+        <td th:text="${e.commitId}"></td>
+<!--        <td th:text="${e.commitAuthor}"></td>-->
+<!--        <td th:text="${e.commitTime}"></td>-->
+<!--        <td th:text="${e.commitMsg}"></td>-->
+        <td th:text="${T(org.apache.commons.lang3.StringUtils).isNotEmpty(e.userNickname) ? (e.userName + ' ( ' + e.userNickname + ' )') : e.userName}"></td>
+        <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(e.addTime)}"></td>
+        <td th:switch="${e.state}">
+            <span th:case="0" style="color: rgba(128, 128, 128, 0.9);">部署中</span>
+            <span th:case="1" style="color: green;">部署成功</span>
+            <span th:case="2" style="color: red;">部署失败</span>
+        </td>
+        <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanDurationSecond(e.addTime)}"></td>
+        <td style="visibility: hidden;">
+        </td>
+    </tr>
+    </tbody>
+    <tfoot>
+    <tr>
+        <td colspan="8">
+            <span th:each="offset : ${vo.offsets}" th:with="rows=${param.rows},disabled=${vo.offset.equals(offset)}">
+                <a th:if="${offset == null}">...</a>
+                <a th:if="${offset != null}"
+                   th:href="@{'/item/' + ${vo.item.id} + '/record/list?offset=' + ${offset} + ${rows != null ? ('&rows=' + rows): ''} + '&t=' + ${timestamp}}"
+                   th:text="${offset}"
+                   th:class="${disabled ? 'disabled' : ''}"
+                   th:style="${disabled ? 'color: rgba(128, 128, 128, 0.6);' : ''}"></a>
+            </span>
+        </td>
+    </tr>
+    </tfoot>
+</table>
+</body>
+<div th:replace="foot"></div>
+</html>
+<script type="text/javascript" th:src="@{/static/js/jquery.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/body.js}"></script>
+<script type="text/javascript">
+    ;
+    $(function () {
+        function Item(id, name) {
+            this.id = id
+            this.name = name
+        }
+
+        function getItem($element) {
+            // 查找元素最近的父级<tr>元素
+            let $tr = $element.closest('tr')
+
+            let id = $tr.attr('id')
+            let name = $tr.attr('name')
+            return new Item(id, name)
+        }
+
+        // 删除
+        $('button[name=del]').click(function (event) {
+            // 获取目标<button>元素
+            let $button = $(event.currentTarget)
+
+            let item = getItem($button)
+            if (confirm(`确定删除项目：${item.name} ？`)) {
+                return true
+            } else {
+                return false
+            }
+        })
+    })
+    ;
+</script>

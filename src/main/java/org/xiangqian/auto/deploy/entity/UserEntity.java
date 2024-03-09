@@ -5,10 +5,11 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.xiangqian.auto.deploy.util.DateUtil;
-import org.xiangqian.auto.deploy.util.SecurityUtil;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -97,7 +98,7 @@ public class UserEntity implements UserDetails {
 
     // 人性化限时时间
     public String humanLimitedTime() {
-        return DateUtil.humanDuration(Duration.ofSeconds(Duration.ofHours(24).toSeconds() - (DateUtil.toSecond(LocalDateTime.now()) - updTime)));
+        return DateUtil.humanDurationSecond(Duration.ofHours(24).toSeconds() - (DateUtil.toSecond(LocalDateTime.now()) - updTime));
     }
 
     /**
@@ -162,15 +163,21 @@ public class UserEntity implements UserDetails {
 
     /**
      * 用户拥有的权限
+     * {@link SecurityExpressionRoot#defaultRolePrefix}
      *
      * @return
      */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if ("admin".equals(name)) {
-            return Set.of(SecurityUtil.createAdminRoleAuthority());
+        // 管理员角色
+        if (isAdminRole()) {
+            return Set.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
         }
         return Collections.emptySet();
+    }
+
+    public boolean isAdminRole() {
+        return "admin".equals(name);
     }
 
 }

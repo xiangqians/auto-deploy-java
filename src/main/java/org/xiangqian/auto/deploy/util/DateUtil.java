@@ -98,9 +98,9 @@ public class DateUtil {
      * @param second
      * @return
      */
-    public static String humanSecond(long second) {
-        if (second <= 0) {
-            return "-";
+    public static String humanSecond(Long second) {
+        if (second == null || second <= 0) {
+            return "";
         }
 
         LocalDateTime dateTime = ofSecond(second);
@@ -131,14 +131,15 @@ public class DateUtil {
     /**
      * 人性化 {@link Duration}
      *
-     * @param duration
+     * @param second
      * @return
      */
-    public static String humanDuration(Duration duration) {
-        if (duration == null) {
-            return "-秒";
+    public static String humanDurationSecond(Long second) {
+        if (second == null || second <= 0) {
+            return "";
         }
 
+        Duration duration = Duration.ofSeconds(second);
         if (duration.toSeconds() == 0) {
             return "0秒";
         }
@@ -158,9 +159,9 @@ public class DateUtil {
         }
 
         // 秒
-        int second = duration.toSecondsPart();
-        if (second > 0) {
-            builder.append(second).append("秒");
+        int second0 = duration.toSecondsPart();
+        if (second0 > 0) {
+            builder.append(second0).append("秒");
         }
 
         return builder.toString();

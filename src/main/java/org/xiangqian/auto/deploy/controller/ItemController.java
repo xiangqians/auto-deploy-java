@@ -1,5 +1,6 @@
 package org.xiangqian.auto.deploy.controller;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,7 +14,6 @@ import org.xiangqian.auto.deploy.service.ItemService;
 import org.xiangqian.auto.deploy.service.ServerService;
 import org.xiangqian.auto.deploy.util.AttributeName;
 import org.xiangqian.auto.deploy.util.DateUtil;
-import org.xiangqian.auto.deploy.util.SessionUtil;
 
 import java.time.LocalDateTime;
 
@@ -43,13 +43,13 @@ public class ItemController extends AbsController {
     }
 
     @PutMapping
-    public RedirectView updById(ItemEntity vo) {
+    public RedirectView updById(HttpSession session, ItemEntity vo) {
         try {
             service.updById(vo);
         } catch (Exception e) {
             log.error("", e);
-            SessionUtil.setVo(vo);
-            SessionUtil.setError(e.getMessage());
+            setVoAttribute(session, vo);
+            setErrorAttribute(session, e.getMessage());
             return new RedirectView("/item/" + vo.getId() + "?error&t=" + DateUtil.toSecond(LocalDateTime.now()));
         }
         return redirectList();
@@ -65,13 +65,13 @@ public class ItemController extends AbsController {
     }
 
     @PostMapping
-    public RedirectView add(ItemEntity vo) {
+    public RedirectView add(HttpSession session, ItemEntity vo) {
         try {
             service.add(vo);
         } catch (Exception e) {
             log.error("", e);
-            SessionUtil.setVo(vo);
-            SessionUtil.setError(e.getMessage());
+            setVoAttribute(session, vo);
+            setErrorAttribute(session, e.getMessage());
             return new RedirectView("/item/add?error&t=" + DateUtil.toSecond(LocalDateTime.now()));
         }
         return redirectList();

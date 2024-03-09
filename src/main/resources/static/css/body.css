@@ -29,6 +29,16 @@ body a {
     text-decoration: none;
 }
 
+/* 禁用a标签 */
+body a.disabled {
+    /* 不可点击事件 */
+    pointer-events: none;
+    /* 鼠标经过或点击显示默认样式 */
+    cursor: default;
+    /* 设置字体为灰色 */
+    color: gray;
+}
+
 body button {
     /* 鼠标经过或点击显示小手样式 */
     cursor: pointer
@@ -70,7 +80,8 @@ body > table tbody tr td {
     border-bottom: 1px solid #CCCCCC;
 
     /* 设置最大宽度 */
-    max-width: 500px;
+    /*max-width: 500px;*/
+    padding: 10px;
 
     /* 设置文本自动换行 */
     word-wrap: break-word;
@@ -99,6 +110,10 @@ body > table tfoot tr td {
     padding-right: 10px;
 }
 
+body > table tfoot tr td span {
+    padding-right: 15px;
+}
+
 body > foot {
     padding-top: 15px;
     display: block;
@@ -106,10 +121,4 @@ body > foot {
 
 body > foot li {
     padding-bottom: 4px;
-}
-
-body > foot a.disabled {
-    pointer-events: none;
-    cursor: default;
-    color: gray;
 }

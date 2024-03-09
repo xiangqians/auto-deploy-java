@@ -2,7 +2,9 @@ package org.xiangqian.auto.deploy.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.xiangqian.auto.deploy.entity.RecordEntity;
+import org.xiangqian.auto.deploy.util.List;
 
 /**
  * @author xiangqian
@@ -10,5 +12,7 @@ import org.xiangqian.auto.deploy.entity.RecordEntity;
  */
 @Mapper
 public interface RecordMapper extends BaseMapper<RecordEntity> {
+
+    List<RecordEntity> list(List list, @Param("itemId") Long itemId);
 
 }

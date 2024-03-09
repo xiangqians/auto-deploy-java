@@ -1,7 +1,6 @@
 package org.xiangqian.auto.deploy.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.xiangqian.auto.deploy.component.ThreadLocalUser;
 import org.xiangqian.auto.deploy.entity.UserEntity;
 import org.xiangqian.auto.deploy.mapper.UserMapper;
 import org.xiangqian.auto.deploy.service.UserService;
@@ -38,27 +38,30 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper mapper;
 
-    @Getter
-    private ThreadLocal<UserEntity> threadLocal = new ThreadLocal<>();
+    @Autowired
+    private ThreadLocalUser threadLocalUser;
 
     @Override
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
-        UserEntity entity = mapper.selectOne(new LambdaQueryWrapper<UserEntity>().eq(UserEntity::getName, userName));
+        UserEntity entity = mapper.selectOne(new LambdaQueryWrapper<UserEntity>().eq(UserEntity::getName, userName).last("LIMIT 1"));
         if (entity == null) {
             throw new UsernameNotFoundException(userName);
         }
 
-        threadLocal.set(entity);
+        // 将用户信息设置到线程本地
+        threadLocalUser.set(entity);
 
         // 未被锁定
         if (entity.getLocked() == 0) {
             // 未被限时锁定
             if (entity.isNonLimitedTimeLocked()) {
+                // 如果尝试输入密码次数超过3次，归零
                 if (entity.getTryCount() >= 3) {
                     UserEntity updEntity = new UserEntity();
                     updEntity.setId(entity.getId());
                     updEntity.setTryCount(0);
                     mapper.updateById(updEntity);
+
                     entity.setTryCount(updEntity.getTryCount());
                 }
             } else {
@@ -102,6 +105,12 @@ public class UserServiceImpl implements UserService {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public UserEntity getById(Long id) {
+        Assert.notNull(id, "用户id不能为空");
+        return mapper.selectById(id);
     }
 
     @Override

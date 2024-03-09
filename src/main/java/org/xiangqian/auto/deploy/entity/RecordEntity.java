@@ -108,4 +108,38 @@ public class RecordEntity {
     // 【部署】信息
     private String deployMsg;
 
+    // 部署耗时（单位s）
+    @TableField(exist = false)
+    private Long duration;
+
+    // 【从远程仓库拉取代码】耗时（单位s）
+    public Long getPullDuration() {
+        return null;
+    }
+
+    // 【构建】耗时（单位s）
+    public Long getBuildDuration() {
+        return null;
+    }
+
+    // 【打包】耗时（单位s）
+    public Long getPackDuration() {
+        return null;
+    }
+
+    // 【上传到远程主机】耗时（单位s）
+    public Long getUploadDuration() {
+        return null;
+    }
+
+    // 【解压缩包】耗时（单位s）
+    public Long getUnpackDuration() {
+        return null;
+    }
+
+    // 【部署】耗时（单位s）
+    public Long getDeployDuration() {
+        return null;
+    }
+
 }

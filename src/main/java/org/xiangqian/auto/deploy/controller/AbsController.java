@@ -6,8 +6,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.servlet.ModelAndView;
 import org.xiangqian.auto.deploy.util.AttributeName;
 import org.xiangqian.auto.deploy.util.DateUtil;
-import org.xiangqian.auto.deploy.util.SecurityUtil;
-import org.xiangqian.auto.deploy.util.SessionUtil;
 
 import java.time.LocalDateTime;
 
@@ -23,23 +21,41 @@ public abstract class AbsController {
         modelAndView.addObject("servletPath", request.getServletPath());
         modelAndView.addObject("timestamp", DateUtil.toSecond(LocalDateTime.now()));
 
-        boolean isLoggedin = SecurityUtil.isLoggedin();
-        modelAndView.addObject("isLoggedin", isLoggedin);
-        if (isLoggedin) {
-            modelAndView.addObject("user", SecurityUtil.getUser());
-        }
-
-        Object vo = SessionUtil.getVo();
+        Object vo = getVoAttribute(session);
         if (vo != null) {
-            SessionUtil.delVo();
+            delVoAttribute(session);
             modelAndView.addObject(AttributeName.VO, vo);
         }
 
-        Object error = SessionUtil.getError();
+        Object error = getErrorAttribute(session);
         if (error != null) {
-            SessionUtil.delError();
+            delErrorAttribute(session);
             modelAndView.addObject(AttributeName.ERROR, error);
         }
+    }
+
+    protected final void delVoAttribute(HttpSession session) {
+        session.removeAttribute(AttributeName.VO);
+    }
+
+    protected final void setVoAttribute(HttpSession session, Object value) {
+        session.setAttribute(AttributeName.VO, value);
+    }
+
+    protected final Object getVoAttribute(HttpSession session) {
+        return session.getAttribute(AttributeName.VO);
+    }
+
+    protected final void delErrorAttribute(HttpSession session) {
+        session.removeAttribute(AttributeName.ERROR);
+    }
+
+    protected final void setErrorAttribute(HttpSession session, Object value) {
+        session.setAttribute(AttributeName.ERROR, value);
+    }
+
+    protected final Object getErrorAttribute(HttpSession session) {
+        return session.getAttribute(AttributeName.ERROR);
     }
 
 }

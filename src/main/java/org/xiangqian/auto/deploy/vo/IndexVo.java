@@ -63,5 +63,4 @@ public class IndexVo {
         return userName + " ( " + userNickname + " )";
     }
 
-
 }

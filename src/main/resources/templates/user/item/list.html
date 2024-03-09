@@ -1,0 +1,90 @@
+<!--
+ | @author xiangqian
+ | @date 23:58 2024/03/04
+ |-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" th:href="@{/static/favicon.ico}">
+    <link rel="stylesheet" th:href="@{/static/css/body.css}" type="text/css"/>
+    <title th:text="${T(org.apache.commons.lang3.StringUtils).isEmpty(user.nickname) ? user.name : (user.name + ' ( ' + user.nickname + ' )') + ' 用户项目列表'}"></title>
+</head>
+<body>
+<error th:text="${error}"></error>
+<table>
+    <thead>
+    <tr>
+        <td>项目名称</td>
+        <td>创建时间</td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="vo : ${vos}" th:userId="${vo.userId}" th:itemId="${vo.itemId}" th:itemName="${vo.itemName}">
+        <td><a th:href="@{'/item/' + ${vo.itemId} + '?t=' + ${timestamp}}" th:text="${vo.itemName}"></a></td>
+        <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(vo.addTime)}"></td>
+        <td style="visibility: hidden;">
+            <form method="post" th:action="@{'/user/' + ${vo.userId} + '/item/'+ ${vo.itemId} + '?t=' + ${timestamp}}" style="display: inline-block;">
+                <input name="_method" value="DELETE" type="hidden">
+                <button del>删除</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+    <tfoot>
+    <tr>
+        <td colspan="6">
+            <form method="post" th:action="@{'/user/' + ${user.id} + '/item?t=' + ${timestamp}}" style="display: inline-block;">
+                <select name="itemId">
+                    <option></option>
+                    <option th:each="item : ${items}"
+                            th:value="${item.id}"
+                            th:text="${item.name}">
+                    </option>
+                </select>
+                <input type="submit" value="新增">
+            </form>
+        </td>
+    </tr>
+    </tfoot>
+</table>
+</body>
+<div th:replace="foot"></div>
+</html>
+<script type="text/javascript" th:src="@{/static/js/jquery.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/body.js}"></script>
+<script type="text/javascript">
+    ;
+    $(function () {
+        function UserItem(userId, itemId, itemName) {
+            this.userId = userId
+            this.itemId = itemId
+            this.itemName = itemName
+        }
+
+        function getUserItem($element) {
+            // 查找元素最近的父级<tr>元素
+            let $tr = $element.closest('tr')
+
+            let userId = $tr.attr('userId')
+            let itemId = $tr.attr('itemId')
+            let itemName = $tr.attr('itemName')
+            return new UserItem(userId, itemId, itemName)
+        }
+
+        // 删除
+        $('button[del]').click(function (event) {
+            // 获取目标<button>元素
+            let $button = $(event.currentTarget)
+
+            let userItem = getUserItem($button)
+            if (confirm(`确定删除关联的项目：${userItem.itemName} ？`)) {
+                return true
+            } else {
+                return false
+            }
+        })
+    })
+    ;
+</script>
