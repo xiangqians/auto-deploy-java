@@ -11,7 +11,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.xiangqian.auto.deploy.component.ThreadLocalUser;
 import org.xiangqian.auto.deploy.entity.ItemEntity;
 import org.xiangqian.auto.deploy.entity.UserEntity;
 import org.xiangqian.auto.deploy.entity.UserItemEntity;
@@ -35,14 +34,13 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService {
 
+    private ThreadLocal<UserEntity> threadLocal = new ThreadLocal<>();
+
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
     private SessionRegistry sessionRegistry;
-
-    @Autowired
-    private ThreadLocalUser threadLocalUser;
 
     @Autowired
     private UserMapper mapper;
@@ -61,7 +59,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // 将用户信息设置到线程本地
-        threadLocalUser.set(entity);
+        setThreadBinding(entity);
 
         // 未被锁定
         if (entity.getLocked() == 0) {
@@ -217,6 +215,30 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserEntity> list() {
         return mapper.list();
+    }
+
+    @Override
+    public void setThreadBinding(UserEntity entity) {
+        threadLocal.set(entity);
+    }
+
+    @Override
+    public UserEntity getThreadBinding() {
+        return threadLocal.get();
+    }
+
+    @Override
+    public UserEntity getAndDelThreadBinding() {
+        UserEntity entity = getThreadBinding();
+        if (entity != null) {
+            delThreadBinding();
+        }
+        return entity;
+    }
+
+    @Override
+    public void delThreadBinding() {
+        threadLocal.remove();
     }
 
     /**

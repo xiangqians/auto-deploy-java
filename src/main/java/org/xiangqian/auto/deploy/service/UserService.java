@@ -22,7 +22,7 @@ public interface UserService extends UserDetailsService {
 
     List<UserItemEntity> itemList(Long userId);
 
-    Boolean updById(UserEntity entity);
+    Boolean updById(UserEntity vo);
 
     UserEntity getById(Long id);
 
@@ -37,5 +37,13 @@ public interface UserService extends UserDetailsService {
     Boolean add(UserAddVo vo);
 
     List<UserEntity> list();
+
+    void setThreadBinding(UserEntity entity);
+
+    UserEntity getThreadBinding();
+
+    void delThreadBinding();
+
+    UserEntity getAndDelThreadBinding();
 
 }

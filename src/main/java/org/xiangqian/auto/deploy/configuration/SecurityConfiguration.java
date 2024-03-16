@@ -31,10 +31,10 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.xiangqian.auto.deploy.component.ThreadLocalUser;
 import org.xiangqian.auto.deploy.controller.AbsController;
 import org.xiangqian.auto.deploy.entity.UserEntity;
 import org.xiangqian.auto.deploy.mapper.UserMapper;
+import org.xiangqian.auto.deploy.service.UserService;
 import org.xiangqian.auto.deploy.util.DateUtil;
 
 import java.io.IOException;
@@ -111,11 +111,11 @@ public class SecurityConfiguration implements WebMvcConfigurer {
             private UserMapper mapper;
 
             @Autowired
-            private ThreadLocalUser threadLocalUser;
+            private UserService service;
 
             @Override
             public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
-                threadLocalUser.del();
+                service.delThreadBinding();
 
                 // 获取已授权用户信息
                 UserEntity entity = (UserEntity) authentication.getPrincipal();
@@ -172,14 +172,11 @@ public class SecurityConfiguration implements WebMvcConfigurer {
             private UserMapper mapper;
 
             @Autowired
-            private ThreadLocalUser threadLocalUser;
+            private UserService service;
 
             @Override
             public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-                UserEntity entity = threadLocalUser.getAndDel();
-
-                // 用户名
-                String name = request.getParameter("username");
+                UserEntity entity = service.getAndDelThreadBinding();
 
                 // 获取会话
                 HttpSession session = request.getSession(true);
@@ -205,9 +202,9 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 }
                 AbsController.setErrorAttribute(session, error);
 
-                // 将用户信息添加到会话
+                // 用户信息vo
                 entity = new UserEntity();
-                entity.setName(name);
+                entity.setName(request.getParameter("username"));
                 AbsController.setVoAttribute(session, entity);
 
                 // 重定向到登录页
@@ -264,7 +261,7 @@ public class SecurityConfiguration implements WebMvcConfigurer {
             @Override
             public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
                 if ("/login".equals(request.getServletPath()) && AbsController.getLoggedinAttribute(request.getSession(true))) {
-                    // 重定向到首页
+                    // 已登录，重定向到首页
                     response.sendRedirect("/");
                     // 不继续执行后续的拦截器
                     return false;

@@ -64,8 +64,8 @@ CREATE TABLE `item` -- 项目信息表
     `id`        INTEGER PRIMARY KEY AUTOINCREMENT, -- id
     `name`      VARCHAR(64)  DEFAULT '',           -- 名称
     `git_id`    INTEGER      DEFAULT 0,            -- Git id
-    `uri`       VARCHAR(512) DEFAULT '',           -- Git地址
-    `branch`    VARCHAR(64)  DEFAULT '',           -- Git分支名
+    `uri`       VARCHAR(512) DEFAULT '',           -- 仓库地址
+    `branch`    VARCHAR(64)  DEFAULT '',           -- 分支名
     `server_id` INTEGER      DEFAULT 0,            -- 服务器id
     `script`    TEXT         DEFAULT '',           -- 自动部署脚本
     `secret`    VARCHAR(128) DEFAULT '',           -- Webhook密钥
