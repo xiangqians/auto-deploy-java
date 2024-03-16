@@ -3,15 +3,15 @@ package org.xiangqian.auto.deploy.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.ModelAndView;
-import org.xiangqian.auto.deploy.util.AttributeName;
+import org.springframework.web.servlet.view.RedirectView;
 import org.xiangqian.auto.deploy.util.DateUtil;
+import org.xiangqian.auto.deploy.util.JvmUtil;
 import org.xiangqian.auto.deploy.util.OsUtil;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.OperatingSystemMXBean;
 import java.time.LocalDateTime;
-import java.util.Map;
 
 /**
  * @author xiangqian
@@ -19,80 +19,109 @@ import java.util.Map;
  */
 public abstract class AbsController {
 
+    // request域
+    public static final String SERVLET_PATH = "servletPath";
+    public static final String TIMESTAMP = "timestamp";
+
+    // session域
+    // 是否已登陆
+    public static final String IS_LOGGEDIN = "isLoggedin";
+    // 是否是管理员角色
+    public static final String IS_ADMIN_ROLE = "isAdminRole";
+
+    // session域
+    public static final String USER = "user";
+
+    // request域
+    public static final String OS = "os";
+    public static final String JVM = "jvm";
+
+    // request域
+    public static final String VO = "vo";
+    public static final String VOS = "vos";
+    public static final String ERROR = "error";
+
     // 在每个请求之前设置ModelAndView值
     @ModelAttribute
     public void modelAttribute(ModelAndView modelAndView, HttpServletRequest request, HttpSession session) {
-        modelAndView.addObject("servletPath", request.getServletPath());
-        modelAndView.addObject("timestamp", DateUtil.toSecond(LocalDateTime.now()));
+        modelAndView.addObject(SERVLET_PATH, request.getServletPath());
+        modelAndView.addObject(TIMESTAMP, DateUtil.toSecond(LocalDateTime.now()));
 
-        // 操作系统信息
-        OperatingSystemMXBean osMXBean = ManagementFactory.getOperatingSystemMXBean();
-        // 操作系统名称（操作系统名称 + 操作系统架构）
-        String osName = osMXBean.getName() + " " + osMXBean.getArch().toUpperCase();
-        // 操作系统CPU负载
-        String osCpuLoad = null;
-        // 操作系统总内存
-        String osTotalMemory = null;
-        // 操作系统空闲内存
-        String osFreeMemory = null;
-        if (osMXBean instanceof com.sun.management.OperatingSystemMXBean) {
-            com.sun.management.OperatingSystemMXBean sunOsMXBean = (com.sun.management.OperatingSystemMXBean) osMXBean;
-            osCpuLoad = String.format("%.2f%%", sunOsMXBean.getCpuLoad() * 100);
-            osTotalMemory = OsUtil.humanByte(sunOsMXBean.getTotalMemorySize());
-            osFreeMemory = OsUtil.humanByte(sunOsMXBean.getFreeMemorySize());
+        if (getLoggedinAttribute(session)) {
+            modelAndView.addObject(OS, OsUtil.getOsInfo());
+            modelAndView.addObject(JVM, JvmUtil.getJvmInfo());
         }
-        modelAndView.addObject("os",
-                Map.of("name", osName,
-                        "cpuLoad", osCpuLoad,
-                        "totalMemory", osTotalMemory,
-                        "freeMemory", osFreeMemory));
 
-        // JVM信息
-        modelAndView.addObject("jvm",
-                // JVM厂商
-                Map.of("vendor", System.getProperty("java.vendor"),
-                        // JVM版本
-                        "version", System.getProperty("java.version"),
-                        // JVM最大内存
-                        "maxMemory", OsUtil.humanByte(Runtime.getRuntime().maxMemory()),
-                        // JVM空闲内存
-                        "freeMemory", OsUtil.humanByte(Runtime.getRuntime().freeMemory())));
-
-        Object vo = getVoAttribute(session);
+        Object vo = session.getAttribute(VO);
         if (vo != null) {
-            delVoAttribute(session);
-            modelAndView.addObject(AttributeName.VO, vo);
+            session.removeAttribute(VO);
+            modelAndView.addObject(VO, vo);
         }
 
-        Object error = getErrorAttribute(session);
+        Object vos = session.getAttribute(VOS);
+        if (vos != null) {
+            session.removeAttribute(VOS);
+            modelAndView.addObject(VOS, vos);
+        }
+
+        Object error = session.getAttribute(ERROR);
         if (error != null) {
-            delErrorAttribute(session);
-            modelAndView.addObject(AttributeName.ERROR, error);
+            session.removeAttribute(ERROR);
+            modelAndView.addObject(ERROR, error);
         }
     }
 
-    protected final void delVoAttribute(HttpSession session) {
-        session.removeAttribute(AttributeName.VO);
+    public static boolean getLoggedinAttribute(HttpSession session) {
+        Object loggedin = session.getAttribute(IS_LOGGEDIN);
+        if (loggedin == null) {
+            return false;
+        }
+        return (boolean) loggedin;
     }
 
-    protected final void setVoAttribute(HttpSession session, Object value) {
-        session.setAttribute(AttributeName.VO, value);
+    public static void setLoggedinAttribute(HttpSession session, boolean loggedin) {
+        session.setAttribute(IS_LOGGEDIN, loggedin);
     }
 
-    protected final Object getVoAttribute(HttpSession session) {
-        return session.getAttribute(AttributeName.VO);
+    public static void setAdminRoleAttribute(HttpSession session, boolean adminRole) {
+        session.setAttribute(IS_ADMIN_ROLE, adminRole);
     }
 
-    protected final void delErrorAttribute(HttpSession session) {
-        session.removeAttribute(AttributeName.ERROR);
+    public static void setUserAttribute(HttpSession session, Object user) {
+        session.setAttribute(USER, user);
     }
 
-    protected final void setErrorAttribute(HttpSession session, Object value) {
-        session.setAttribute(AttributeName.ERROR, value);
+    protected void setVoAttribute(ModelAndView modelAndView, Object value) {
+        modelAndView.addObject(VO, value);
     }
 
-    protected final Object getErrorAttribute(HttpSession session) {
-        return session.getAttribute(AttributeName.ERROR);
+    public static void setVoAttribute(HttpSession session, Object value) {
+        session.setAttribute(VO, value);
+    }
+
+    protected void setVosAttribute(ModelAndView modelAndView, Object value) {
+        modelAndView.addObject(VOS, value);
+    }
+
+    public static void setVosAttribute(HttpSession session, Object value) {
+        session.setAttribute(VOS, value);
+    }
+
+    protected void setErrorAttribute(ModelAndView modelAndView, Object value) {
+        modelAndView.addObject(ERROR, value);
+    }
+
+    public static void setErrorAttribute(HttpSession session, Object value) {
+        session.setAttribute(ERROR, value);
+    }
+
+    protected RedirectView redirectView(String url, Object vo, Object vos, Object error) {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        HttpSession session = request.getSession();
+        setVoAttribute(session, vo);
+        setVosAttribute(session, vos);
+        setErrorAttribute(session, error);
+        return new RedirectView(url);
     }
 
 }

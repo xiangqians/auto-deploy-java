@@ -4,12 +4,11 @@ import lombok.Data;
 
 /**
  * @author xiangqian
- * @date 23:12 2024/03/04
+ * @date 21:42 2024/03/15
  */
 @Data
-public class UserItemAddVo {
+public class GitUpdVo extends GitAddVo {
 
-    private Long userId;
-    private Long itemId;
+    private Long id;
 
 }

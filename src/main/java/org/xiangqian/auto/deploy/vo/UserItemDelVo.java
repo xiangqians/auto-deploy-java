@@ -4,10 +4,10 @@ import lombok.Data;
 
 /**
  * @author xiangqian
- * @date 23:12 2024/03/04
+ * @date 21:54 2024/03/15
  */
 @Data
-public class UserItemAddVo {
+public class UserItemDelVo {
 
     private Long userId;
     private Long itemId;

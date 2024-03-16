@@ -27,7 +27,8 @@
     </thead>
     <tbody>
     <tr th:each="itemRecord : ${itemRecords}" th:itemId="${itemRecord.itemId}" th:itemName="${itemRecord.itemName}">
-        <td><a th:href="@{'/item/' + ${itemRecord.itemId} + '/record/list?t=' + ${timestamp}}" th:text="${itemRecord.itemName}"></a></td>
+        <td><a th:href="@{'/item/' + ${itemRecord.itemId} + '/record/list?t=' + ${timestamp}}"
+               th:text="${itemRecord.itemName}"></a></td>
         <td th:text="${itemRecord.repoUrl}"></td>
         <td th:text="${itemRecord.branch}"></td>
         <td th:with="commitMsg=${T(org.apache.commons.lang3.StringUtils).isNotEmpty(itemRecord.commitId) ? (itemRecord.commitAuthor + ' ' + itemRecord.commitTime + ' ' + itemRecord.commitMsg) : ''}"
@@ -42,7 +43,8 @@
         </td>
         <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanDurationSecond(itemRecord.getDuration())}"></td>
         <td style="visibility: hidden;">
-            <form method="post" th:action="@{'/item/' + ${itemRecord.itemId} + '/deploy?t=' + ${timestamp}}" style="display: inline-block;">
+            <form method="post" th:action="@{'/item/' + ${itemRecord.itemId} + '/deploy?t=' + ${timestamp}}"
+                  style="display: inline-block;">
                 <button del>部署</button>
             </form>
         </td>
@@ -54,6 +56,7 @@
 </html>
 <script type="text/javascript" th:src="@{/static/js/jquery.js}"></script>
 <script type="text/javascript" th:src="@{/static/js/body.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/foot.js}"></script>
 <script type="text/javascript">
     ;
     $(function () {
@@ -82,6 +85,19 @@
             } else {
                 return false
             }
+        })
+
+        // SSE事件流的URL
+        const eventSource = new EventSource('/sse/index')
+
+        // 在发生错误时
+        eventSource.onerror = function (event) {
+            console.error('发生错误', event)
+        }
+
+        eventSource.addEventListener('index', function (event) {
+            const data = JSON.parse(event.data)
+            console.log('接收到index事件', data)
         })
     })
     ;

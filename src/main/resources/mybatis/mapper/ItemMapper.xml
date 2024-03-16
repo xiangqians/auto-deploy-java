@@ -8,10 +8,10 @@
         u.`name` AS 'user_name',
         u.nickname AS 'user_nickname'
         FROM record r
-        LEFT JOIN item i ON i.id = r.item_id
-        LEFT JOIN user u ON u.id = r.user_id
-        WHERE i.id = #{itemId}
+        LEFT JOIN `user` u ON u.id = r.user_id
+        WHERE r.item_id = #{itemId}
         GROUP BY r.id
+        ORDER BY r.id DESC
     </select>
 
     <select id="list" resultType="org.xiangqian.auto.deploy.entity.ItemEntity">

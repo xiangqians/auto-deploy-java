@@ -18,17 +18,8 @@ public class ThreadLocalUser {
         this.threadLocal = new ThreadLocal<>();
     }
 
-    public UserEntity getAndDel() {
-        UserEntity entity = get();
-        if (entity != null) {
-            del();
-        }
-        return entity;
-    }
-
-    public Boolean del() {
-        threadLocal.remove();
-        return true;
+    public UserEntity get() {
+        return threadLocal.get();
     }
 
     public Boolean set(UserEntity entity) {
@@ -36,8 +27,17 @@ public class ThreadLocalUser {
         return true;
     }
 
-    public UserEntity get() {
-        return threadLocal.get();
+    public Boolean del() {
+        threadLocal.remove();
+        return true;
+    }
+
+    public UserEntity getAndDel() {
+        UserEntity entity = get();
+        if (entity != null) {
+            del();
+        }
+        return entity;
     }
 
 }

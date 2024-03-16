@@ -13,7 +13,7 @@
 </head>
 <body>
 <error th:text="${error}"></error>
-<form method="post" th:action="@{'/user/add?t=' + ${timestamp}}">
+<form method="post" th:action="@{'/user?t=' + ${timestamp}}">
     <table>
         <tbody>
         <tr>
@@ -39,3 +39,5 @@
 </body>
 <div th:replace="foot"></div>
 </html>
+<script type="text/javascript" th:src="@{/static/js/jquery.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/foot.js}"></script>

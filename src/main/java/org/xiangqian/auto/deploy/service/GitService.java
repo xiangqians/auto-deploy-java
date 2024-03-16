@@ -1,6 +1,8 @@
 package org.xiangqian.auto.deploy.service;
 
 import org.xiangqian.auto.deploy.entity.GitEntity;
+import org.xiangqian.auto.deploy.vo.GitAddVo;
+import org.xiangqian.auto.deploy.vo.GitUpdVo;
 
 import java.util.List;
 
@@ -12,11 +14,11 @@ public interface GitService {
 
     Boolean delById(Long id);
 
-    Boolean updById(GitEntity vo);
+    Boolean updById(GitUpdVo vo);
 
     GitEntity getById(Long id);
 
-    Boolean add(GitEntity vo);
+    Boolean add(GitAddVo vo);
 
     List<GitEntity> list();
 

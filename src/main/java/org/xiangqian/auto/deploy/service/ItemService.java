@@ -11,6 +11,8 @@ import java.util.List;
  */
 public interface ItemService {
 
+    String getRecordMsg(Long itemId, Long recordId, String type);
+
     org.xiangqian.auto.deploy.util.List<RecordEntity> recordList(org.xiangqian.auto.deploy.util.List list, Long itemId);
 
     Boolean delById(Long id);

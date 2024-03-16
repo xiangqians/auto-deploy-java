@@ -15,11 +15,9 @@
     </p>
     <!-- 定义user变量并使用 -->
     <p th:if="${session.isLoggedin}">
-        <a th:href="@{'#?t=' + ${timestamp}}" th:class="'/' == ${servletPath}? 'disabled' : ''">
-            <span th:text="${session.user.getName()}"></span>
-            <span th:if="${T(org.apache.commons.lang3.StringUtils).isNotEmpty(session.user.nickname)}"> ( [[${session.user.nickname}]] )</span>
-        </a>
-        <span style="padding-left: 20px;"></span>
+        <a th:href="@{'#?t=' + ${timestamp}}" th:class="'/' == ${servletPath}? 'disabled' : ''"
+           th:text="${T(org.apache.commons.lang3.StringUtils).isNotEmpty(session.user.nickname) ? session.user.nickname : session.user.name}"></a>
+        <span style="padding-left: 15px;"></span>
         <a th:href="@{'/logout?t=' + ${timestamp}}">退出登录</a>
     </p>
     <p th:if="${session.isLoggedin}">
@@ -36,20 +34,20 @@
             <td>
                 <table>
                     <tbody>
-                    <tr><td>厂商</td><td th:text="*{jvm.vendor}" style="padding-left: 10px;"></td></tr>
-                    <tr><td>版本</td><td th:text="*{jvm.version}" style="padding-left: 10px;"></td></tr>
-                    <tr><td>最大内存</td><td th:text="*{jvm.maxMemory}" style="padding-left: 10px;"></td></tr>
-                    <tr><td>空闲内存</td><td th:text="*{jvm.freeMemory}" style="padding-left: 10px;"></td></tr>
+                    <tr><td>厂商</td><td id="jvmVendor" th:text="*{jvm.vendor}" style="padding-left: 10px;"></td></tr>
+                    <tr><td>版本</td><td id="jvmVersion" th:text="*{jvm.version}" style="padding-left: 10px;"></td></tr>
+                    <tr><td>最大内存</td><td id="jvmMaxMemory" th:text="*{jvm.maxMemory}" style="padding-left: 10px;"></td></tr>
+                    <tr><td>空闲内存</td><td id="jvmFreeMemory" th:text="*{jvm.freeMemory}" style="padding-left: 10px;"></td></tr>
                     </tbody>
                 </table>
             </td>
             <td style="padding-left: 60px">
                 <table>
                     <tbody>
-                    <tr><td>名称</td><td th:text="*{os.name}" style="padding-left: 10px;"></td></tr>
-                    <tr><td>CPU负载</td><td th:text="*{os.cpuLoad}" style="padding-left: 10px;"></td></tr>
-                    <tr><td>总内存</td><td th:text="*{os.totalMemory}" style="padding-left: 10px;"></td></tr>
-                    <tr><td>空闲内存</td><td th:text="*{os.freeMemory}" style="padding-left: 10px;"></td></tr>
+                    <tr><td>名称</td><td id="osName" th:text="*{os.name}" style="padding-left: 10px;"></td></tr>
+                    <tr><td>CPU负载</td><td id="osCpuLoad" th:text="*{os.cpuLoad}" style="padding-left: 10px;"></td></tr>
+                    <tr><td>总内存</td><td id="osTotalMemory" th:text="*{os.totalMemory}" style="padding-left: 10px;"></td></tr>
+                    <tr><td>空闲内存</td><td id="osFreeMemory" th:text="*{os.freeMemory}" style="padding-left: 10px;"></td></tr>
                     </tbody>
                 </table>
             </td>

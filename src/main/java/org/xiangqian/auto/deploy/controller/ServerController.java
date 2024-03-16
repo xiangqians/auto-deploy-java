@@ -10,7 +10,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import org.xiangqian.auto.deploy.entity.ServerEntity;
 import org.xiangqian.auto.deploy.service.ServerService;
-import org.xiangqian.auto.deploy.util.AttributeName;
 import org.xiangqian.auto.deploy.util.DateUtil;
 
 import java.time.LocalDateTime;
@@ -42,14 +41,14 @@ public class ServerController extends AbsController {
             log.error("", e);
             setVoAttribute(session, vo);
             setErrorAttribute(session, e.getMessage());
-            return new RedirectView("/server/" + vo.getId() + "?error&t=" + DateUtil.toSecond(LocalDateTime.now()));
+            return new RedirectView("/server/" + vo.getId() + "?t=" + DateUtil.toSecond(LocalDateTime.now()));
         }
         return redirectList();
     }
 
     @GetMapping("/{id}")
     public ModelAndView updById(ModelAndView modelAndView, @PathVariable Long id) {
-        modelAndView.addObject(AttributeName.VO, service.getById(id));
+        modelAndView.addObject("vo", service.getById(id));
         modelAndView.setViewName("server/addOrUpd");
         return modelAndView;
     }
@@ -62,7 +61,7 @@ public class ServerController extends AbsController {
             log.error("", e);
             setVoAttribute(session, vo);
             setErrorAttribute(session, e.getMessage());
-            return new RedirectView("/server/add?error&t=" + DateUtil.toSecond(LocalDateTime.now()));
+            return new RedirectView("/server/add?t=" + DateUtil.toSecond(LocalDateTime.now()));
         }
         return redirectList();
     }
@@ -75,7 +74,7 @@ public class ServerController extends AbsController {
 
     @GetMapping("/list")
     public ModelAndView list(ModelAndView modelAndView) {
-        modelAndView.addObject(AttributeName.VOS, service.list());
+        modelAndView.addObject("vos", service.list());
         modelAndView.setViewName("server/list");
         return modelAndView;
     }

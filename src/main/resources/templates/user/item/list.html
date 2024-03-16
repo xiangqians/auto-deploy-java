@@ -9,7 +9,7 @@
     <meta charset="UTF-8">
     <link rel="icon" type="image/x-icon" th:href="@{/static/favicon.ico}">
     <link rel="stylesheet" th:href="@{/static/css/body.css}" type="text/css"/>
-    <title th:text="${T(org.apache.commons.lang3.StringUtils).isEmpty(user.nickname) ? user.name : (user.name + ' ( ' + user.nickname + ' )') + ' 用户项目列表'}"></title>
+    <title th:text="${(T(org.apache.commons.lang3.StringUtils).isNotEmpty(vo.user.nickname) ? vo.user.nickname : vo.user.name) + ' 用户项目'}"></title>
 </head>
 <body>
 <error th:text="${error}"></error>
@@ -21,11 +21,11 @@
     </tr>
     </thead>
     <tbody>
-    <tr th:each="vo : ${vos}" th:userId="${vo.userId}" th:itemId="${vo.itemId}" th:itemName="${vo.itemName}">
-        <td><a th:href="@{'/item/' + ${vo.itemId} + '?t=' + ${timestamp}}" th:text="${vo.itemName}"></a></td>
-        <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(vo.addTime)}"></td>
+    <tr th:each="userItem : ${vo.userItems}" th:userId="${userItem.userId}" th:itemId="${userItem.itemId}" th:itemName="${userItem.itemName}">
+        <td><a th:href="@{'/item/' + ${userItem.itemId} + '?t=' + ${timestamp}}" th:text="${userItem.itemName}"></a></td>
+        <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(userItem.addTime)}"></td>
         <td style="visibility: hidden;">
-            <form method="post" th:action="@{'/user/' + ${vo.userId} + '/item/'+ ${vo.itemId} + '?t=' + ${timestamp}}" style="display: inline-block;">
+            <form method="post" th:action="@{'/user/' + ${userItem.userId} + '/item/'+ ${userItem.itemId} + '?t=' + ${timestamp}}" style="display: inline-block;">
                 <input name="_method" value="DELETE" type="hidden">
                 <button del>删除</button>
             </form>
@@ -34,11 +34,11 @@
     </tbody>
     <tfoot>
     <tr>
-        <td colspan="6">
-            <form method="post" th:action="@{'/user/' + ${user.id} + '/item?t=' + ${timestamp}}" style="display: inline-block;">
+        <td colspan="2">
+            <form method="post" th:action="@{'/user/' + ${vo.user.id} + '/item?t=' + ${timestamp}}" style="display: inline-block;">
                 <select name="itemId">
                     <option></option>
-                    <option th:each="item : ${items}"
+                    <option th:each="item : ${vo.items}"
                             th:value="${item.id}"
                             th:text="${item.name}">
                     </option>
@@ -54,6 +54,7 @@
 </html>
 <script type="text/javascript" th:src="@{/static/js/jquery.js}"></script>
 <script type="text/javascript" th:src="@{/static/js/body.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/foot.js}"></script>
 <script type="text/javascript">
     ;
     $(function () {
@@ -79,7 +80,7 @@
             let $button = $(event.currentTarget)
 
             let userItem = getUserItem($button)
-            if (confirm(`确定删除关联的项目：${userItem.itemName} ？`)) {
+            if (confirm(`确定删除关联项目：${userItem.itemName} ？`)) {
                 return true
             } else {
                 return false

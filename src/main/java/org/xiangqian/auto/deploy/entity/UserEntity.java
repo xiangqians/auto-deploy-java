@@ -90,15 +90,23 @@ public class UserEntity implements UserDetails {
         return Objects.hash(name);
     }
 
-    // 是否未被限时锁定
+    /**
+     * 是否未被限时锁定
+     *
+     * @return
+     */
     public boolean isNonLimitedTimeLocked() {
         return tryCount < 3 || // 连续输错密码小于3次
                 Duration.ofSeconds(DateUtil.toSecond(LocalDateTime.now()) - updTime).toHours() >= 24; // 锁定24小时
     }
 
-    // 人性化限时时间
-    public String humanLimitedTime() {
-        return DateUtil.humanDurationSecond(Duration.ofHours(24).toSeconds() - (DateUtil.toSecond(LocalDateTime.now()) - updTime));
+    /**
+     * 获取限时时间（单位s）
+     *
+     * @return
+     */
+    public long getLimitedTime() {
+        return Duration.ofHours(24).toSeconds() - (DateUtil.toSecond(LocalDateTime.now()) - updTime);
     }
 
     /**

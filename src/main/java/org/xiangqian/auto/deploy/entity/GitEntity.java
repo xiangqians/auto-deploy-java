@@ -26,18 +26,11 @@ public class GitEntity {
     @TableField("`name`")
     private String name;
 
-    // 授权类型：1-用户名和密码，2-key
-    private Integer type;
-
     // 用户
     private String user;
 
     // 密码
     private String passwd;
-
-    // key
-    @TableField("`key`")
-    private String key;
 
     // 创建时间（时间戳，s）
     private Long addTime;

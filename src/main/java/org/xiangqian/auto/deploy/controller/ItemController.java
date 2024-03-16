@@ -12,7 +12,6 @@ import org.xiangqian.auto.deploy.entity.ItemEntity;
 import org.xiangqian.auto.deploy.service.GitService;
 import org.xiangqian.auto.deploy.service.ItemService;
 import org.xiangqian.auto.deploy.service.ServerService;
-import org.xiangqian.auto.deploy.util.AttributeName;
 import org.xiangqian.auto.deploy.util.DateUtil;
 import org.xiangqian.auto.deploy.util.List;
 
@@ -35,6 +34,14 @@ public class ItemController extends AbsController {
 
     @Autowired
     private ServerService serverService;
+
+    @GetMapping("/{itemId}/record/{recordId}/{type}")
+    public ModelAndView getRecordMsg(ModelAndView modelAndView, @PathVariable Long itemId, @PathVariable Long recordId, @PathVariable String type) {
+        modelAndView.addObject("type", type);
+        modelAndView.addObject("msg", service.getRecordMsg(itemId, recordId, type));
+        modelAndView.setViewName("item/record/list");
+        return modelAndView;
+    }
 
     @GetMapping("/{itemId}/record/list")
     public ModelAndView recordList(ModelAndView modelAndView, @PathVariable Long itemId, List list) {
@@ -64,7 +71,7 @@ public class ItemController extends AbsController {
             log.error("", e);
             setVoAttribute(session, vo);
             setErrorAttribute(session, e.getMessage());
-            return new RedirectView("/item/" + vo.getId() + "?error&t=" + DateUtil.toSecond(LocalDateTime.now()));
+            return new RedirectView("/item/" + vo.getId() + "?t=" + DateUtil.toSecond(LocalDateTime.now()));
         }
         return redirectList();
     }
@@ -72,7 +79,7 @@ public class ItemController extends AbsController {
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ModelAndView updById(ModelAndView modelAndView, @PathVariable Long id) {
-        modelAndView.addObject(AttributeName.VO, service.getById(id));
+        modelAndView.addObject("vo", service.getById(id));
         modelAndView.addObject("gitVos", gitService.list());
         modelAndView.addObject("serverVos", serverService.list());
         modelAndView.setViewName("item/addOrUpd");
@@ -88,7 +95,7 @@ public class ItemController extends AbsController {
             log.error("", e);
             setVoAttribute(session, vo);
             setErrorAttribute(session, e.getMessage());
-            return new RedirectView("/item/add?error&t=" + DateUtil.toSecond(LocalDateTime.now()));
+            return new RedirectView("/item/add?t=" + DateUtil.toSecond(LocalDateTime.now()));
         }
         return redirectList();
     }
@@ -105,7 +112,7 @@ public class ItemController extends AbsController {
     @GetMapping("/list")
     @PreAuthorize("hasRole('ADMIN')")
     public ModelAndView list(ModelAndView modelAndView) {
-        modelAndView.addObject(AttributeName.VOS, service.list());
+        modelAndView.addObject("vos", service.list());
         modelAndView.setViewName("item/list");
         return modelAndView;
     }

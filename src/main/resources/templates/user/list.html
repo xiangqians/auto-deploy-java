@@ -12,6 +12,7 @@
     <title>用户</title>
 </head>
 <body>
+<error th:text="${error}"></error>
 <table>
     <thead>
     <tr>
@@ -29,25 +30,25 @@
         th:with="locked=${vo.locked} == 0 ? (${vo.isNonLimitedTimeLocked()} ? 0 : 2) : 1">
         <td th:text="${vo.name}"></td>
         <td th:text="${vo.nickname}"></td>
-        <td><a th:href="@{'/user/' + ${vo.id} + '/item/list#?t=' + ${timestamp}}" th:text="${vo.itemCount}"></a></td>
-        <td th:text="${locked} == 0 ? '否' : (${locked} == 1 ? '是' : '是（限时）')" th:style="${locked} > 0 ? 'color:red;' : ''" th:title="${locked} == 2 ? (${vo.humanLimitedTime()}) + '后解锁' : ''"></td>
+        <td><a th:href="@{'/user/' + ${vo.id} + '/item/list?t=' + ${timestamp}}" th:text="${vo.itemCount}"></a></td>
+        <td th:text="${locked} == 0 ? '否' : (${locked} == 1 ? '是' : '是（限时）')" th:style="${locked} == 0 ? '' : 'color:red;'" th:title="${locked} == 2 ? (${T(org.xiangqian.auto.deploy.util.DateUtil).humanDurationSecond(vo.getLimitedTime())}) + '后解锁' : ''"></td>
         <td th:text="${vo.currentLoginIp}"></td>
         <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(vo.currentLoginTime)}"></td>
         <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(vo.addTime)}"></td>
         <td style="visibility: hidden;">
-            <form method="post" th:action="@{'/user/resetPasswd?t=' + ${timestamp}}" style="display: inline-block;">
+            <form method="post" th:action="@{'/user/' + ${vo.id} + '/resetPasswd?t=' + ${timestamp}}" style="display: inline-block;">
                 <input name="_method" value="PUT" type="hidden">
-                <input name="id" th:value="${vo.id}" type="hidden">
                 <input name="passwd" value="" type="hidden">
-                <button name="resetPasswd" type="submit">重置密码</button>
+                <button resetPasswd type="submit">重置密码</button>
             </form>
-            <form method="post" th:action="@{'/user/' + (${locked} > 0 ? 'unlock/' : 'lock/') + ${vo.id} + '?t=' + ${timestamp}}" style="display: inline-block;">
+            <form method="post" th:action="@{'/user/' + ${vo.id} + (${locked} == 0 ? '/lock' : '/unlock') + '?t=' + ${timestamp}}" style="display: inline-block;">
                 <input name="_method" value="PUT" type="hidden">
-                <button th:name="${locked} > 0 ? 'unlock' : 'lock'" th:text="${locked} > 0 ? '解锁' : '锁定'"></button>
+                <button th:if="${locked} == 0" lock>锁定</button>
+                <button th:unless="${locked} == 0" unlock>解锁</button>
             </form>
             <form method="post" th:action="@{'/user/' + ${vo.id} + '?t=' + ${timestamp}}" style="display: inline-block;">
                 <input name="_method" value="DELETE" type="hidden">
-                <button name="del">删除</button>
+                <button del>删除</button>
             </form>
         </td>
     </tr>
@@ -55,7 +56,7 @@
     <tfoot>
     <tr>
         <td colspan="6">
-            <a id="add" th:href="@{'/user/add?t=' + ${timestamp}}">新增</a>
+            <a id="add" th:href="@{'/user?t=' + ${timestamp}}">新增</a>
         </td>
     </tr>
     </tfoot>
@@ -65,6 +66,7 @@
 </html>
 <script type="text/javascript" th:src="@{/static/js/jquery.js}"></script>
 <script type="text/javascript" th:src="@{/static/js/body.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/foot.js}"></script>
 <script type="text/javascript">
     ;
     $(function () {
@@ -78,7 +80,7 @@
             if (this.nickname === '') {
                 return this.name
             }
-            return `${this.name} ( ${this.nickname} )`
+            return `${this.name}(${this.nickname})`
         }
 
         function getUser($element) {
@@ -92,7 +94,7 @@
         }
 
         // 重置密码
-        $('button[name=resetPasswd]').click(function (event) {
+        $('button[resetPasswd]').click(function (event) {
             // 获取目标<button>元素
             let $button = $(event.currentTarget)
 
@@ -122,7 +124,7 @@
         })
 
         // 锁定
-        $('button[name=lock]').click(function (event) {
+        $('button[lock]').click(function (event) {
             // 获取目标<button>元素
             let $button = $(event.currentTarget)
 
@@ -135,7 +137,7 @@
         })
 
         // 解锁
-        $('button[name=unlock]').click(function (event) {
+        $('button[unlock]').click(function (event) {
             // 获取目标<button>元素
             let $button = $(event.currentTarget)
 
@@ -148,7 +150,7 @@
         })
 
         // 删除
-        $('button[name=del]').click(function (event) {
+        $('button[del]').click(function (event) {
             // 获取目标<button>元素
             let $button = $(event.currentTarget)
 

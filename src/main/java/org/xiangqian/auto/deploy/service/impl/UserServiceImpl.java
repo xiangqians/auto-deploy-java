@@ -12,11 +12,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.xiangqian.auto.deploy.component.ThreadLocalUser;
+import org.xiangqian.auto.deploy.entity.ItemEntity;
 import org.xiangqian.auto.deploy.entity.UserEntity;
+import org.xiangqian.auto.deploy.entity.UserItemEntity;
+import org.xiangqian.auto.deploy.mapper.ItemMapper;
+import org.xiangqian.auto.deploy.mapper.UserItemMapper;
 import org.xiangqian.auto.deploy.mapper.UserMapper;
 import org.xiangqian.auto.deploy.service.UserService;
 import org.xiangqian.auto.deploy.util.DateUtil;
 import org.xiangqian.auto.deploy.vo.UserAddVo;
+import org.xiangqian.auto.deploy.vo.UserItemAddVo;
+import org.xiangqian.auto.deploy.vo.UserItemDelVo;
 import org.xiangqian.auto.deploy.vo.UserResetPasswdVo;
 
 import java.time.LocalDateTime;
@@ -36,10 +42,16 @@ public class UserServiceImpl implements UserService {
     private SessionRegistry sessionRegistry;
 
     @Autowired
+    private ThreadLocalUser threadLocalUser;
+
+    @Autowired
     private UserMapper mapper;
 
     @Autowired
-    private ThreadLocalUser threadLocalUser;
+    private UserItemMapper userItemMapper;
+
+    @Autowired
+    private ItemMapper itemMapper;
 
     @Override
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
@@ -73,27 +85,45 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public synchronized Boolean add(UserAddVo vo) {
-        String name = StringUtils.trim(vo.getName());
-        String nickname = StringUtils.trim(vo.getNickname());
-        String passwd = StringUtils.trim(vo.getPasswd());
-        Assert.isTrue(StringUtils.isNotEmpty(name), "用户名不能为空");
-        Assert.isTrue(StringUtils.isNotEmpty(nickname), "昵称不能为空");
-        Assert.isTrue(StringUtils.isNotEmpty(passwd), "密码不能为空");
+    public Boolean delItem(UserItemDelVo vo) {
+        Long userId = vo.getUserId();
+        Assert.notNull(userId, "用户id不能为空");
 
-        UserEntity entity = mapper.selectOne(new LambdaQueryWrapper<UserEntity>()
-                .select(UserEntity::getId)
-                .eq(UserEntity::getName, name)
-                .last("LIMIT 1"));
-        Assert.isNull(entity, "用户名已存在");
+        Long itemId = vo.getItemId();
+        Assert.notNull(itemId, "项目id不能为空");
 
-        UserEntity addEntity = new UserEntity();
-        addEntity.setName(name);
-        addEntity.setNickname(nickname);
-        addEntity.setPasswd(passwordEncoder.encode(passwd));
+        return userItemMapper.delete(new LambdaQueryWrapper<UserItemEntity>()
+                .eq(UserItemEntity::getUserId, userId)
+                .eq(UserItemEntity::getItemId, itemId)) > 0;
+    }
+
+    @Override
+    public Boolean addItem(UserItemAddVo vo) {
+        Long userId = vo.getUserId();
+        Assert.notNull(userId, "用户id不能为空");
+        Assert.notNull(mapper.selectOne(new LambdaQueryWrapper<UserEntity>().select(UserEntity::getId).eq(UserEntity::getId, userId).last("LIMIT 1")), "用户不存在");
+
+        Long itemId = vo.getItemId();
+        Assert.notNull(itemId, "项目id不能为空");
+        Assert.notNull(itemMapper.selectOne(new LambdaQueryWrapper<ItemEntity>().select(ItemEntity::getId).eq(ItemEntity::getId, itemId).last("LIMIT 1")), "项目不存在");
+
+        UserItemEntity addEntity = new UserItemEntity();
+        addEntity.setUserId(userId);
+        addEntity.setItemId(itemId);
         addEntity.setAddTime(DateUtil.toSecond(LocalDateTime.now()));
+        return userItemMapper.insert(addEntity) > 0;
+    }
 
-        return mapper.insert(addEntity) > 0;
+    @Override
+    public List<UserItemEntity> itemList(Long userId) {
+        Assert.notNull(userId, "用户id不能为空");
+        return userItemMapper.list(userId);
+    }
+
+    @Override
+    public synchronized Boolean updById(UserEntity entity) {
+        Assert.notNull(entity.getId(), "用户id不能为空");
+        return mapper.updateById(entity) > 0;
     }
 
     @Override
@@ -121,7 +151,6 @@ public class UserServiceImpl implements UserService {
         updEntity.setId(id);
         updEntity.setLocked(0);
         updEntity.setTryCount(0);
-
         return mapper.updateById(updEntity) > 0;
     }
 
@@ -132,7 +161,6 @@ public class UserServiceImpl implements UserService {
         UserEntity updEntity = new UserEntity();
         updEntity.setId(id);
         updEntity.setLocked(1);
-
         if (mapper.updateById(updEntity) > 0) {
             expireNow(id);
             return true;
@@ -143,14 +171,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public Boolean resetPasswd(UserResetPasswdVo vo) {
         Long id = vo.getId();
-        String passwd = vo.getPasswd();
         Assert.notNull(id, "用户id不能为空");
+
+        String passwd = StringUtils.trim(vo.getPasswd());
         Assert.notNull(passwd, "密码不能为空");
 
         UserEntity updEntity = new UserEntity();
         updEntity.setId(id);
         updEntity.setPasswd(passwordEncoder.encode(passwd));
-
         if (mapper.updateById(updEntity) > 0) {
             expireNow(id);
             return true;
@@ -159,13 +187,36 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserEntity> list() {
-        return mapper.list();
+    public synchronized Boolean add(UserAddVo vo) {
+        String name = StringUtils.trim(vo.getName());
+        Assert.isTrue(StringUtils.isNotEmpty(name), "用户名不能为空");
+        Assert.isTrue(name.length() <= 60, "用户名长度不能超过60个字符");
+
+        String nickname = StringUtils.trim(vo.getNickname());
+        Assert.isTrue(StringUtils.isNotEmpty(nickname), "昵称不能为空");
+        Assert.isTrue(nickname.length() <= 60, "昵称长度不能超过60个字符");
+
+        String passwd = StringUtils.trim(vo.getPasswd());
+        Assert.isTrue(StringUtils.isNotEmpty(passwd), "密码不能为空");
+        Assert.isTrue(passwd.length() <= 120, "密码长度不能超过120个字符");
+
+        UserEntity entity = mapper.selectOne(new LambdaQueryWrapper<UserEntity>()
+                .select(UserEntity::getId)
+                .eq(UserEntity::getName, name)
+                .last("LIMIT 1"));
+        Assert.isNull(entity, "用户名已存在");
+
+        UserEntity addEntity = new UserEntity();
+        addEntity.setName(name);
+        addEntity.setNickname(nickname);
+        addEntity.setPasswd(passwordEncoder.encode(passwd));
+        addEntity.setAddTime(DateUtil.toSecond(LocalDateTime.now()));
+        return mapper.insert(addEntity) > 0;
     }
 
     @Override
-    public synchronized Boolean updById(UserEntity entity) {
-        return mapper.updateById(entity) > 0;
+    public List<UserEntity> list() {
+        return mapper.list();
     }
 
     /**
@@ -180,7 +231,8 @@ public class UserServiceImpl implements UserService {
         }
 
         List<SessionInformation> sessions = sessionRegistry.getAllSessions(entity,
-                false); // 是否包括过期的会话
+                // 是否包括过期的会话
+                false);
         if (CollectionUtils.isNotEmpty(sessions)) {
             sessions.forEach(SessionInformation::expireNow);
         }

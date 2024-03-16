@@ -33,6 +33,15 @@ public class ItemServiceImpl implements ItemService {
     private UserItemMapper userItemMapper;
 
     @Override
+    public String getRecordMsg(Long itemId, Long recordId, String type) {
+        Assert.notNull(itemId, "项目id不能为空");
+        Assert.notNull(recordId, "记录id不能为空");
+        Assert.notNull(type, "类型不能为空");
+
+        return null;
+    }
+
+    @Override
     public org.xiangqian.auto.deploy.util.List<RecordEntity> recordList(org.xiangqian.auto.deploy.util.List list, Long itemId) {
         Assert.notNull(itemId, "项目id不能为空");
         UserEntity user = SecurityUtil.getUser();
@@ -91,11 +100,11 @@ public class ItemServiceImpl implements ItemService {
         Assert.notNull(gitId, "Git id不能为空");
         Assert.isTrue(gitId > 0, "Git id不能小于0");
 
-        String repoUrl = StringUtils.trim(vo.getRepoUrl());
-        Assert.isTrue(StringUtils.isNotEmpty(repoUrl), "仓库地址不能为空");
+        String uri = StringUtils.trim(vo.getUri());
+        Assert.isTrue(StringUtils.isNotEmpty(uri), "Git仓库地址不能为空");
 
         String branch = StringUtils.trim(vo.getBranch());
-        Assert.isTrue(StringUtils.isNotEmpty(branch), "分支名不能为空");
+        Assert.isTrue(StringUtils.isNotEmpty(branch), "Git分支名不能为空");
 
         Long serverId = vo.getServerId();
         Assert.notNull(serverId, "服务器id不能为空");
@@ -109,7 +118,7 @@ public class ItemServiceImpl implements ItemService {
         ItemEntity entity = new ItemEntity();
         entity.setName(name);
         entity.setGitId(gitId);
-        entity.setRepoUrl(repoUrl);
+        entity.setUri(uri);
         entity.setBranch(branch);
         entity.setServerId(serverId);
         entity.setScript(script);

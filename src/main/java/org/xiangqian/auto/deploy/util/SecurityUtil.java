@@ -24,7 +24,7 @@ public class SecurityUtil {
         return isLoggedin(authentication);
     }
 
-    private static boolean isLoggedin(Authentication authentication) {
+    public static boolean isLoggedin(Authentication authentication) {
         // 匿名用户（表示用户未登录）
         if (authentication instanceof AnonymousAuthenticationToken) {
             return false;
@@ -39,7 +39,11 @@ public class SecurityUtil {
         return false;
     }
 
-    private static Authentication getAuthentication() {
+    public static void setAuthentication(Authentication authentication) {
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    public static Authentication getAuthentication() {
         return SecurityContextHolder.getContext().getAuthentication();
     }
 

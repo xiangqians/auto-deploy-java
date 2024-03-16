@@ -32,11 +32,10 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.xiangqian.auto.deploy.component.ThreadLocalUser;
+import org.xiangqian.auto.deploy.controller.AbsController;
 import org.xiangqian.auto.deploy.entity.UserEntity;
 import org.xiangqian.auto.deploy.mapper.UserMapper;
-import org.xiangqian.auto.deploy.util.AttributeName;
 import org.xiangqian.auto.deploy.util.DateUtil;
-import org.xiangqian.auto.deploy.util.SecurityUtil;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -69,8 +68,8 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 .authorizeHttpRequests((authorize) -> authorize
                         // 放行静态资源
                         .requestMatchers("/static/**").permitAll()
-                        // 放行/login?error
-                        .requestMatchers(request -> "/login?error".equals(request.getServletPath() + "?" + request.getQueryString()) && request.getSession(true).getAttribute(AttributeName.ERROR) != null).permitAll()
+                        // 放行/login
+                        .requestMatchers("/login").permitAll()
                         // 其他请求需要授权
                         .anyRequest().authenticated())
                 // 自定义表单登录
@@ -95,7 +94,7 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                         // 当达到最大会话数时剔除旧登录
                         .sessionRegistry(sessionRegistry)
                         // 会话过期后跳转的URL
-                        .expiredUrl("/login?expired")
+                        .expiredUrl("/login")
                 )
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .csrf(AbstractHttpConfigurer::disable);
@@ -111,8 +110,13 @@ public class SecurityConfiguration implements WebMvcConfigurer {
             @Autowired
             private UserMapper mapper;
 
+            @Autowired
+            private ThreadLocalUser threadLocalUser;
+
             @Override
             public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
+                threadLocalUser.del();
+
                 // 获取已授权用户信息
                 UserEntity entity = (UserEntity) authentication.getPrincipal();
 
@@ -121,12 +125,13 @@ public class SecurityConfiguration implements WebMvcConfigurer {
 
                 // 限制同一个用户只允许一端登录
                 List<SessionInformation> sessions = sessionRegistry.getAllSessions(entity,
-                        false); // 是否包括过期的会话
+                        // 是否包括过期的会话
+                        false);
                 if (CollectionUtils.isNotEmpty(sessions)) {
                     String sessionId = session.getId();
-                    for (SessionInformation session0 : sessions) {
-                        if (!sessionId.equals(session0.getSessionId())) {
-                            session0.expireNow();
+                    for (SessionInformation _session : sessions) {
+                        if (!sessionId.equals(_session.getSessionId())) {
+                            _session.expireNow();
                         }
                     }
                 }
@@ -150,12 +155,10 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 entity.setCurrentLoginTime(updEntity.getCurrentLoginTime());
                 entity.setUpdTime(updEntity.getUpdTime());
 
-                // 添加是否已登陆信息到会话
-                session.setAttribute(AttributeName.IS_LOGGEDIN, true);
-                // 添加是否是管理员角色信息到会话
-                session.setAttribute(AttributeName.IS_ADMIN_ROLE, entity.isAdminRole());
                 // 添加用户信息到会话
-                session.setAttribute(AttributeName.USER, entity);
+                AbsController.setLoggedinAttribute(session, true);
+                AbsController.setAdminRoleAttribute(session, entity.isAdminRole());
+                AbsController.setUserAttribute(session, entity);
 
                 super.onAuthenticationSuccess(request, response, authentication);
             }
@@ -173,17 +176,18 @@ public class SecurityConfiguration implements WebMvcConfigurer {
 
             @Override
             public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+                UserEntity entity = threadLocalUser.getAndDel();
+
                 // 用户名
                 String name = request.getParameter("username");
 
                 // 获取会话
                 HttpSession session = request.getSession(true);
 
-                // 将错误信息添加到session
+                // 将错误信息添加到会话
                 String error = null;
                 if (exception instanceof BadCredentialsException) {
                     error = "用户名或密码不正确";
-                    UserEntity entity = threadLocalUser.getAndDel();
                     if (entity != null) {
                         UserEntity updEntity = new UserEntity();
                         updEntity.setId(entity.getId());
@@ -199,15 +203,15 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 } else {
                     error = exception.getMessage();
                 }
-                session.setAttribute(AttributeName.ERROR, error);
+                AbsController.setErrorAttribute(session, error);
 
-                // 将用户信息添加到session
-                UserEntity entity = new UserEntity();
+                // 将用户信息添加到会话
+                entity = new UserEntity();
                 entity.setName(name);
-                session.setAttribute(AttributeName.VO, entity);
+                AbsController.setVoAttribute(session, entity);
 
-                // 重定向到登录错误页
-                response.sendRedirect("/login?error");
+                // 重定向到登录页
+                response.sendRedirect("/login");
             }
         };
     }
@@ -225,10 +229,8 @@ public class SecurityConfiguration implements WebMvcConfigurer {
             @Override
             public void sessionCreated(HttpSessionEvent event) {
                 HttpSession session = event.getSession();
-                // 添加是否已登陆信息到会话
-                session.setAttribute(AttributeName.IS_LOGGEDIN, false);
-                // 添加是否是管理员角色信息到会话
-                session.setAttribute(AttributeName.IS_ADMIN_ROLE, false);
+                AbsController.setLoggedinAttribute(session, false);
+                AbsController.setAdminRoleAttribute(session, false);
             }
         });
         return servletListenerRegistrationBean;
@@ -261,7 +263,7 @@ public class SecurityConfiguration implements WebMvcConfigurer {
         registry.addInterceptor(new HandlerInterceptor() {
             @Override
             public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-                if ("/login".equals(request.getServletPath()) && SecurityUtil.isLoggedin()) {
+                if ("/login".equals(request.getServletPath()) && AbsController.getLoggedinAttribute(request.getSession(true))) {
                     // 重定向到首页
                     response.sendRedirect("/");
                     // 不继续执行后续的拦截器

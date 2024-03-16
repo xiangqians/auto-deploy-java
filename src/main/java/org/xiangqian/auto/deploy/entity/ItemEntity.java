@@ -33,10 +33,10 @@ public class ItemEntity {
     @TableField(exist = false)
     private String gitName;
 
-    // 仓库地址
-    private String repoUrl;
+    // Git仓库地址
+    private String uri;
 
-    // 分支名
+    // Git分支名
     private String branch;
 
     // 所属服务器 server.id

@@ -2,19 +2,30 @@ package org.xiangqian.auto.deploy.controller;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import org.xiangqian.auto.deploy.entity.ItemEntity;
+import org.xiangqian.auto.deploy.entity.UserEntity;
+import org.xiangqian.auto.deploy.entity.UserItemEntity;
+import org.xiangqian.auto.deploy.service.ItemService;
 import org.xiangqian.auto.deploy.service.UserService;
-import org.xiangqian.auto.deploy.util.AttributeName;
 import org.xiangqian.auto.deploy.util.DateUtil;
 import org.xiangqian.auto.deploy.vo.UserAddVo;
+import org.xiangqian.auto.deploy.vo.UserItemAddVo;
+import org.xiangqian.auto.deploy.vo.UserItemDelVo;
 import org.xiangqian.auto.deploy.vo.UserResetPasswdVo;
 
 import java.time.LocalDateTime;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author xiangqian
@@ -29,58 +40,151 @@ public class UserController extends AbsController {
     @Autowired
     private UserService service;
 
-    @PostMapping("/add")
-    public RedirectView add(HttpSession session, UserAddVo vo) {
+    @Autowired
+    private ItemService itemService;
+
+    @DeleteMapping("/{userId}/item/{itemId}")
+    public RedirectView delItem(HttpSession session, @PathVariable Long userId, @PathVariable Long itemId) {
         try {
-            service.add(vo);
+            UserItemDelVo vo = new UserItemDelVo();
+            vo.setUserId(userId);
+            vo.setItemId(itemId);
+            service.delItem(vo);
         } catch (Exception e) {
             log.error("", e);
-            setVoAttribute(session, vo);
             setErrorAttribute(session, e.getMessage());
-            return new RedirectView("/user/add?error&t=" + DateUtil.toSecond(LocalDateTime.now()));
         }
-        return redirectListView();
+        return redirectItemList(userId);
     }
 
-    @GetMapping("/add")
-    public ModelAndView addView(ModelAndView modelAndView) {
-        modelAndView.setViewName("user/add");
+    @PostMapping("/{userId}/item")
+    public RedirectView addItem(HttpSession session, @PathVariable Long userId, UserItemAddVo vo) {
+        try {
+            vo.setUserId(userId);
+            service.addItem(vo);
+        } catch (Exception e) {
+            log.error("", e);
+            setErrorAttribute(session, e.getMessage());
+        }
+        return redirectItemList(userId);
+    }
+
+    @GetMapping("/{userId}/item/list")
+    public ModelAndView itemList(HttpSession session, ModelAndView modelAndView, @PathVariable Long userId) {
+        try {
+            UserEntity user = service.getById(userId);
+
+            Set<Long> itemIds = null;
+            List<UserItemEntity> userItems = service.itemList(userId);
+            if (CollectionUtils.isNotEmpty(userItems)) {
+                itemIds = userItems.stream().map(UserItemEntity::getItemId).collect(Collectors.toSet());
+            }
+
+            List<ItemEntity> items = itemService.list();
+            if (CollectionUtils.isNotEmpty(itemIds) && CollectionUtils.isNotEmpty(items)) {
+                Iterator<ItemEntity> iterator = items.iterator();
+                while (iterator.hasNext()) {
+                    ItemEntity item = iterator.next();
+                    if (itemIds.contains(item.getId())) {
+                        iterator.remove();
+                    }
+                }
+            }
+
+            setVoAttribute(modelAndView, Map.of("user", user,
+                    "userItems", userItems,
+                    "items", items));
+        } catch (Exception e) {
+            log.error("", e);
+            setErrorAttribute(session, e.getMessage());
+        }
+        modelAndView.setViewName("user/item/list");
         return modelAndView;
+    }
+
+    private RedirectView redirectItemList(Long userId) {
+        return new RedirectView("/user/" + userId + "/item/list?t=" + DateUtil.toSecond(LocalDateTime.now()));
     }
 
     @DeleteMapping("/{id}")
     public RedirectView delById(@PathVariable Long id) {
-        service.delById(id);
-        return redirectListView();
+        Object error = null;
+        try {
+            service.delById(id);
+        } catch (Exception e) {
+            log.error("", e);
+            error = e.getMessage();
+        }
+        return redirectListView(error);
     }
 
-    @PutMapping("/unlock/{id}")
+    @PutMapping("/{id}/unlock")
     public RedirectView unlock(@PathVariable Long id) {
-        service.unlock(id);
-        return redirectListView();
+        Object error = null;
+        try {
+            service.unlock(id);
+        } catch (Exception e) {
+            log.error("", e);
+            error = e.getMessage();
+        }
+        return redirectListView(error);
     }
 
-    @PutMapping("/lock/{id}")
+    @PutMapping("/{id}/lock")
     public RedirectView lock(@PathVariable Long id) {
-        service.lock(id);
-        return redirectListView();
+        Object error = null;
+        try {
+            service.lock(id);
+        } catch (Exception e) {
+            log.error("", e);
+            error = e.getMessage();
+        }
+        return redirectListView(error);
     }
 
-    @PutMapping("/resetPasswd")
-    public RedirectView resetPasswd(UserResetPasswdVo vo) {
-        service.resetPasswd(vo);
-        return redirectListView();
+    @PutMapping("/{id}/resetPasswd")
+    public RedirectView resetPasswd(HttpSession session, @PathVariable Long id, UserResetPasswdVo vo) {
+        try {
+            vo.setId(id);
+            service.resetPasswd(vo);
+        } catch (Exception e) {
+            log.error("", e);
+            setErrorAttribute(session, e.getMessage());
+        }
+        return redirectListView(null);
+    }
+
+    @PostMapping
+    public RedirectView add(UserAddVo vo) {
+        try {
+            service.add(vo);
+        } catch (Exception e) {
+            log.error("", e);
+            return redirectView("/user?t=" + DateUtil.toSecond(LocalDateTime.now()), vo, null, e.getMessage());
+        }
+        return redirectListView(null);
+    }
+
+    @GetMapping
+    public ModelAndView add(ModelAndView modelAndView) {
+        modelAndView.setViewName("user/add");
+        return modelAndView;
     }
 
     @GetMapping("/list")
     public ModelAndView list(ModelAndView modelAndView) {
-        modelAndView.addObject(AttributeName.VOS, service.list());
+        try {
+            setVoAttribute(modelAndView, service.list());
+        } catch (Exception e) {
+            log.error("", e);
+            setErrorAttribute(modelAndView, e.getMessage());
+        }
         modelAndView.setViewName("user/list");
         return modelAndView;
     }
 
-    private RedirectView redirectListView() {
-        return new RedirectView("/user/list?t=" + DateUtil.toSecond(LocalDateTime.now()));
+    private RedirectView redirectListView(Object error) {
+        return redirectView("/user/list?t=" + DateUtil.toSecond(LocalDateTime.now()), null, null, error);
     }
 
 }

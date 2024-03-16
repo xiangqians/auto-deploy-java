@@ -1,6 +1,5 @@
 package org.xiangqian.auto.deploy.controller;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -8,10 +7,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import org.xiangqian.auto.deploy.entity.GitEntity;
 import org.xiangqian.auto.deploy.service.GitService;
-import org.xiangqian.auto.deploy.util.AttributeName;
 import org.xiangqian.auto.deploy.util.DateUtil;
+import org.xiangqian.auto.deploy.vo.GitAddVo;
+import org.xiangqian.auto.deploy.vo.GitUpdVo;
 
 import java.time.LocalDateTime;
 
@@ -30,58 +29,72 @@ public class GitController extends AbsController {
 
     @DeleteMapping("/{id}")
     public RedirectView delById(@PathVariable Long id) {
-        service.delById(id);
-        return redirectList();
+        Object error = null;
+        try {
+            service.delById(id);
+        } catch (Exception e) {
+            log.error("", e);
+            error = e.getMessage();
+        }
+        return redirectListView(error);
     }
 
-    @PutMapping
-    public RedirectView updById(HttpSession session, GitEntity vo) {
+    @PutMapping("/{id}")
+    public RedirectView updById(@PathVariable Long id, GitUpdVo vo) {
+        Object error = null;
         try {
+            vo.setId(id);
             service.updById(vo);
         } catch (Exception e) {
             log.error("", e);
-            setVoAttribute(session, vo);
-            setErrorAttribute(session, e.getMessage());
-            return new RedirectView("/git/" + vo.getId() + "?error&t=" + DateUtil.toSecond(LocalDateTime.now()));
+            error = e.getMessage();
         }
-        return redirectList();
+        return redirectView("/git/" + vo.getId() + "?t=" + DateUtil.toSecond(LocalDateTime.now()), vo, null, error);
     }
 
     @GetMapping("/{id}")
     public ModelAndView updById(ModelAndView modelAndView, @PathVariable Long id) {
-        modelAndView.addObject(AttributeName.VO, service.getById(id));
+        try {
+            setVoAttribute(modelAndView, service.getById(id));
+        } catch (Exception e) {
+            log.error("", e);
+            setErrorAttribute(modelAndView, e.getMessage());
+        }
         modelAndView.setViewName("git/addOrUpd");
         return modelAndView;
     }
 
     @PostMapping
-    public RedirectView add(HttpSession session, GitEntity vo) {
+    public RedirectView add(GitAddVo vo) {
         try {
             service.add(vo);
         } catch (Exception e) {
             log.error("", e);
-            setVoAttribute(session, vo);
-            setErrorAttribute(session, e.getMessage());
-            return new RedirectView("/git/add?error&t=" + DateUtil.toSecond(LocalDateTime.now()));
+            return redirectView("/git?t=" + DateUtil.toSecond(LocalDateTime.now()), vo, null, e.getMessage());
         }
-        return redirectList();
+        return redirectListView(null);
     }
 
-    @GetMapping("/add")
-    public ModelAndView add(ModelAndView modelAndView) {
+    @GetMapping
+    public ModelAndView addOrUpd(ModelAndView modelAndView) {
         modelAndView.setViewName("git/addOrUpd");
         return modelAndView;
     }
 
     @GetMapping("/list")
     public ModelAndView list(ModelAndView modelAndView) {
-        modelAndView.addObject(AttributeName.VOS, service.list());
+        try {
+            setVosAttribute(modelAndView, service.list());
+        } catch (Exception e) {
+            log.error("", e);
+            setErrorAttribute(modelAndView, e.getMessage());
+        }
         modelAndView.setViewName("git/list");
         return modelAndView;
     }
 
-    private RedirectView redirectList() {
-        return new RedirectView("/git/list?t=" + DateUtil.toSecond(LocalDateTime.now()));
+    private RedirectView redirectListView(Object error) {
+        return redirectView("/git/list?t=" + DateUtil.toSecond(LocalDateTime.now()), null, null, error);
     }
 
 }
