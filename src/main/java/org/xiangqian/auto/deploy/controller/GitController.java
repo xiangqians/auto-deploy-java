@@ -4,13 +4,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import org.xiangqian.auto.deploy.entity.GitEntity;
 import org.xiangqian.auto.deploy.service.GitService;
 import org.xiangqian.auto.deploy.util.DateUtil;
-import org.xiangqian.auto.deploy.vo.GitAddVo;
-import org.xiangqian.auto.deploy.vo.GitUpdVo;
 
 import java.time.LocalDateTime;
 
@@ -40,32 +40,36 @@ public class GitController extends AbsController {
     }
 
     @PutMapping("/{id}")
-    public RedirectView updById(@PathVariable Long id, GitUpdVo vo) {
-        Object error = null;
+    public RedirectView updById(@PathVariable Long id, GitEntity vo) {
         try {
             vo.setId(id);
             service.updById(vo);
         } catch (Exception e) {
             log.error("", e);
-            error = e.getMessage();
+            return redirectView("/git/" + vo.getId() + "?t=" + DateUtil.toSecond(LocalDateTime.now()), vo, null, e.getMessage());
         }
-        return redirectView("/git/" + vo.getId() + "?t=" + DateUtil.toSecond(LocalDateTime.now()), vo, null, error);
+        return redirectListView(null);
     }
 
     @GetMapping("/{id}")
-    public ModelAndView updById(ModelAndView modelAndView, @PathVariable Long id) {
+    public Object updById(ModelAndView modelAndView, @PathVariable Long id) {
         try {
-            setVoAttribute(modelAndView, service.getById(id));
+            Object vo = getVoAttribute(modelAndView);
+            if (vo == null) {
+                GitEntity entity = service.getById(id);
+                Assert.notNull(entity, "Git信息不存在");
+                setVoAttribute(modelAndView, entity);
+            }
         } catch (Exception e) {
             log.error("", e);
-            setErrorAttribute(modelAndView, e.getMessage());
+            return redirectListView(e.getMessage());
         }
         modelAndView.setViewName("git/addOrUpd");
         return modelAndView;
     }
 
     @PostMapping
-    public RedirectView add(GitAddVo vo) {
+    public RedirectView add(GitEntity vo) {
         try {
             service.add(vo);
         } catch (Exception e) {
@@ -76,7 +80,7 @@ public class GitController extends AbsController {
     }
 
     @GetMapping
-    public ModelAndView addOrUpd(ModelAndView modelAndView) {
+    public ModelAndView add(ModelAndView modelAndView) {
         modelAndView.setViewName("git/addOrUpd");
         return modelAndView;
     }

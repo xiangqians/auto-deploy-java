@@ -1,10 +1,10 @@
 package org.xiangqian.auto.deploy.controller;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
@@ -29,44 +29,57 @@ public class ServerController extends AbsController {
 
     @DeleteMapping("/{id}")
     public RedirectView delById(@PathVariable Long id) {
-        service.delById(id);
-        return redirectList();
+        Object error = null;
+        try {
+            service.delById(id);
+        } catch (Exception e) {
+            log.error("", e);
+            error = e.getMessage();
+        }
+        return redirectListView(error);
     }
 
-    @PutMapping
-    public RedirectView updById(HttpSession session, ServerEntity vo) {
+    @PutMapping("/{id}")
+    public RedirectView updById(@PathVariable Long id, ServerEntity vo) {
         try {
+            vo.setId(id);
             service.updById(vo);
         } catch (Exception e) {
             log.error("", e);
-            setVoAttribute(session, vo);
-            setErrorAttribute(session, e.getMessage());
-            return new RedirectView("/server/" + vo.getId() + "?t=" + DateUtil.toSecond(LocalDateTime.now()));
+            return redirectView("/server/" + vo.getId() + "?t=" + DateUtil.toSecond(LocalDateTime.now()), vo, null, e.getMessage());
         }
-        return redirectList();
+        return redirectListView(null);
     }
 
     @GetMapping("/{id}")
-    public ModelAndView updById(ModelAndView modelAndView, @PathVariable Long id) {
-        modelAndView.addObject("vo", service.getById(id));
+    public Object updById(ModelAndView modelAndView, @PathVariable Long id) {
+        try {
+            Object vo = getVoAttribute(modelAndView);
+            if (vo == null) {
+                ServerEntity entity = service.getById(id);
+                Assert.notNull(entity, "服务器信息不存在");
+                setVoAttribute(modelAndView, entity);
+            }
+        } catch (Exception e) {
+            log.error("", e);
+            return redirectListView(e.getMessage());
+        }
         modelAndView.setViewName("server/addOrUpd");
         return modelAndView;
     }
 
     @PostMapping
-    public RedirectView add(HttpSession session, ServerEntity vo) {
+    public RedirectView add(ServerEntity vo) {
         try {
             service.add(vo);
         } catch (Exception e) {
             log.error("", e);
-            setVoAttribute(session, vo);
-            setErrorAttribute(session, e.getMessage());
-            return new RedirectView("/server/add?t=" + DateUtil.toSecond(LocalDateTime.now()));
+            return redirectView("/server?t=" + DateUtil.toSecond(LocalDateTime.now()), vo, null, e.getMessage());
         }
-        return redirectList();
+        return redirectListView(null);
     }
 
-    @GetMapping("/add")
+    @GetMapping
     public ModelAndView add(ModelAndView modelAndView) {
         modelAndView.setViewName("server/addOrUpd");
         return modelAndView;
@@ -74,13 +87,18 @@ public class ServerController extends AbsController {
 
     @GetMapping("/list")
     public ModelAndView list(ModelAndView modelAndView) {
-        modelAndView.addObject("vos", service.list());
+        try {
+            setVosAttribute(modelAndView, service.list());
+        } catch (Exception e) {
+            log.error("", e);
+            setErrorAttribute(modelAndView, e.getMessage());
+        }
         modelAndView.setViewName("server/list");
         return modelAndView;
     }
 
-    private RedirectView redirectList() {
-        return new RedirectView("/server/list?t=" + DateUtil.toSecond(LocalDateTime.now()));
+    private RedirectView redirectListView(Object error) {
+        return redirectView("/server/list?t=" + DateUtil.toSecond(LocalDateTime.now()), null, null, error);
     }
 
 }

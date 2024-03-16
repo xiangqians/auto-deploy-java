@@ -46,7 +46,7 @@ CREATE TABLE `server` -- 服务器信息表
 (
     `id`       INTEGER PRIMARY KEY AUTOINCREMENT, -- id
     `name`     VARCHAR(64)  DEFAULT '',           -- 名称
-    `host`     VARCHAR(128) DEFAULT '',           -- 远程主机
+    `host`     VARCHAR(128) DEFAULT '',           -- 主机
     `port`     INTEGER      DEFAULT 22,           -- 端口
     `user`     VARCHAR(64)  DEFAULT '',           -- 用户
     `passwd`   VARCHAR(128) DEFAULT '',           -- 密码

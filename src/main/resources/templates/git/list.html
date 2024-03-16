@@ -16,7 +16,8 @@
     <thead>
     <tr>
         <td>名称</td>
-        <td>授权类型</td>
+        <td>用户</td>
+        <td>密码</td>
         <td>创建时间</td>
         <td>修改时间</td>
     </tr>
@@ -24,22 +25,23 @@
     <tbody>
     <tr th:each="vo : ${vos}" th:id="${vo.id}" th:name="${vo.name}">
         <td th:text="${vo.name}"></td>
-        <td th:text="${vo.type == 1 ? '用户名和密码' : 'key'}"></td>
+        <td th:text="${vo.user}"></td>
+        <td>******</td>
         <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(vo.addTime)}"></td>
         <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(vo.updTime)}"></td>
         <td style="visibility: hidden;">
             <a th:href="@{'/git/' + ${vo.id} + '?t=' + ${timestamp}}">修改</a>
             <form method="post" th:action="@{'/git/' + ${vo.id} + '?t=' + ${timestamp}}" style="display: inline-block;">
                 <input name="_method" value="DELETE" type="hidden">
-                <button name="del">删除</button>
+                <button del>删除</button>
             </form>
         </td>
     </tr>
     </tbody>
     <tfoot>
     <tr>
-        <td colspan="6">
-            <a id="add" th:href="@{'/git/add?t=' + ${timestamp}}">新增</a>
+        <td colspan="5">
+            <a id="add" th:href="@{'/git?t=' + ${timestamp}}">新增</a>
         </td>
     </tr>
     </tfoot>
@@ -68,7 +70,7 @@
         }
 
         // 删除
-        $('button[name=del]').click(function (event) {
+        $('button[del]').click(function (event) {
             // 获取目标<button>元素
             let $button = $(event.currentTarget)
 

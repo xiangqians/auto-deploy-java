@@ -88,13 +88,13 @@ public class RecordEntity {
     // 【打包】信息
     private String packMsg;
 
-    // 【上传到远程主机】开始时间（时间戳，s）
+    // 【上传】开始时间（时间戳，s）
     private Long uploadStime;
 
-    // 【上传到远程主机】结束时间（时间戳，s）
+    // 【上传】结束时间（时间戳，s）
     private Long uploadEtime;
 
-    // 【上传到远程主机】信息
+    // 【上传】信息
     private String uploadMsg;
 
     // 【解压缩包】开始时间（时间戳，s）
@@ -268,7 +268,7 @@ public class RecordEntity {
         return null;
     }
 
-    // 【上传到远程主机】状态
+    // 【上传】状态
     public Integer getUploadState() {
         if (state == null) {
             return null;
@@ -295,7 +295,7 @@ public class RecordEntity {
         return null;
     }
 
-    // 【上传到远程主机】耗时（单位s）
+    // 【上传】耗时（单位s）
     public Long getUploadDuration() {
         if (state == null) {
             return null;

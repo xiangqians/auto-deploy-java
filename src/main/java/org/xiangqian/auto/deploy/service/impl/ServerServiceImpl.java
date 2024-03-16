@@ -52,48 +52,31 @@ public class ServerServiceImpl implements ServerService {
         return mapper.selectList(new LambdaQueryWrapper<ServerEntity>());
     }
 
-    private Boolean addOrUpd(ServerEntity vo) {
+    private boolean addOrUpd(ServerEntity vo) {
         Long id = vo.getId();
 
         String name = StringUtils.trim(vo.getName());
         Assert.isTrue(StringUtils.isNotEmpty(name), "名称不能为空");
 
         String host = StringUtils.trim(vo.getHost());
-        Assert.isTrue(StringUtils.isNotEmpty(host), "远程主机");
+        Assert.isTrue(StringUtils.isNotEmpty(host), "主机不能为空");
 
         Integer port = vo.getPort();
         Assert.notNull(port, "端口不能为空");
-        Assert.isTrue(port > 0, "端口不能小于0");
+        Assert.isTrue(port > 0 && port < 65535, "端口范围 (0, 65535)");
 
         String user = StringUtils.trim(vo.getUser());
         Assert.isTrue(StringUtils.isNotEmpty(user), "用户不能为空");
 
-        Integer type = vo.getType();
-        Assert.notNull(type, "授权类型不能为空");
-        Assert.isTrue(type == 1 || type == 2, "授权类型错误");
-
-        String passwd = null;
-        String key = null;
-
-        // 密码
-        if (type == 1) {
-            passwd = StringUtils.trim(vo.getPasswd());
-            Assert.isTrue(StringUtils.isNotEmpty(passwd), "密码不能为空");
-        }
-        // key
-        else if (type == 2) {
-            key = StringUtils.trim(vo.getKey());
-            Assert.isTrue(StringUtils.isNotEmpty(key), "key不能为空");
-        }
+        String passwd = StringUtils.trim(vo.getPasswd());
+        Assert.isTrue(StringUtils.isNotEmpty(passwd), "密码不能为空");
 
         ServerEntity entity = new ServerEntity();
         entity.setName(name);
         entity.setHost(host);
         entity.setPort(port);
         entity.setUser(user);
-        entity.setType(type);
         entity.setPasswd(passwd);
-        entity.setKey(key);
         if (id == null) {
             entity.setAddTime(DateUtil.toSecond(LocalDateTime.now()));
             return mapper.insert(entity) > 0;

@@ -2,6 +2,7 @@ package org.xiangqian.auto.deploy.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -12,6 +13,7 @@ import org.xiangqian.auto.deploy.util.JvmUtil;
 import org.xiangqian.auto.deploy.util.OsUtil;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 /**
  * @author xiangqian
@@ -89,6 +91,15 @@ public abstract class AbsController {
 
     public static void setUserAttribute(HttpSession session, Object user) {
         session.setAttribute(USER, user);
+    }
+
+    protected Object getVoAttribute(ModelAndView modelAndView) {
+        Object vo = null;
+        Map<String, Object> modelMap = modelAndView.getModelMap();
+        if (MapUtils.isNotEmpty(modelMap)) {
+            vo = modelMap.get(VO);
+        }
+        return vo;
     }
 
     protected void setVoAttribute(ModelAndView modelAndView, Object value) {

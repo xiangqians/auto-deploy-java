@@ -12,14 +12,15 @@
     <title>服务器</title>
 </head>
 <body>
+<error th:text="${error}"></error>
 <table>
     <thead>
     <tr>
         <td>名称</td>
-        <td>远程主机</td>
+        <td>主机</td>
         <td>端口</td>
         <td>用户</td>
-        <td>授权类型</td>
+        <td>密码</td>
         <td>创建时间</td>
         <td>修改时间</td>
     </tr>
@@ -30,22 +31,22 @@
         <td th:text="${vo.host}"></td>
         <td th:text="${vo.port}"></td>
         <td th:text="${vo.user}"></td>
-        <td th:text="${vo.type == 1 ? '密码' : 'key'}"></td>
+        <td>******</td>
         <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(vo.addTime)}"></td>
         <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(vo.updTime)}"></td>
         <td style="visibility: hidden;">
             <a th:href="@{'/server/' + ${vo.id} + '?t=' + ${timestamp}}">修改</a>
             <form method="post" th:action="@{'/server/' + ${vo.id} + '?t=' + ${timestamp}}" style="display: inline-block;">
                 <input name="_method" value="DELETE" type="hidden">
-                <button name="del">删除</button>
+                <button del>删除</button>
             </form>
         </td>
     </tr>
     </tbody>
     <tfoot>
     <tr>
-        <td colspan="6">
-            <a id="add" th:href="@{'/server/add?t=' + ${timestamp}}">新增</a>
+        <td colspan="7">
+            <a id="add" th:href="@{'/server?t=' + ${timestamp}}">新增</a>
         </td>
     </tr>
     </tfoot>
@@ -74,7 +75,7 @@
         }
 
         // 删除
-        $('button[name=del]').click(function (event) {
+        $('button[del]').click(function (event) {
             // 获取目标<button>元素
             let $button = $(event.currentTarget)
 

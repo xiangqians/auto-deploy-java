@@ -112,12 +112,17 @@ public class ItemController extends AbsController {
     @GetMapping("/list")
     @PreAuthorize("hasRole('ADMIN')")
     public ModelAndView list(ModelAndView modelAndView) {
-        modelAndView.addObject("vos", service.list());
+        try {
+            setVosAttribute(modelAndView, service.list());
+        } catch (Exception e) {
+            log.error("", e);
+            setErrorAttribute(modelAndView, e.getMessage());
+        }
         modelAndView.setViewName("item/list");
         return modelAndView;
     }
 
-    private RedirectView redirectList() {
+    private RedirectView redirectListView() {
         return new RedirectView("/item/list?t=" + DateUtil.toSecond(LocalDateTime.now()));
     }
 
