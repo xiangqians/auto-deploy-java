@@ -27,25 +27,26 @@
     </tr>
     </thead>
     <tbody>
-    <tr th:each="vo : ${vos}" th:itemId="${vo.itemId}" th:itemName="${vo.itemName}">
-        <td><a th:href="@{'/item/' + ${vo.itemId} + '/record/list?t=' + ${timestamp}}" th:text="${vo.itemName}"></a></td>
-        <td th:text="${vo.uri}"></td>
-        <td th:text="${vo.branch}"></td>
-        <td th:with="commitMsg=${T(org.apache.commons.lang3.StringUtils).isNotEmpty(vo.commitId) ? (vo.commitAuthor + ' ' + vo.commitTime + ' ' + vo.commitMsg) : ''}"
+    <tr th:each="vo : ${vos}" th:id="${vo.itemId}" th:name="${vo.itemName}" th:with="state=${vo.getState()}">
+        <td><a name="name" th:href="@{'/item/' + ${vo.itemId} + '/record/list?t=' + ${timestamp}}" th:text="${vo.itemName}"></a></td>
+        <td name="uri" th:text="${vo.uri}"></td>
+        <td name="branch" th:text="${vo.branch}"></td>
+        <td name="commitMsg" th:with="commitMsg=${T(org.apache.commons.lang3.StringUtils).isNotEmpty(vo.commitId) ? (vo.commitAuthor + ' ' + vo.commitTime + ' ' + vo.commitMsg) : ''}"
             th:text="${commitMsg.length > 30 ? T(org.apache.commons.lang3.StringUtils).substring(commitMsg, 0, 30) + ' ...' : commitMsg}"
             th:title="${commitMsg}"></td>
-        <td th:text="${T(org.apache.commons.lang3.StringUtils).isNotEmpty(vo.userNickname) ? vo.userNickname : vo.userName}"></td>
-        <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(vo.addTime)}"></td>
+        <td name="user" th:text="${T(org.apache.commons.lang3.StringUtils).isNotEmpty(vo.userNickname) ? vo.userNickname : vo.userName}"></td>
+        <td name="addTime" th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(vo.addTime)}"></td>
         <td th:switch="${vo.state}">
-            <span th:case="0" style="color: rgba(128, 128, 128, 0.9);">部署中</span>
-            <span th:case="1" style="color: green;">部署成功</span>
-            <span th:case="2" style="color: red;">部署失败</span>
+            <span th:case="0" name="state" style="color: rgba(128, 128, 128, 0.9);">部署中</span>
+            <span th:case="1" name="state" style="color: rgba(128, 128, 128, 0.9);">部署中</span>
+            <span th:case="2" name="state" style="color: green;">部署成功</span>
+            <span th:case="3" name="state" style="color: red;">部署失败</span>
+            <span th:case="*" name="state"></span>
         </td>
-        <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanDurationSecond(vo.getDuration())}"></td>
+        <td name="duration" th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanDurationSecond(vo.getDuration())}"></td>
         <td style="visibility: hidden;">
-            <form method="post" th:action="@{'/item/' + ${vo.itemId} + '/deploy?t=' + ${timestamp}}"
-                  style="display: inline-block;">
-                <button del>部署</button>
+            <form method="post" th:action="@{'/item/' + ${vo.itemId} + '/deploy?t=' + ${timestamp}}" style="display: inline-block;">
+                <button deploy th:attr="disabled=${state != null and (state == 0 or state == 1)} ? '' : null">部署</button>
             </form>
         </td>
     </tr>
@@ -59,32 +60,40 @@
 <script type="text/javascript">
     ;
     $(function () {
-        function ItemRecord(itemId, itemName) {
-            this.itemId = itemId
-            this.itemName = itemName
+        function Item(id, name) {
+            this.id = id
+            this.name = name
         }
 
-        function getItemRecord($element) {
+        function getItem($element) {
             // 查找元素最近的父级<tr>元素
             let $tr = $element.closest('tr')
 
-            let itemId = $tr.attr('itemId')
-            let itemName = $tr.attr('itemName')
-            return new ItemRecord(itemId, itemName)
+            let id = $tr.attr('id')
+            let name = $tr.attr('name')
+            return new Item(id, name)
         }
 
-        // 删除
-        $('button[del]').click(function (event) {
+        // 部署
+        $('button[deploy]').click(function (event) {
             // 获取目标<button>元素
             let $button = $(event.currentTarget)
 
-            let itemRecord = getItemRecord($button)
-            if (confirm(`确定部署项目：${itemRecord.itemName} ？`)) {
+            let item = getItem($button)
+            if (confirm(`确定部署项目：${item.name} ？`)) {
                 return true
             } else {
                 return false
             }
         })
+
+        function getElementByAttrName($tr, name) {
+            let $elements = $tr.find('[name="' + name + '"]')
+            if ($elements.length > 0) {
+                return $($elements[0])
+            }
+            return null
+        }
 
         // SSE事件流的URL
         const eventSource = new EventSource('/sse/index')
@@ -96,7 +105,86 @@
 
         eventSource.addEventListener('index', function (event) {
             const data = JSON.parse(event.data)
-            console.log('接收到index事件', data)
+
+            for (let i = 0, length = data.length; i < length; i++) {
+                let record = data[i]
+                let $tr = $(`#${record.itemId}`)
+                if($tr.length > 0){
+                    $tr.attr('name', record.itemName)
+                    let $name = getElementByAttrName($tr, 'name')
+                    if ($name) {
+                        $name.text(record.itemName)
+                    }
+
+                    let $uri = getElementByAttrName($tr, 'uri')
+                    if ($uri) {
+                        $uri.text(record.uri)
+                    }
+
+                    let $branch = getElementByAttrName($tr, 'branch')
+                    if ($branch) {
+                        $branch.text(record.branch)
+                    }
+
+                    let $commitMsg = getElementByAttrName($tr, 'commitMsg')
+                    if ($commitMsg) {
+                        let commitId = record.commitId
+                        if (commitId != null && commitId != '') {
+                            let commitMsg = record.commitAuthor + ' ' + record.commitTime + ' ' + record.commitMsg
+                            $commitMsg.attr('title', commitMsg)
+                            if (commitMsg.length > 30) {
+                                commitMsg = commitMsg.substring(0, 30) + ' ...'
+                            }
+                            $commitMsg.text(commitMsg)
+                        }
+                    }
+
+                    let $user = getElementByAttrName($tr, 'user')
+                    if ($user) {
+                        let user = record.userNickname
+                        if (user == null || user == '') {
+                            user = record.userName
+                        }
+                        $user.text(user)
+                    }
+
+                    let $addTime = getElementByAttrName($tr, 'addTime')
+                    if ($addTime) {
+                        $addTime.text(humanSecond(record.addTime))
+                    }
+
+                    let $state = getElementByAttrName($tr, 'state')
+                    if ($state) {
+                        let $deploy = $($tr.find('button[deploy]')[0])
+
+                        let state = record.state
+                        if (state == 0 || state == 1) {
+                            $state.css('color', 'rgba(128, 128, 128, 0.9)')
+                            $state.text('部署中')
+                            $deploy.attr('disabled', true)
+
+                        } else if (state == 2) {
+                            $state.css('color', 'green')
+                            $state.text('部署成功')
+                            $deploy.removeAttr("disabled")
+
+                        } else if (state == 3) {
+                            $state.css('color', 'red')
+                            $state.text('部署失败')
+                            $deploy.removeAttr("disabled")
+
+                        } else {
+                            $state.text('')
+                            $deploy.removeAttr("disabled")
+                        }
+                    }
+
+                    let $duration = getElementByAttrName($tr, 'duration')
+                    if ($duration) {
+                        $duration.text(humanDurationSecond(record.duration))
+                    }
+                }
+            }
         })
     })
     ;

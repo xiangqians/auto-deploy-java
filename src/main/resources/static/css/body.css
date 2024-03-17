@@ -39,7 +39,7 @@ body a.disabled {
     color: gray;
 }
 
-body button {
+body button:not([disabled]) {
     /* 鼠标经过或点击显示小手样式 */
     cursor: pointer
 }

@@ -39,25 +39,46 @@ public class ItemController extends AbsController {
 
     @GetMapping("/{itemId}/record/{recordId}/{type}")
     public ModelAndView getRecordMsg(ModelAndView modelAndView, @PathVariable Long itemId, @PathVariable Long recordId, @PathVariable String type) {
-        modelAndView.addObject("type", type);
-        modelAndView.addObject("msg", service.getRecordMsg(itemId, recordId, type));
+        try {
+            setVoAttribute(modelAndView, Map.of("type", type,
+                    "msg", service.getRecordMsg(itemId, recordId, type)));
+        } catch (Exception e) {
+            log.error("", e);
+            setErrorAttribute(modelAndView, e.getMessage());
+        }
         modelAndView.setViewName("item/record/list");
         return modelAndView;
     }
 
     @GetMapping("/{itemId}/record/list")
     public ModelAndView recordList(ModelAndView modelAndView, @PathVariable Long itemId, List list) {
-        list = service.recordList(list, itemId);
-        modelAndView.addObject("item", service.getById(itemId));
-        modelAndView.addObject("offset", list.getOffset());
-        modelAndView.addObject("rows", list.getRows());
-        modelAndView.addObject("records", list.getData());
-        modelAndView.addObject("offsets", list.getOffsets());
+        try {
+            ItemEntity item = service.getById(itemId);
+            list = service.recordList(list, itemId);
+            setVoAttribute(modelAndView, Map.of("item", item,
+                    "offset", list.getOffset(),
+                    "rows", list.getRows(),
+                    "records", list.getData(),
+                    "offsets", list.getOffsets()));
+        } catch (Exception e) {
+            log.error("", e);
+            setErrorAttribute(modelAndView, e.getMessage());
+        }
         modelAndView.setViewName("item/record/list");
         return modelAndView;
     }
 
-    // /////////////////------------------------------------------------------------
+    @PostMapping("/{id}/deploy")
+    public RedirectView deploy(@PathVariable Long id) {
+        Object error = null;
+        try {
+            service.deployById(id);
+        } catch (Exception e) {
+            log.error("", e);
+            error = e.getMessage();
+        }
+        return redirectIndexView(error);
+    }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")

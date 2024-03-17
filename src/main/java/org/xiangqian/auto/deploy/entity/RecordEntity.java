@@ -296,7 +296,10 @@ public class RecordEntity {
             return pullState;
         }
 
-        return null;
+        // 是否存在部署记录
+        return id != null
+                ? 0  // 存在部署记录
+                : null; // 不存在部署记录
     }
 
     // 耗时

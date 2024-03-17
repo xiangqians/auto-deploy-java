@@ -93,7 +93,7 @@ public class DateUtil {
     }
 
     /**
-     * 人性化日期时间戳（s）
+     * 人性化日期时间戳（单位s）
      *
      * @param second
      * @return

@@ -3,6 +3,8 @@ package org.xiangqian.auto.deploy.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.xiangqian.auto.deploy.entity.ItemEntity;
@@ -10,6 +12,7 @@ import org.xiangqian.auto.deploy.entity.RecordEntity;
 import org.xiangqian.auto.deploy.entity.UserEntity;
 import org.xiangqian.auto.deploy.entity.UserItemEntity;
 import org.xiangqian.auto.deploy.mapper.ItemMapper;
+import org.xiangqian.auto.deploy.mapper.RecordMapper;
 import org.xiangqian.auto.deploy.mapper.UserItemMapper;
 import org.xiangqian.auto.deploy.service.ItemService;
 import org.xiangqian.auto.deploy.util.DateUtil;
@@ -24,13 +27,16 @@ import java.util.List;
  * @date 21:38 2024/03/03
  */
 @Service
-public class ItemServiceImpl implements ItemService {
+public class ItemServiceImpl implements ItemService, Runnable, ApplicationRunner {
 
     @Autowired
     private ItemMapper mapper;
 
     @Autowired
     private UserItemMapper userItemMapper;
+
+    @Autowired
+    private RecordMapper recordMapper;
 
     @Override
     public String getRecordMsg(Long itemId, Long recordId, String type) {
@@ -59,6 +65,34 @@ public class ItemServiceImpl implements ItemService {
             return list;
         }
         return mapper.recordList(list, itemId);
+    }
+
+    @Override
+    public synchronized Boolean deployById(Long id) {
+        Assert.notNull(id, "项目id不能为空");
+
+        ItemEntity entity = mapper.selectById(id);
+        Assert.notNull(entity, "项目不存在");
+
+        RecordEntity record = recordMapper.selectOne(new LambdaQueryWrapper<RecordEntity>()
+                .eq(RecordEntity::getItemId, id)
+                .orderByDesc(RecordEntity::getAddTime)
+                .last("LIMIT 1"));
+        if (record != null) {
+            Integer state = record.getState();
+            if (state != null) {
+                Assert.isTrue(state == 2 || state == 3, "项目正在部署中");
+            }
+        }
+
+        UserEntity user = SecurityUtil.getUser();
+        RecordEntity addRecord = new RecordEntity();
+        addRecord.setItemId(id);
+        addRecord.setUserId(user.getId());
+        addRecord.setAddTime(DateUtil.toSecond(LocalDateTime.now()));
+        recordMapper.insert(addRecord);
+
+        return true;
     }
 
     @Override
@@ -131,6 +165,16 @@ public class ItemServiceImpl implements ItemService {
             entity.setUpdTime(DateUtil.toSecond(LocalDateTime.now()));
             return mapper.updateById(entity) > 0;
         }
+    }
+
+    @Override
+    public void run() {
+
+    }
+
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        new Thread(this).start();
     }
 
 }

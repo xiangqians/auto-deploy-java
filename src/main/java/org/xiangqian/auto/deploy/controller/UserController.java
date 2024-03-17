@@ -213,7 +213,5 @@ public class UserController extends AbsController {
         return redirectView("/user/list?t=" + DateUtil.toSecond(LocalDateTime.now()), null, null, error);
     }
 
-    private RedirectView redirectIndexView(Object error) {
-        return redirectView("/?t=" + DateUtil.toSecond(LocalDateTime.now()), null, null, error);
-    }
+
 }

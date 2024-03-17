@@ -101,27 +101,27 @@
 <script type="text/javascript">
     ;
     $(function () {
-        function Item(id, name) {
+        function Record(id, itemName) {
             this.id = id
-            this.name = name
+            this.name = itemName
         }
 
-        function getItem($element) {
+        function getRecord($element) {
             // 查找元素最近的父级<tr>元素
             let $tr = $element.closest('tr')
 
             let id = $tr.attr('id')
-            let name = $tr.attr('name')
-            return new Item(id, name)
+            let itemName = $tr.attr('itemName')
+            return new Record(id, itemName)
         }
 
         // 删除
-        $('button[name=del]').click(function (event) {
+        $('button[del]').click(function (event) {
             // 获取目标<button>元素
             let $button = $(event.currentTarget)
 
-            let item = getItem($button)
-            if (confirm(`确定删除项目：${item.name} ？`)) {
+            let record = getRecord($button)
+            if (confirm(`确定删除项目：${record.itemName} ？`)) {
                 return true
             } else {
                 return false

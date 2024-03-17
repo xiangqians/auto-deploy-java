@@ -131,6 +131,10 @@ public abstract class AbsController {
         session.setAttribute(ERROR, value);
     }
 
+    protected RedirectView redirectIndexView(Object error) {
+        return redirectView("/?t=" + DateUtil.toSecond(LocalDateTime.now()), null, null, error);
+    }
+
     protected RedirectView redirectView(String url, Object vo, Object vos, Object error) {
         HttpSession session = getSession();
         setVoAttribute(session, vo);

@@ -15,6 +15,8 @@ public interface ItemService {
 
     org.xiangqian.auto.deploy.util.List<RecordEntity> recordList(org.xiangqian.auto.deploy.util.List list, Long itemId);
 
+    Boolean deployById(Long id);
+
     Boolean delById(Long id);
 
     Boolean updById(ItemEntity vo);
