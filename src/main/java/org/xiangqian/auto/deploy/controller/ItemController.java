@@ -1,10 +1,10 @@
 package org.xiangqian.auto.deploy.controller;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
@@ -16,6 +16,8 @@ import org.xiangqian.auto.deploy.util.DateUtil;
 import org.xiangqian.auto.deploy.util.List;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author xiangqian
@@ -55,56 +57,83 @@ public class ItemController extends AbsController {
         return modelAndView;
     }
 
+    // /////////////////------------------------------------------------------------
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public RedirectView delById(@PathVariable Long id) {
-        service.delById(id);
-        return redirectList();
-    }
-
-    @PutMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public RedirectView updById(HttpSession session, ItemEntity vo) {
+        Object error = null;
         try {
-            service.updById(vo);
+            service.delById(id);
         } catch (Exception e) {
             log.error("", e);
-            setVoAttribute(session, vo);
-            setErrorAttribute(session, e.getMessage());
-            return new RedirectView("/item/" + vo.getId() + "?t=" + DateUtil.toSecond(LocalDateTime.now()));
+            error = e.getMessage();
         }
-        return redirectList();
+        return redirectListView(error);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public RedirectView updById(@PathVariable Long id, ItemEntity vo) {
+        try {
+            vo.setId(id);
+            service.updById(vo);
+            return redirectListView(null);
+        } catch (Exception e) {
+            log.error("", e);
+            return redirectView("/item/" + vo.getId() + "?t=" + DateUtil.toSecond(LocalDateTime.now()), vo, null, e.getMessage());
+        }
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ModelAndView updById(ModelAndView modelAndView, @PathVariable Long id) {
-        modelAndView.addObject("vo", service.getById(id));
-        modelAndView.addObject("gitVos", gitService.list());
-        modelAndView.addObject("serverVos", serverService.list());
-        modelAndView.setViewName("item/addOrUpd");
-        return modelAndView;
+    public Object updById(ModelAndView modelAndView, @PathVariable Long id) {
+        try {
+            Object item = getVoAttribute(modelAndView);
+            if (item == null) {
+                item = service.getById(id);
+                Assert.notNull(item, "项目信息不存在");
+            }
+
+            Map<String, Object> map = new HashMap<>(3, 1f);
+            map.put("item", item);
+            map.put("gits", gitService.list());
+            map.put("servers", serverService.list());
+            setVoAttribute(modelAndView, map);
+            modelAndView.setViewName("item/addOrUpd");
+            return modelAndView;
+        } catch (Exception e) {
+            log.error("", e);
+            return redirectListView(e.getMessage());
+        }
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public RedirectView add(HttpSession session, ItemEntity vo) {
+    public RedirectView add(ItemEntity vo) {
         try {
             service.add(vo);
+            return redirectListView(null);
         } catch (Exception e) {
             log.error("", e);
-            setVoAttribute(session, vo);
-            setErrorAttribute(session, e.getMessage());
-            return new RedirectView("/item/add?t=" + DateUtil.toSecond(LocalDateTime.now()));
+            return redirectView("/item?t=" + DateUtil.toSecond(LocalDateTime.now()), vo, null, e.getMessage());
         }
-        return redirectList();
     }
 
-    @GetMapping("/add")
+    @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ModelAndView add(ModelAndView modelAndView) {
-        modelAndView.addObject("gitVos", gitService.list());
-        modelAndView.addObject("serverVos", serverService.list());
+        try {
+            Map<String, Object> map = new HashMap<>(3, 1f);
+            Object item = getVoAttribute(modelAndView);
+            map.put("item", item);
+            map.put("gits", gitService.list());
+            map.put("servers", serverService.list());
+            setVoAttribute(modelAndView, map);
+        } catch (Exception e) {
+            log.error("", e);
+            setErrorAttribute(modelAndView, e.getMessage());
+        }
         modelAndView.setViewName("item/addOrUpd");
         return modelAndView;
     }
@@ -122,8 +151,8 @@ public class ItemController extends AbsController {
         return modelAndView;
     }
 
-    private RedirectView redirectListView() {
-        return new RedirectView("/item/list?t=" + DateUtil.toSecond(LocalDateTime.now()));
+    private RedirectView redirectListView(Object error) {
+        return redirectView("/item/list?t=" + DateUtil.toSecond(LocalDateTime.now()), null, null, error);
     }
 
 }

@@ -4,7 +4,7 @@
  |-->
 
 <!DOCTYPE html>
-<html lang="en" th:with="isUpd=${vo} != null and ${vo.id} != null">
+<html lang="en" th:with="isUpd=${vo.item} != null and ${vo.item.id} != null">
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/x-icon" th:href="@{/static/favicon.ico}">
@@ -21,9 +21,9 @@
     <style type="text/css">
         .CodeMirror {
             /* 设置编辑器宽度 */
-            width: 1500px;
+            width: 1200px;
             /* 设置编辑器高度 */
-            height: 800px;
+            height: 600px;
             /* 设置边框样式 */
             border: 1px solid #ccc;
             /* 设置边框圆角 */
@@ -33,60 +33,59 @@
         }
     </style>
 
-    <title th:text="${isUpd ? ('项目：' + vo.name) : '新增项目'}"></title>
+    <title th:text="${isUpd ? ('项目：' + vo.item.name) : '新增项目'}"></title>
 </head>
 <body>
 <error th:text="${error}"></error>
-<form method="post" th:action="@{'/item?t=' + ${timestamp}}">
+<form method="post" th:action="@{'/item' + (${isUpd} ? '/' + ${vo.item.id} : '') + '?t=' + ${timestamp}}">
     <input th:if="${isUpd}" name="_method" value="PUT" type="hidden">
-    <input th:if="${isUpd}" name="id" th:value="${vo.id}" type="hidden">
     <table>
         <tbody>
         <tr>
             <td><span style="font-weight: bold;">*</span><label>名称</label></td>
-            <td><input id="name" name="name" type="text" th:value="${vo != null ? vo.name : ''}" required autofocus></td>
+            <td><input id="name" name="name" type="text" th:value="${vo.item != null ? vo.item.name : ''}" required autofocus></td>
         </tr>
         <tr>
             <td><span style="font-weight: bold;">*</span><label>Git</label></td>
             <td>
                 <select id="gitId" name="gitId">
                     <option></option>
-                    <option th:each="gitVo : ${gitVos}"
-                            th:value="${gitVo.id}"
-                            th:text="${gitVo.name}"
-                            th:selected="${vo != null and vo.gitId == gitVo.id}">
+                    <option th:each="git : ${vo.gits}"
+                            th:value="${git.id}"
+                            th:text="${git.name}"
+                            th:selected="${vo.item != null and git.id == vo.item.gitId}">
                     </option>
                 </select>
             </td>
         </tr>
         <tr>
             <td><span style="font-weight: bold;">*</span><label>仓库地址</label></td>
-            <td><input id="repoUrl" name="repoUrl" type="text" th:value="${vo != null ? vo.repoUrl : ''}" required></td>
+            <td><input id="uri" name="uri" type="text" th:value="${vo.item != null ? vo.item.uri : ''}" required></td>
         </tr>
         <tr>
             <td><span style="font-weight: bold;">*</span><label>分支名</label></td>
-            <td><input id="branch" name="branch" type="text" th:value="${vo != null ? vo.branch : ''}" required></td>
+            <td><input id="branch" name="branch" type="text" th:value="${vo.item != null ? vo.item.branch : ''}" required></td>
         </tr>
         <tr>
             <td><span style="font-weight: bold;">*</span><label>服务器</label></td>
             <td>
                 <select id="serverId" name="serverId">
                     <option></option>
-                    <option th:each="serverVo : ${serverVos}"
-                            th:value="${serverVo.id}"
-                            th:text="${serverVo.name}"
-                            th:selected="${vo != null and vo.serverId == serverVo.id}">
+                    <option th:each="server : ${vo.servers}"
+                            th:value="${server.id}"
+                            th:text="${server.name}"
+                            th:selected="${vo.item != null and server.id == vo.item.serverId}">
                     </option>
                 </select>
             </td>
         </tr>
         <tr>
             <td style="vertical-align: top;"><span style="font-weight: bold;">*</span><label>自动部署脚本</label></td>
-            <td><textarea id="script" name="script" type="text" th:text="${vo != null ? vo.script : ''}"></textarea></td>
+            <td><textarea id="script" name="script" type="text" th:text="${vo.item != null ? vo.item.script : ''}"></textarea></td>
         </tr>
         <tr>
             <td>Webhook密钥</td>
-            <td><input id="secret" name="secret" type="text" th:value="${vo != null ? vo.secret : ''}"></td>
+            <td><input id="secret" name="secret" type="text" th:value="${vo.item != null ? vo.item.secret : ''}"></td>
         </tr>
         <tr>
             <td colspan="2">

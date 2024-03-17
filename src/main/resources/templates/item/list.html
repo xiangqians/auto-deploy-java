@@ -28,7 +28,7 @@
     <tr th:each="vo : ${vos}" th:id="${vo.id}" th:name="${vo.name}">
         <td th:text="${vo.name}"></td>
         <td><a th:href="@{'/git/' + ${vo.gitId} + '?t=' + ${timestamp}}" th:text="${vo.gitName}"></a></td>
-        <td th:text="${vo.repoUrl}"></td>
+        <td th:text="${vo.uri}"></td>
         <td th:text="${vo.branch}"></td>
         <td><a th:href="@{'/server/' + ${vo.serverId} + '?t=' + ${timestamp}}" th:text="${vo.serverName}"></a></td>
         <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(vo.addTime)}"></td>
@@ -37,7 +37,7 @@
             <a th:href="@{'/item/' + ${vo.id} + '?t=' + ${timestamp}}">修改</a>
             <form method="post" th:action="@{'/item/' + ${vo.id} + '?t=' + ${timestamp}}" style="display: inline-block;">
                 <input name="_method" value="DELETE" type="hidden">
-                <button name="del">删除</button>
+                <button del>删除</button>
             </form>
         </td>
     </tr>
@@ -45,7 +45,7 @@
     <tfoot>
     <tr>
         <td colspan="6">
-            <a id="add" th:href="@{'/item/add?t=' + ${timestamp}}">新增</a>
+            <a id="add" th:href="@{'/item?t=' + ${timestamp}}">新增</a>
         </td>
     </tr>
     </tfoot>
@@ -74,7 +74,7 @@
         }
 
         // 删除
-        $('button[name=del]').click(function (event) {
+        $('button[del]').click(function (event) {
             // 获取目标<button>元素
             let $button = $(event.currentTarget)
 
