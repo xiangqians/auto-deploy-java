@@ -95,6 +95,14 @@
             return null
         }
 
+        function text($element, text) {
+            if ($element.text() != text) {
+                $element.text(text)
+                return true
+            }
+            return false
+        }
+
         // SSE事件流的URL
         const eventSource = new EventSource('/sse/index')
 
@@ -110,20 +118,21 @@
                 let record = data[i]
                 let $tr = $(`#${record.itemId}`)
                 if($tr.length > 0){
-                    $tr.attr('name', record.itemName)
                     let $name = getElementByAttrName($tr, 'name')
                     if ($name) {
-                        $name.text(record.itemName)
+                        if (text($name, record.itemName)) {
+                            $tr.attr('name', record.itemName)
+                        }
                     }
 
                     let $uri = getElementByAttrName($tr, 'uri')
                     if ($uri) {
-                        $uri.text(record.uri)
+                        text($uri, record.uri)
                     }
 
                     let $branch = getElementByAttrName($tr, 'branch')
                     if ($branch) {
-                        $branch.text(record.branch)
+                        text($branch, record.branch)
                     }
 
                     let $commitMsg = getElementByAttrName($tr, 'commitMsg')
@@ -131,11 +140,13 @@
                         let commitId = record.commitId
                         if (commitId != null && commitId != '') {
                             let commitMsg = record.commitAuthor + ' ' + record.commitTime + ' ' + record.commitMsg
-                            $commitMsg.attr('title', commitMsg)
+                            let commitMsgSub = commitMsg
                             if (commitMsg.length > 30) {
-                                commitMsg = commitMsg.substring(0, 30) + ' ...'
+                                commitMsgSub = commitMsg.substring(0, 30) + ' ...'
                             }
-                            $commitMsg.text(commitMsg)
+                            if (text($commitMsg, commitMsgSub)) {
+                                $commitMsg.attr('title', commitMsg)
+                            }
                         }
                     }
 
@@ -145,12 +156,12 @@
                         if (user == null || user == '') {
                             user = record.userName
                         }
-                        $user.text(user)
+                        text($user, user)
                     }
 
                     let $addTime = getElementByAttrName($tr, 'addTime')
                     if ($addTime) {
-                        $addTime.text(humanSecond(record.addTime))
+                        text($addTime, humanSecond(record.addTime))
                     }
 
                     let $state = getElementByAttrName($tr, 'state')
@@ -159,29 +170,30 @@
 
                         let state = record.state
                         if (state == 0 || state == 1) {
-                            $state.css('color', 'rgba(128, 128, 128, 0.9)')
-                            $state.text('部署中')
-                            $deploy.attr('disabled', true)
-
+                            if (text($state, '部署中')) {
+                                $state.css('color', 'rgba(128, 128, 128, 0.9)')
+                                $deploy.attr('disabled', true)
+                            }
                         } else if (state == 2) {
-                            $state.css('color', 'green')
-                            $state.text('部署成功')
-                            $deploy.removeAttr("disabled")
-
+                            if(text($state, '部署成功')){
+                                $state.css('color', 'green')
+                                $deploy.removeAttr("disabled")
+                            }
                         } else if (state == 3) {
-                            $state.css('color', 'red')
-                            $state.text('部署失败')
-                            $deploy.removeAttr("disabled")
-
+                            if (text($state, '部署失败')) {
+                                $state.css('color', 'red')
+                                $deploy.removeAttr("disabled")
+                            }
                         } else {
-                            $state.text('')
-                            $deploy.removeAttr("disabled")
+                            if (text($state, '')) {
+                                $deploy.removeAttr("disabled")
+                            }
                         }
                     }
 
                     let $duration = getElementByAttrName($tr, 'duration')
                     if ($duration) {
-                        $duration.text(humanDurationSecond(record.duration))
+                        text($duration, humanDurationSecond(record.duration))
                     }
                 }
             }
