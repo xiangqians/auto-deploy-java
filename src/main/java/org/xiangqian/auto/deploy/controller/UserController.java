@@ -169,13 +169,10 @@ public class UserController extends AbsController {
     @GetMapping("/current")
     public Object updCurrent(ModelAndView modelAndView) {
         try {
-            UserEntity entity = SecurityUtil.getUser();
             Object vo = getVoAttribute(modelAndView);
             if (vo == null) {
-                vo = entity;
+                vo = SecurityUtil.getUser();
                 Assert.notNull(vo, "用户信息不存在");
-            } else {
-                ((UserEntity) vo).setId(entity.getId());
             }
             setVoAttribute(modelAndView, vo);
             modelAndView.setViewName("user/addOrUpd");

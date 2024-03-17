@@ -19,11 +19,13 @@
         <tbody>
         <tr>
             <td><span style="font-weight: bold;">*</span><label>用户名</label></td>
-            <td><input id="name" name="name" type="text" th:value="${vo} != null ? ${vo.name} : ''" required autofocus></td>
+            <td>
+                <input id="name" name="name" type="text" th:value="${vo} != null ? ${vo.name} : ''" th:attr="readonly=${session.isAdminRole} ? '' : null,disabled=${session.isAdminRole} ? '' : null,required=${!session.isAdminRole} ? '' : null,autofocus=${!session.isAdminRole} ? '' : null">
+            </td>
         </tr>
         <tr>
             <td><span style="font-weight: bold;">*</span><label>昵称</label></td>
-            <td><input id="nickname" name="nickname" type="text" th:value="${vo} != null ? ${vo.nickname} : ''" required></td>
+            <td><input id="nickname" name="nickname" type="text" th:value="${vo} != null ? ${vo.nickname} : ''" required th:attr="autofocus=${session.isAdminRole} ? '' : null"></td>
         </tr>
         <tr th:unless="${isUpd}">
             <td><span style="font-weight: bold;">*</span><label>密码</label></td>

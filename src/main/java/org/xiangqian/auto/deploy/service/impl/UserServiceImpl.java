@@ -121,21 +121,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public synchronized Boolean updCurrent(UserEntity vo) {
+        UserEntity entity = SecurityUtil.getUser();
+        Long id = entity.getId();
+        vo.setId(id);
+        if (entity.isAdminRole()) {
+            vo.setName(entity.getName());
+        }
+
+        Assert.notNull(id, "用户id不能为空");
+
         String origPasswd = StringUtils.trim(vo.getOrigPasswd());
         Assert.isTrue(StringUtils.isNotEmpty(origPasswd), "原密码不能为空");
 
         String newPasswd = StringUtils.trim(vo.getNewPasswd());
         String reNewPasswd = StringUtils.trim(vo.getReNewPasswd());
         Assert.isTrue(StringUtils.equals(newPasswd, reNewPasswd), "新密码两次输入不一致");
-
-        UserEntity entity = SecurityUtil.getUser();
-        Assert.isTrue(passwordEncoder.matches(origPasswd, entity.getPassword()), "原密码不正确");
-
-        Long id = entity.getId();
-        Assert.notNull(id, "用户id不能为空");
-
-        vo.setId(id);
         vo.setPasswd(newPasswd);
+
+        Assert.isTrue(passwordEncoder.matches(origPasswd, entity.getPassword()), "原密码不正确");
 
         return addOrUpd(vo);
     }
