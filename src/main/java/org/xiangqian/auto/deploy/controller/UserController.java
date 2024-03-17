@@ -17,9 +17,6 @@ import org.xiangqian.auto.deploy.service.ItemService;
 import org.xiangqian.auto.deploy.service.UserService;
 import org.xiangqian.auto.deploy.util.DateUtil;
 import org.xiangqian.auto.deploy.util.SecurityUtil;
-import org.xiangqian.auto.deploy.vo.UserItemAddVo;
-import org.xiangqian.auto.deploy.vo.UserItemDelVo;
-import org.xiangqian.auto.deploy.vo.UserResetPasswdVo;
 
 import java.time.LocalDateTime;
 import java.util.Iterator;
@@ -47,7 +44,7 @@ public class UserController extends AbsController {
     @DeleteMapping("/{userId}/item/{itemId}")
     public RedirectView delItem(HttpSession session, @PathVariable Long userId, @PathVariable Long itemId) {
         try {
-            UserItemDelVo vo = new UserItemDelVo();
+            UserItemEntity vo = new UserItemEntity();
             vo.setUserId(userId);
             vo.setItemId(itemId);
             service.delItem(vo);
@@ -59,7 +56,7 @@ public class UserController extends AbsController {
     }
 
     @PostMapping("/{userId}/item")
-    public RedirectView addItem(HttpSession session, @PathVariable Long userId, UserItemAddVo vo) {
+    public RedirectView addItem(HttpSession session, @PathVariable Long userId, UserItemEntity vo) {
         try {
             vo.setUserId(userId);
             service.addItem(vo);
@@ -144,7 +141,7 @@ public class UserController extends AbsController {
     }
 
     @PutMapping("/{id}/resetPasswd")
-    public RedirectView resetPasswd(HttpSession session, @PathVariable Long id, UserResetPasswdVo vo) {
+    public RedirectView resetPasswd(HttpSession session, @PathVariable Long id, UserEntity vo) {
         try {
             vo.setId(id);
             service.resetPasswd(vo);
@@ -203,7 +200,7 @@ public class UserController extends AbsController {
     @GetMapping("/list")
     public ModelAndView list(ModelAndView modelAndView) {
         try {
-            setVoAttribute(modelAndView, service.list());
+            setVosAttribute(modelAndView, service.list());
         } catch (Exception e) {
             log.error("", e);
             setErrorAttribute(modelAndView, e.getMessage());

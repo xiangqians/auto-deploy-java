@@ -32,7 +32,7 @@ public class GitEntity {
     // 密码
     private String passwd;
 
-    // 创建时间（时间戳，s）
+    // 创建时间（时间戳，单位s）
     private Long addTime;
 
     // 修改时间（时间戳，单位s）

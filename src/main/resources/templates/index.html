@@ -27,24 +27,23 @@
     </tr>
     </thead>
     <tbody>
-    <tr th:each="itemRecord : ${itemRecords}" th:itemId="${itemRecord.itemId}" th:itemName="${itemRecord.itemName}">
-        <td><a th:href="@{'/item/' + ${itemRecord.itemId} + '/record/list?t=' + ${timestamp}}"
-               th:text="${itemRecord.itemName}"></a></td>
-        <td th:text="${itemRecord.repoUrl}"></td>
-        <td th:text="${itemRecord.branch}"></td>
-        <td th:with="commitMsg=${T(org.apache.commons.lang3.StringUtils).isNotEmpty(itemRecord.commitId) ? (itemRecord.commitAuthor + ' ' + itemRecord.commitTime + ' ' + itemRecord.commitMsg) : ''}"
+    <tr th:each="vo : ${vos}" th:itemId="${vo.itemId}" th:itemName="${vo.itemName}">
+        <td><a th:href="@{'/item/' + ${vo.itemId} + '/record/list?t=' + ${timestamp}}" th:text="${vo.itemName}"></a></td>
+        <td th:text="${vo.uri}"></td>
+        <td th:text="${vo.branch}"></td>
+        <td th:with="commitMsg=${T(org.apache.commons.lang3.StringUtils).isNotEmpty(vo.commitId) ? (vo.commitAuthor + ' ' + vo.commitTime + ' ' + vo.commitMsg) : ''}"
             th:text="${commitMsg.length > 30 ? T(org.apache.commons.lang3.StringUtils).substring(commitMsg, 0, 30) + ' ...' : commitMsg}"
             th:title="${commitMsg}"></td>
-        <td th:text="${T(org.apache.commons.lang3.StringUtils).isNotEmpty(itemRecord.userNickname) ? (itemRecord.userName + ' ( ' + itemRecord.userNickname + ' )') : itemRecord.userName}"></td>
-        <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(itemRecord.addTime)}"></td>
-        <td th:switch="${itemRecord.state}">
+        <td th:text="${T(org.apache.commons.lang3.StringUtils).isNotEmpty(vo.userNickname) ? vo.userNickname : vo.userName}"></td>
+        <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanSecond(vo.addTime)}"></td>
+        <td th:switch="${vo.state}">
             <span th:case="0" style="color: rgba(128, 128, 128, 0.9);">部署中</span>
             <span th:case="1" style="color: green;">部署成功</span>
             <span th:case="2" style="color: red;">部署失败</span>
         </td>
-        <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanDurationSecond(itemRecord.getDuration())}"></td>
+        <td th:text="${T(org.xiangqian.auto.deploy.util.DateUtil).humanDurationSecond(vo.getDuration())}"></td>
         <td style="visibility: hidden;">
-            <form method="post" th:action="@{'/item/' + ${itemRecord.itemId} + '/deploy?t=' + ${timestamp}}"
+            <form method="post" th:action="@{'/item/' + ${vo.itemId} + '/deploy?t=' + ${timestamp}}"
                   style="display: inline-block;">
                 <button del>部署</button>
             </form>

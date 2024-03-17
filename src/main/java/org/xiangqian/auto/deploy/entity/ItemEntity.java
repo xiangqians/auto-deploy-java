@@ -26,23 +26,23 @@ public class ItemEntity {
     @TableField("`name`")
     private String name;
 
-    // 所属Git git.id
+    // Git id
     private Long gitId;
 
     // 所属Git名称
     @TableField(exist = false)
     private String gitName;
 
-    // Git仓库地址
+    // 仓库地址
     private String uri;
 
-    // Git分支名
+    // 分支名
     private String branch;
 
-    // 所属服务器 server.id
+    // 服务器id
     private Long serverId;
 
-    // 所属所属服务器名称
+    // 服务器名称
     @TableField(exist = false)
     private String serverName;
 
@@ -52,7 +52,7 @@ public class ItemEntity {
     // Webhook密钥
     private String secret;
 
-    // 创建时间（时间戳，s）
+    // 创建时间（时间戳，单位s）
     private Long addTime;
 
     // 修改时间（时间戳，单位s）

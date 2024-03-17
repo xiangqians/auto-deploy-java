@@ -3,7 +3,7 @@ package org.xiangqian.auto.deploy.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.xiangqian.auto.deploy.vo.ItemRecordVo;
+import org.xiangqian.auto.deploy.entity.RecordEntity;
 
 import java.util.List;
 import java.util.Set;
@@ -15,6 +15,6 @@ import java.util.Set;
 @Mapper
 public interface IndexMapper extends BaseMapper {
 
-    List<ItemRecordVo> list(@Param("itemIds") Set<Long> itemIds);
+    List<RecordEntity> list(@Param("itemIds") Set<Long> itemIds);
 
 }

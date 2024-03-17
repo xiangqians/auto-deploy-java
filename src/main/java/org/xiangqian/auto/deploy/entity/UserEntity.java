@@ -74,7 +74,7 @@ public class UserEntity implements UserDetails {
     // 当前登录时间（时间戳，单位s）
     private Long currentLoginTime;
 
-    // 创建时间（时间戳，s）
+    // 创建时间（时间戳，单位s）
     private Long addTime;
 
     // 修改时间（时间戳，单位s）

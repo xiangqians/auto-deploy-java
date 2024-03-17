@@ -21,9 +21,6 @@ import org.xiangqian.auto.deploy.mapper.UserMapper;
 import org.xiangqian.auto.deploy.service.UserService;
 import org.xiangqian.auto.deploy.util.DateUtil;
 import org.xiangqian.auto.deploy.util.SecurityUtil;
-import org.xiangqian.auto.deploy.vo.UserItemAddVo;
-import org.xiangqian.auto.deploy.vo.UserItemDelVo;
-import org.xiangqian.auto.deploy.vo.UserResetPasswdVo;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -84,7 +81,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Boolean delItem(UserItemDelVo vo) {
+    public Boolean delItem(UserItemEntity vo) {
         Long userId = vo.getUserId();
         Assert.notNull(userId, "用户id不能为空");
 
@@ -97,7 +94,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Boolean addItem(UserItemAddVo vo) {
+    public Boolean addItem(UserItemEntity vo) {
         Long userId = vo.getUserId();
         Assert.notNull(userId, "用户id不能为空");
         Assert.notNull(mapper.selectOne(new LambdaQueryWrapper<UserEntity>().select(UserEntity::getId).eq(UserEntity::getId, userId).last("LIMIT 1")), "用户不存在");
@@ -106,11 +103,8 @@ public class UserServiceImpl implements UserService {
         Assert.notNull(itemId, "项目id不能为空");
         Assert.notNull(itemMapper.selectOne(new LambdaQueryWrapper<ItemEntity>().select(ItemEntity::getId).eq(ItemEntity::getId, itemId).last("LIMIT 1")), "项目不存在");
 
-        UserItemEntity addEntity = new UserItemEntity();
-        addEntity.setUserId(userId);
-        addEntity.setItemId(itemId);
-        addEntity.setAddTime(DateUtil.toSecond(LocalDateTime.now()));
-        return userItemMapper.insert(addEntity) > 0;
+        vo.setAddTime(DateUtil.toSecond(LocalDateTime.now()));
+        return userItemMapper.insert(vo) > 0;
     }
 
     @Override
@@ -192,7 +186,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Boolean resetPasswd(UserResetPasswdVo vo) {
+    public Boolean resetPasswd(UserEntity vo) {
         Long id = vo.getId();
         Assert.notNull(id, "用户id不能为空");
 

@@ -25,7 +25,7 @@ public class UserItemEntity {
     @TableField(exist = false)
     private String itemName;
 
-    // 创建时间（时间戳，s）
+    // 创建时间（时间戳，单位s）
     private Long addTime;
 
 }
