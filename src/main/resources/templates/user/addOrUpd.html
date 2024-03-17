@@ -4,16 +4,17 @@
  |-->
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" th:with="isUpd=${vo} != null and ${vo.id} != null">
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/x-icon" th:href="@{/static/favicon.ico}">
     <link rel="stylesheet" th:href="@{/static/css/body.css}" type="text/css" />
-    <title>新增用户</title>
+    <title th:text="${isUpd ? ('用户：' + vo.nickname) : '新增用户'}"></title>
 </head>
 <body>
 <error th:text="${error}"></error>
-<form method="post" th:action="@{'/user?t=' + ${timestamp}}">
+<form method="post" th:action="@{'/user' + (${isUpd} ? '/current' : '') + '?t=' + ${timestamp}}">
+    <input th:if="${isUpd}" name="_method" value="PUT" type="hidden">
     <table>
         <tbody>
         <tr>
@@ -24,13 +25,25 @@
             <td><span style="font-weight: bold;">*</span><label>昵称</label></td>
             <td><input id="nickname" name="nickname" type="text" th:value="${vo} != null ? ${vo.nickname} : ''" required></td>
         </tr>
-        <tr>
+        <tr th:unless="${isUpd}">
             <td><span style="font-weight: bold;">*</span><label>密码</label></td>
             <td><input id="passwd" name="passwd" type="password" required></td>
         </tr>
+        <tr th:if="${isUpd}">
+            <td><span style="font-weight: bold;">*</span><label>原密码</label></td>
+            <td><input name="origPasswd" type="password" required></td>
+        </tr>
+        <tr th:if="${isUpd}">
+            <td><span style="font-weight: bold;">*</span><label>新密码</label></td>
+            <td><input name="newPasswd" type="password" required></td>
+        </tr>
+        <tr th:if="${isUpd}">
+            <td><span style="font-weight: bold;">*</span><label>再次输入新密码</label></td>
+            <td><input name="reNewPasswd" type="password" required></td>
+        </tr>
         <tr>
             <td colspan="2">
-                <input type="submit" value='新增'>
+                <input type="submit" th:value="${isUpd ? '修改' : '新增'}">
             </td>
         </tr>
         </tbody>

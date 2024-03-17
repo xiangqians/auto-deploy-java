@@ -44,6 +44,18 @@ public class UserEntity implements UserDetails {
     // 密码
     private String passwd;
 
+    // 原密码
+    @TableField(exist = false)
+    private String origPasswd;
+
+    // 新密码
+    @TableField(exist = false)
+    private String newPasswd;
+
+    // 再次输入新密码
+    @TableField(exist = false)
+    private String reNewPasswd;
+
     // 是否已锁定，0-否，1-是
     private Integer locked;
 

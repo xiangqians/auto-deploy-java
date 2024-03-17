@@ -6,6 +6,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
@@ -15,7 +16,7 @@ import org.xiangqian.auto.deploy.entity.UserItemEntity;
 import org.xiangqian.auto.deploy.service.ItemService;
 import org.xiangqian.auto.deploy.service.UserService;
 import org.xiangqian.auto.deploy.util.DateUtil;
-import org.xiangqian.auto.deploy.vo.UserAddVo;
+import org.xiangqian.auto.deploy.util.SecurityUtil;
 import org.xiangqian.auto.deploy.vo.UserItemAddVo;
 import org.xiangqian.auto.deploy.vo.UserItemDelVo;
 import org.xiangqian.auto.deploy.vo.UserResetPasswdVo;
@@ -154,8 +155,39 @@ public class UserController extends AbsController {
         return redirectListView(null);
     }
 
+    @PutMapping("/current")
+    public RedirectView updCurrent(UserEntity vo) {
+        try {
+            service.updCurrent(vo);
+            return redirectIndexView(null);
+        } catch (Exception e) {
+            log.error("", e);
+            return redirectView("/user/current?t=" + DateUtil.toSecond(LocalDateTime.now()), vo, null, e.getMessage());
+        }
+    }
+
+    @GetMapping("/current")
+    public Object updCurrent(ModelAndView modelAndView) {
+        try {
+            UserEntity entity = SecurityUtil.getUser();
+            Object vo = getVoAttribute(modelAndView);
+            if (vo == null) {
+                vo = entity;
+                Assert.notNull(vo, "用户信息不存在");
+            } else {
+                ((UserEntity) vo).setId(entity.getId());
+            }
+            setVoAttribute(modelAndView, vo);
+            modelAndView.setViewName("user/addOrUpd");
+            return modelAndView;
+        } catch (Exception e) {
+            log.error("", e);
+            return redirectIndexView(e.getMessage());
+        }
+    }
+
     @PostMapping
-    public RedirectView add(UserAddVo vo) {
+    public RedirectView add(UserEntity vo) {
         try {
             service.add(vo);
         } catch (Exception e) {
@@ -167,7 +199,7 @@ public class UserController extends AbsController {
 
     @GetMapping
     public ModelAndView add(ModelAndView modelAndView) {
-        modelAndView.setViewName("user/add");
+        modelAndView.setViewName("user/addOrUpd");
         return modelAndView;
     }
 
@@ -187,4 +219,7 @@ public class UserController extends AbsController {
         return redirectView("/user/list?t=" + DateUtil.toSecond(LocalDateTime.now()), null, null, error);
     }
 
+    private RedirectView redirectIndexView(Object error) {
+        return redirectView("/?t=" + DateUtil.toSecond(LocalDateTime.now()), null, null, error);
+    }
 }

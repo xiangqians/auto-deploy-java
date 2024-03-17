@@ -8,6 +8,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import org.xiangqian.auto.deploy.entity.UserEntity;
 import org.xiangqian.auto.deploy.util.DateUtil;
 import org.xiangqian.auto.deploy.util.JvmUtil;
 import org.xiangqian.auto.deploy.util.OsUtil;
@@ -89,6 +90,10 @@ public abstract class AbsController {
         session.setAttribute(IS_ADMIN_ROLE, adminRole);
     }
 
+    public static UserEntity getUserAttribute(HttpSession session) {
+        return (UserEntity) session.getAttribute(USER);
+    }
+
     public static void setUserAttribute(HttpSession session, Object user) {
         session.setAttribute(USER, user);
     }
@@ -127,12 +132,19 @@ public abstract class AbsController {
     }
 
     protected RedirectView redirectView(String url, Object vo, Object vos, Object error) {
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        HttpSession session = request.getSession();
+        HttpSession session = getSession();
         setVoAttribute(session, vo);
         setVosAttribute(session, vos);
         setErrorAttribute(session, error);
         return new RedirectView(url);
+    }
+
+    public static HttpSession getSession() {
+        return getRequest().getSession();
+    }
+
+    public static HttpServletRequest getRequest() {
+        return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
     }
 
 }

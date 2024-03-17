@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.xiangqian.auto.deploy.controller.AbsController;
 import org.xiangqian.auto.deploy.entity.ItemEntity;
 import org.xiangqian.auto.deploy.entity.UserEntity;
 import org.xiangqian.auto.deploy.entity.UserItemEntity;
@@ -19,7 +20,7 @@ import org.xiangqian.auto.deploy.mapper.UserItemMapper;
 import org.xiangqian.auto.deploy.mapper.UserMapper;
 import org.xiangqian.auto.deploy.service.UserService;
 import org.xiangqian.auto.deploy.util.DateUtil;
-import org.xiangqian.auto.deploy.vo.UserAddVo;
+import org.xiangqian.auto.deploy.util.SecurityUtil;
 import org.xiangqian.auto.deploy.vo.UserItemAddVo;
 import org.xiangqian.auto.deploy.vo.UserItemDelVo;
 import org.xiangqian.auto.deploy.vo.UserResetPasswdVo;
@@ -119,6 +120,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public synchronized Boolean updCurrent(UserEntity vo) {
+        String origPasswd = StringUtils.trim(vo.getOrigPasswd());
+        Assert.isTrue(StringUtils.isNotEmpty(origPasswd), "原密码不能为空");
+
+        String newPasswd = StringUtils.trim(vo.getNewPasswd());
+        String reNewPasswd = StringUtils.trim(vo.getReNewPasswd());
+        Assert.isTrue(StringUtils.equals(newPasswd, reNewPasswd), "新密码两次输入不一致");
+
+        UserEntity entity = SecurityUtil.getUser();
+        Assert.isTrue(passwordEncoder.matches(origPasswd, entity.getPassword()), "原密码不正确");
+
+        Long id = entity.getId();
+        Assert.notNull(id, "用户id不能为空");
+
+        vo.setId(id);
+        vo.setPasswd(newPasswd);
+
+        return addOrUpd(vo);
+    }
+
+    @Override
     public synchronized Boolean updById(UserEntity entity) {
         Assert.notNull(entity.getId(), "用户id不能为空");
         return mapper.updateById(entity) > 0;
@@ -172,7 +194,7 @@ public class UserServiceImpl implements UserService {
         Assert.notNull(id, "用户id不能为空");
 
         String passwd = StringUtils.trim(vo.getPasswd());
-        Assert.notNull(passwd, "密码不能为空");
+        Assert.isTrue(StringUtils.isNotEmpty(passwd), "密码不能为空");
 
         UserEntity updEntity = new UserEntity();
         updEntity.setId(id);
@@ -185,31 +207,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public synchronized Boolean add(UserAddVo vo) {
-        String name = StringUtils.trim(vo.getName());
-        Assert.isTrue(StringUtils.isNotEmpty(name), "用户名不能为空");
-        Assert.isTrue(name.length() <= 60, "用户名长度不能超过60个字符");
-
-        String nickname = StringUtils.trim(vo.getNickname());
-        Assert.isTrue(StringUtils.isNotEmpty(nickname), "昵称不能为空");
-        Assert.isTrue(nickname.length() <= 60, "昵称长度不能超过60个字符");
-
-        String passwd = StringUtils.trim(vo.getPasswd());
-        Assert.isTrue(StringUtils.isNotEmpty(passwd), "密码不能为空");
-        Assert.isTrue(passwd.length() <= 120, "密码长度不能超过120个字符");
-
-        UserEntity entity = mapper.selectOne(new LambdaQueryWrapper<UserEntity>()
-                .select(UserEntity::getId)
-                .eq(UserEntity::getName, name)
-                .last("LIMIT 1"));
-        Assert.isNull(entity, "用户名已存在");
-
-        UserEntity addEntity = new UserEntity();
-        addEntity.setName(name);
-        addEntity.setNickname(nickname);
-        addEntity.setPasswd(passwordEncoder.encode(passwd));
-        addEntity.setAddTime(DateUtil.toSecond(LocalDateTime.now()));
-        return mapper.insert(addEntity) > 0;
+    public synchronized Boolean add(UserEntity vo) {
+        return addOrUpd(vo);
     }
 
     @Override
@@ -257,6 +256,51 @@ public class UserServiceImpl implements UserService {
                 false);
         if (CollectionUtils.isNotEmpty(sessions)) {
             sessions.forEach(SessionInformation::expireNow);
+        }
+    }
+
+    private Boolean addOrUpd(UserEntity vo) {
+        Long id = vo.getId();
+
+        String name = StringUtils.trim(vo.getName());
+        Assert.isTrue(StringUtils.isNotEmpty(name), "用户名不能为空");
+        Assert.isTrue(name.length() <= 60, "用户名长度不能超过60个字符");
+
+        String nickname = StringUtils.trim(vo.getNickname());
+        Assert.isTrue(StringUtils.isNotEmpty(nickname), "昵称不能为空");
+        Assert.isTrue(nickname.length() <= 60, "昵称长度不能超过60个字符");
+
+        String passwd = StringUtils.trim(vo.getPasswd());
+        Assert.isTrue(StringUtils.isNotEmpty(passwd), "密码不能为空");
+        Assert.isTrue(passwd.length() <= 120, "密码长度不能超过120个字符");
+
+        UserEntity storedEntity = mapper.selectOne(new LambdaQueryWrapper<UserEntity>()
+                .select(UserEntity::getId)
+                .eq(UserEntity::getName, name)
+                .last("LIMIT 1"));
+        Assert.isTrue(storedEntity == null || storedEntity.getId().equals(id), "用户名已存在");
+
+        UserEntity entity = new UserEntity();
+        entity.setName(name);
+        entity.setNickname(nickname);
+        entity.setPasswd(passwordEncoder.encode(passwd));
+
+        if (id == null) {
+            entity.setAddTime(DateUtil.toSecond(LocalDateTime.now()));
+            return mapper.insert(entity) > 0;
+        } else {
+            entity.setId(id);
+            entity.setUpdTime(DateUtil.toSecond(LocalDateTime.now()));
+            if (mapper.updateById(entity) > 0) {
+                UserEntity user = AbsController.getUserAttribute(AbsController.getSession());
+                if (user.getId().equals(id)) {
+                    user.setName(entity.getName());
+                    user.setNickname(entity.getNickname());
+                    user.setPasswd(entity.getPasswd());
+                }
+                return true;
+            }
+            return false;
         }
     }
 

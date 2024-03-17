@@ -3,7 +3,6 @@ package org.xiangqian.auto.deploy.service;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.xiangqian.auto.deploy.entity.UserEntity;
 import org.xiangqian.auto.deploy.entity.UserItemEntity;
-import org.xiangqian.auto.deploy.vo.UserAddVo;
 import org.xiangqian.auto.deploy.vo.UserItemAddVo;
 import org.xiangqian.auto.deploy.vo.UserItemDelVo;
 import org.xiangqian.auto.deploy.vo.UserResetPasswdVo;
@@ -22,6 +21,8 @@ public interface UserService extends UserDetailsService {
 
     List<UserItemEntity> itemList(Long userId);
 
+    Boolean updCurrent(UserEntity vo);
+
     Boolean updById(UserEntity vo);
 
     UserEntity getById(Long id);
@@ -34,7 +35,7 @@ public interface UserService extends UserDetailsService {
 
     Boolean resetPasswd(UserResetPasswdVo vo);
 
-    Boolean add(UserAddVo vo);
+    Boolean add(UserEntity vo);
 
     List<UserEntity> list();
 

@@ -15,7 +15,7 @@
     </p>
     <!-- 定义user变量并使用 -->
     <p th:if="${session.isLoggedin}">
-        <a th:href="@{'#?t=' + ${timestamp}}" th:class="'/' == ${servletPath}? 'disabled' : ''"
+        <a th:href="@{'/user/current?t=' + ${timestamp}}" th:class="'/user/current' == ${servletPath}? 'disabled' : ''"
            th:text="${T(org.apache.commons.lang3.StringUtils).isNotEmpty(session.user.nickname) ? session.user.nickname : session.user.name}"></a>
         <span style="padding-left: 15px;"></span>
         <a th:href="@{'/logout?t=' + ${timestamp}}">退出登录</a>
